@@ -829,8 +829,8 @@
                     id: "Id",
                     fields: {
                         Id: { type: "string" },
-                        Model: { type: "string",editable: true, nullable: true },
-                        Price: { type: "number", validation: { required: true, min: 1} },
+                        Model: { type: "string", editable: true, nullable: true },
+                        Price: { type: "string", validation: { required: true, min: 1} },
                         ModelYear: { type: "number" },
                         Updated: { type: "date", validation: { min: 0, required: true } }
                     }
@@ -847,13 +847,21 @@
                 if (schema.model.fields.hasOwnProperty(attr)) {
                   
                   var schemaField = schema.model.fields[attr]; 
-                  
-                  if (schemaField.type == 'string')
+                  if (schemaField.type == 'string' && data[attr])
                     data[attr] = data[attr] + "";
-                  else if (schemaField.type == 'number')
+                  else if (schemaField.type == 'number' && data[attr])
                     data[attr] = parseFloat(data[attr]);
-                  else if (schemaField.type == 'date')
+                  else if (schemaField.type == 'date' && data[attr])
                     data[attr] = '/Date('+data[attr].getTime()+')/';
+                    
+                  //Significa que é o ID
+                  if (schema.model.id == attr) {
+                    //Se o mesmo for vazio, remover do data
+                    if (data[attr] && data[attr].length == 0)
+                      delete data[attr];
+                  }  
+                    
+                    
                 }
               }
               return data;
@@ -879,46 +887,43 @@
                           return data.__metadata.uri;
                       }
                   },
-                  parameterMap: function (data, type) {
-                    if (type == "read") {
+                  // parameterMap: function (data, type) {
+                  //   if (type == "read") {
+                  //     debugger;
+                  //     var orderBy = '';
+                  //     if (this.options.grid) {
+                  //       this.options.grid.dataSource.group().forEach((group) => { 
+                  //         orderBy += group.field +" " + group.dir + ","; 
+                  //       });
+                  //     }
+                  //     if (data.sort) {
+                  //       data.sort.forEach((group) => { 
+                  //         orderBy += group.field +" " + group.dir + ","; 
+                  //       });
+                  //     }
+                  //     if (orderBy.length > 0)
+                  //       orderBy = orderBy.substr(0, orderBy.length-1);
+                  //     else
+                  //       orderBy = undefined;
                       
-                      debugger;
-                      
-                      var orderBy = '';
-                      if (this.options.grid) {
-                        this.options.grid.dataSource.group().forEach((group) => { 
-                           orderBy += group.field +" " + group.dir + ","; 
-                        });
-                      }
-                      if (data.sort) {
-                        data.sort.forEach((group) => { 
-                           orderBy += group.field +" " + group.dir + ","; 
-                        });
-                      }
-                      if (orderBy.length > 0)
-                        orderBy = orderBy.substr(0, orderBy.length-1);
-                      else
-                        orderBy = undefined;
-                      
-                      return {
-                        $top: data.take,
-                        $skip: data.skip,
-                        $orderby: orderBy,
-                        $inlinecount: 'allpages'
-                      }
-                    }
-                    else 
-                      data = parseParameter(data);
+                  //     return {
+                  //       $top: data.take,
+                  //       $skip: data.skip,
+                  //       $orderby: orderBy,
+                  //       $inlinecount: 'allpages'
+                  //     }
+                  //   }
+                  //   else 
+                  //     data = parseParameter(data);
                     
-                    return kendo.stringify(data);
-                  }
+                  //   return kendo.stringify(data);
+                  // }
               },
               pageSize: options.pageCount,
               // batch: false,
               serverPaging: true,
               serverFiltering: true,
               serverSorting: true,
-              // serverGrouping: true,
               schema: schema
             };
             return datasource;
@@ -937,25 +942,24 @@
               });
             });
             
-            
-            //     }, {
-            //         field: "ModelYear",
-            //         title: "ModelYear",
-            //         type: "number",
-            //         width: undefined,
-            //         sortable: false,
-            //         filterable: false,
-            //         format: "{0:n0}"
-            //     }, 
-           
-                // { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" },
-            // ];
+            var commandToEditDestroy = {
+              command: [],
+              title: "&nbsp;",
+              width: "250px"
+            };
+            if (options.allowInsert || options.allowUpdate)
+              commandToEditDestroy.command.push("edit");
+            if (options.allowDelete)
+              commandToEditDestroy.command.push("destroy");
+            if (commandToEditDestroy.command.length > 0)  
+              columns.push(commandToEditDestroy);
+              
             return columns;
           },
           getPageAble: function(options) {
-            var pageable: {
+            var pageable = {
                 refresh:  options.allowRefreshGrid,
-                pageSizes: pageable.pageSizes,
+                pageSizes: options.allowSelectionTotalPageToShow,
                 buttonCount: 5
             };
             
@@ -964,14 +968,27 @@
                     
             return pageable;
           },
+          getToolbar: function(options) {
+            var toolbar = [];
+            if (options.exportExcel)
+              toolbar.push("excel");
+            if (options.exportPDF)
+              toolbar.push("pdf");
+            if (options.allowInsert)
+              toolbar.push("create");
+              
+            if (toolbar.length == 0)
+              toolbar = undefined;
+            return toolbar;
+          },
           link: function (scope, element, attrs, ngModelCtrl) {
-            debugger;
             var options = JSON.parse(attrs.options || "{}");
             
             var schema = this.getSchema(options);
             var datasource = this.getDataSource(options, schema);
             var columns = this.getColumns(options);
             var pageAble = this.getPageAble(options);
+            var toolbar = this.getToolbar(options);
             
             var $templateDyn = $('<div></div>');
             
@@ -988,7 +1005,7 @@
                 console.log('loaded language');
                 
                 let grid = $templateDyn.kendoGrid({
-                    toolbar: ["create", "pdf", "excel"],
+                    toolbar: toolbar,
                     pdf: {
                         allPages: true,
                         avoidLinks: true,
@@ -1005,16 +1022,16 @@
                     groupable: options.allowGrouping,
                     sortable: options.allowSorting,
                     filterable: true,
-                    // pageable: {
-                    //     refresh: true,
-                    //     pageSizes: true,
-                    //     buttonCount: 5
-                    // },
-                    // pageable: false,
+                    dataBound: function() {
+                      if (!options.allowUpdate) {
+                          this.table.find(".k-grid-edit").hide();
+                      }
+                    },
                     pageable: pageAble,
                     columns: columns
                 }).data('kendoGrid');
                 grid.dataSource.transport.options.grid = grid;
+                
                 
             });
             
