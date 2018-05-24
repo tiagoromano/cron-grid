@@ -1,7 +1,7 @@
 {
 	"auth": {
 		"customId": "auth",
-		"queryName": "{{AUTHENTICATE}}",
+		"queryName": "Autenticar",
 		"screen": "",
 		"sourceType": "entityFullName",
 		"blockly": null,
@@ -60,7 +60,7 @@
 	},
 	"roles": {
 		"customId": "roles",
-		"queryName": "{{GET_ROLES}}",
+		"queryName": "Obter Autorização",
 		"screen": "",
 		"sourceType": "entityFullName",
 		"blockly": null,
@@ -113,7 +113,7 @@
 	},
 	"tenant": {
 		"customId": "tenant",
-		"queryName": "{{GET_TENANT_ID}}",
+		"queryName": "Obter Id de Multi-inquilino",
 		"screen": "",
 		"sourceType": "entityFullName",
 		"blockly": null,
@@ -169,5 +169,181 @@
 			"foreignKey": null
 		},
 		"serviceUrl": "api/cronapi/query/tenant/"
+	},
+	"vf998t8zd9h1": {
+		"customId": "bloco",
+		"queryName": "Consulta usando bloco",
+		"screen": "",
+		"sourceType": "blockly",
+		"blockly": {
+			"blocklyClass": "blockly.Bloco",
+			"blocklyMethod": "Executar",
+			"blocklyLanguage": "java",
+			"blocklyJson": {
+				"namespace": "blockly.Bloco",
+				"classNameNew": "Bloco",
+				"classNameOld": "Bloco",
+				"sourcePath": "src/main/java/blockly/Bloco.blockly",
+				"language": "java",
+				"class": "blockly.Bloco",
+				"methods": [
+					{
+						"name": "Executar",
+						"hasReturn": "true",
+						"params": [
+							"Dados"
+						]
+					}
+				]
+			},
+			"blocklyFunctionCall": "cronapi.util.makeCallServerBlocklyAsync('blockly.Bloco:Executar', null, null)",
+			"blocklyGETMethod": "Executar",
+			"blocklyPOSTMethod": "Executar",
+			"blocklyPUTMethod": "Executar",
+			"blocklyDELETEMethod": "Executar",
+			"blocklyFILTERMethod": "Executar"
+		},
+		"entitySimpleName": null,
+		"entityFullName": null,
+		"query": "",
+		"queryParamsValues": [
+			{
+				"fieldName": "Dados",
+				"fieldValue": ""
+			}
+		],
+		"verbs": {
+			"GET": true,
+			"GETAuthorities": null,
+			"POST": true,
+			"POSTAuthorities": null,
+			"PUT": true,
+			"PUTAuthorities": null,
+			"DELETE": true,
+			"DELETEAuthorities": null,
+			"FILTER": true,
+			"FILTERAuthorities": null
+		},
+		"events": {
+			"beforeInsert": null,
+			"beforeUpdate": null,
+			"beforeDelete": null,
+			"afterInsert": null,
+			"afterUpdate": null,
+			"afterDelete": null,
+			"onNavigate": null,
+			"onGetData": null
+		},
+		"defaultValues": {},
+		"security": {},
+		"calcFields": {},
+		"calcFieldsSecurity": {},
+		"errorHandles": {
+			"primaryKey": null,
+			"foreignKey": null
+		},
+		"serviceUrl": "api/cronapi/query/vf998t8zd9h1/"
+	},
+	"trz3n2ne14c7": {
+		"customId": "trz3n2ne14c7",
+		"queryName": "TodosOsCampos",
+		"screen": "",
+		"sourceType": "entityFullName",
+		"blockly": null,
+		"entitySimpleName": "TodosOsCampos",
+		"entityFullName": "app.entity.TodosOsCampos",
+		"query": {
+			"isValid": true,
+			"rulesEntity": [
+				{
+					"entity": "TodosOsCampos",
+					"alias": "t",
+					"namespace": "app.entity.TodosOsCampos"
+				}
+			],
+			"rulesSelect": [
+				{
+					"func": "get",
+					"field": "t"
+				}
+			],
+			"rulesGroupBy": [],
+			"rulesHaving": [],
+			"rulesOrderBy": [],
+			"rules": {
+				"condition": "AND",
+				"not": false,
+				"valid": true,
+				"rules": []
+			}
+		},
+		"queryParamsValues": [],
+		"verbs": {
+			"GET": true,
+			"GETAuthorities": null,
+			"POST": true,
+			"POSTAuthorities": null,
+			"PUT": true,
+			"PUTAuthorities": null,
+			"DELETE": true,
+			"DELETEAuthorities": null,
+			"FILTER": true,
+			"FILTERAuthorities": null
+		},
+		"events": {
+			"beforeInsert": null,
+			"beforeUpdate": null,
+			"beforeDelete": null,
+			"afterInsert": null,
+			"afterUpdate": null,
+			"afterDelete": null,
+			"onNavigate": null,
+			"onGetData": null
+		},
+		"defaultValues": {
+			"id": null,
+			"xinteger": null,
+			"xlong": null,
+			"xcharacter": null,
+			"xdouble": null,
+			"xtime": null,
+			"xtimeStamp": null,
+			"xdate": null,
+			"xboolean": null,
+			"xuUID": null,
+			"xint2": null,
+			"xfloat2": null,
+			"xfloat22": null,
+			"xdouble2": null,
+			"xboolean2": null,
+			"xlong2": null,
+			"xbigDecimal": null
+		},
+		"security": {
+			"id": null,
+			"xinteger": null,
+			"xlong": null,
+			"xcharacter": null,
+			"xdouble": null,
+			"xtime": null,
+			"xtimeStamp": null,
+			"xdate": null,
+			"xboolean": null,
+			"xuUID": null,
+			"xint2": null,
+			"xfloat2": null,
+			"xfloat22": null,
+			"xdouble2": null,
+			"xboolean2": null,
+			"xlong2": null,
+			"xbigDecimal": null
+		},
+		"calcFields": {},
+		"calcFieldsSecurity": {},
+		"errorHandles": {
+			"primaryKey": null,
+			"foreignKey": null
+		},
+		"serviceUrl": "api/cronapi/query/trz3n2ne14c7/"
 	}
 }

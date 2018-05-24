@@ -824,44 +824,77 @@
           restrict: 'E',
           replace: true,
           getSchema: function(options) {
-            var schema = {
-              model: {
-                    id: "Id",
-                    fields: {
-                        Id: { type: "string" },
-                        Model: { type: "string", editable: true, nullable: true },
-                        Price: { type: "string", validation: { required: true, min: 1} },
-                        ModelYear: { type: "number" },
-                        Updated: { type: "date", validation: { min: 0, required: true } }
-                    }
-                }
+            
+            var parseAttribute = [
+              { kendoType: "string", entityType: ["string", "character", "uuid"] },
+              { kendoType: "number", entityType: ["integer", "long", "double", "int", "float", "bigdecimal"] },
+              { kendoType: "date", entityType: ["date"] }
+            ];
+            
+            var parse = function(type) {
+              for (var i = 0; i < parseAttribute.length; i++) {
+                if (parseAttribute[i].entityType.includes(type.toLocaleLowerCase()))
+                  return parseAttribute[i].kendoType;
+              }
+              return "string";
             };
+            
+            // var schema = {
+            //   model: {
+            //         id: "Id",
+            //         fields: {
+            //             Id: { type: "string" },
+            //             Model: { type: "string", editable: true, nullable: true },
+            //             Price: { type: "string", validation: { required: true, min: 1} },
+            //             ModelYear: { type: "number" },
+            //             Updated: { type: "date", validation: { min: 0, required: true } }
+            //         }
+            //     }
+            // };
+            var schema = { 
+              model : {
+                id : undefined,
+                fields: {}
+              }
+            };
+            if (options.dataSource && options.dataSource.schemaFields) {
+              options.dataSource.schemaFields.forEach((field) => {
+                if (field.key)
+                  schema.model.id = field.name;
+                schema.model.fields["field.name"] = {
+                  type: parseType(field.type),
+                  editable: true,
+                  nullable: field.nullable,
+                  validation: { required: !field.nullable },
+                }
+              });
+            }
             return schema;
           },
           getDataSource: function(options, schema) {
-            var crudServiceBaseUrl = "http://localhost:8080/MyFormula.svc/Cars";
-            
+            // var crudServiceBaseUrl = "http://localhost:8080/MyFormula.svc/Cars";
+            var crudServiceBaseUrl = "";
+            if (options.dataSource && options.dataSource.serviceUrlODATA)
+              crudServiceBaseUrl = "/" + options.dataSource.serviceUrlODATA;
+              
             var parseParameter = function(data) {
-              debugger;
               for (var attr in data) {
                 if (schema.model.fields.hasOwnProperty(attr)) {
                   
                   var schemaField = schema.model.fields[attr]; 
-                  if (schemaField.type == 'string' && data[attr])
+                  if (schemaField.type == 'string' && data[attr] != undefined)
                     data[attr] = data[attr] + "";
-                  else if (schemaField.type == 'number' && data[attr])
+                  else if (schemaField.type == 'number' && data[attr] != undefined)
                     data[attr] = parseFloat(data[attr]);
-                  else if (schemaField.type == 'date' && data[attr])
+                  else if (schemaField.type == 'date' && data[attr] != undefined)
                     data[attr] = '/Date('+data[attr].getTime()+')/';
                     
                   //Significa que é o ID
                   if (schema.model.id == attr) {
                     //Se o mesmo for vazio, remover do data
-                    if (data[attr] && data[attr].length == 0)
+                    if (data[attr] != undefined && data[attr].toString().length == 0)
                       delete data[attr];
                   }  
-                    
-                    
                 }
               }
               return data;
@@ -887,37 +920,30 @@
                           return data.__metadata.uri;
                       }
                   },
-                  // parameterMap: function (data, type) {
-                  //   if (type == "read") {
-                  //     debugger;
-                  //     var orderBy = '';
-                  //     if (this.options.grid) {
-                  //       this.options.grid.dataSource.group().forEach((group) => { 
-                  //         orderBy += group.field +" " + group.dir + ","; 
-                  //       });
-                  //     }
-                  //     if (data.sort) {
-                  //       data.sort.forEach((group) => { 
-                  //         orderBy += group.field +" " + group.dir + ","; 
-                  //       });
-                  //     }
-                  //     if (orderBy.length > 0)
-                  //       orderBy = orderBy.substr(0, orderBy.length-1);
-                  //     else
-                  //       orderBy = undefined;
+                  parameterMap: function (data, type) {
+                    if (type == "read") {
+                      var paramsOData = kendo.data.transports.odata.parameterMap(data, type, true);
                       
-                  //     return {
-                  //       $top: data.take,
-                  //       $skip: data.skip,
-                  //       $orderby: orderBy,
-                  //       $inlinecount: 'allpages'
-                  //     }
-                  //   }
-                  //   else 
-                  //     data = parseParameter(data);
+                      var orderBy = '';
+                      if (this.options.grid) {
+                        this.options.grid.dataSource.group().forEach((group) => { 
+                          orderBy += group.field +" " + group.dir + ","; 
+                        });
+                      }
+                      if (orderBy.length > 0) {
+                        orderBy = orderBy.substr(0, orderBy.length-1);
+                        if (paramsOData.$orderby)
+                          paramsOData.$orderby =  orderBy + "," + paramsOData.$orderby;
+                        else
+                          paramsOData.$orderby = orderBy;
+                      }
+                      return paramsOData;
+                    }
+                    else 
+                      data = parseParameter(data);
                     
-                  //   return kendo.stringify(data);
-                  // }
+                    return kendo.stringify(data);
+                  }
               },
               pageSize: options.pageCount,
               // batch: false,
@@ -930,17 +956,19 @@
           },
           getColumns: function(options) {
             var columns = [];
-            options.columns.forEach(function(column)  {
-              columns.push( {
-                field: column.field,
-                title: column.headerText,
-                type: column.type,
-                width: column.width,
-                sortable: column.sortable,
-                filterable: column.filterable,
-                format: "{0:d}"
+            if (options.columns) {
+              options.columns.forEach(function(column)  {
+                columns.push( {
+                  field: column.field,
+                  title: column.headerText,
+                  type: column.type,
+                  width: column.width,
+                  sortable: column.sortable,
+                  filterable: column.filterable,
+                  format: column.format
+                });
               });
-            });
+            }
             
             var commandToEditDestroy = {
               command: [],
