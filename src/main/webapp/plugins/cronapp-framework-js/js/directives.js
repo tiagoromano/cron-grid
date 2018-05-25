@@ -831,7 +831,7 @@
               { kendoType: "date", entityType: ["date"] }
             ];
             
-            var parse = function(type) {
+            var parseType = function(type) {
               for (var i = 0; i < parseAttribute.length; i++) {
                 if (parseAttribute[i].entityType.includes(type.toLocaleLowerCase()))
                   return parseAttribute[i].kendoType;
@@ -839,11 +839,21 @@
               return "string";
             };
             
+            var schema = {
+              model: {
+                    id: "Id",
+                    fields: {
+                        Id: { editable: true, type: "string",  validation: { required: true  } },
+                        Model: { type: "string", editable: true, nullable: true }
+                    }
+                }
+            };
+            
             // var schema = {
             //   model: {
             //         id: "Id",
             //         fields: {
-            //             Id: { type: "string" },
+            //             Id: { editable: true, type: "string",  validation: { required: true  } },
             //             Model: { type: "string", editable: true, nullable: true },
             //             Price: { type: "string", validation: { required: true, min: 1} },
             //             ModelYear: { type: "number" },
@@ -851,31 +861,31 @@
             //         }
             //     }
             // };
-            var schema = { 
-              model : {
-                id : undefined,
-                fields: {}
-              }
-            };
-            if (options.dataSource && options.dataSource.schemaFields) {
-              options.dataSource.schemaFields.forEach((field) => {
-                if (field.key)
-                  schema.model.id = field.name;
-                schema.model.fields["field.name"] = {
-                  type: parseType(field.type),
-                  editable: true,
-                  nullable: field.nullable,
-                  validation: { required: !field.nullable },
-                }
-              });
-            }
+            // var schema = { 
+            //   model : {
+            //     id : undefined,
+            //     fields: {}
+            //   }
+            // };
+            // if (options.dataSource && options.dataSource.schemaFields) {
+            //   options.dataSource.schemaFields.forEach((field) => {
+            //     if (field.key)
+            //       schema.model.id = field.name;
+            //     schema.model.fields[field.name] = {
+            //       type: parseType(field.type),
+            //       editable: true,
+            //       nullable: field.nullable,
+            //       validation: { required: !field.nullable },
+            //     }
+            //   });
+            // }
             return schema;
           },
           getDataSource: function(options, schema) {
-            // var crudServiceBaseUrl = "http://localhost:8080/MyFormula.svc/Cars";
-            var crudServiceBaseUrl = "";
-            if (options.dataSource && options.dataSource.serviceUrlODATA)
-              crudServiceBaseUrl = "/" + options.dataSource.serviceUrlODATA;
+            var crudServiceBaseUrl = "http://localhost:8080/MyFormula.svc/Cars?$select=Id,Model";
+            // var crudServiceBaseUrl = "";
+            // if (options.dataSource && options.dataSource.serviceUrlODATA)
+            //   crudServiceBaseUrl = "/" + options.dataSource.serviceUrlODATA;
               
             var parseParameter = function(data) {
               for (var attr in data) {
@@ -958,15 +968,18 @@
             var columns = [];
             if (options.columns) {
               options.columns.forEach(function(column)  {
-                columns.push( {
+                var addColumn = {
                   field: column.field,
                   title: column.headerText,
                   type: column.type,
                   width: column.width,
                   sortable: column.sortable,
                   filterable: column.filterable,
-                  format: column.format
-                });
+                };
+                if (column.format)
+                  addColumn.format = column.format;
+                  
+                columns.push(addColumn);
               });
             }
             
@@ -1027,7 +1040,9 @@
             else
               baseUrl += "en-US.min.js";
               
-              
+            
+            var helperDirective = this;
+            
               
             $.getScript(baseUrl, function () {
                 console.log('loaded language');
@@ -1056,9 +1071,45 @@
                       }
                     },
                     pageable: pageAble,
-                    columns: columns
+                    columns: columns,
+                    detailInit: detailInit,
+                    // dataBound: function() {
+                    //     this.expandRow(this.tbody.find("tr.k-master-row").first());
+                    // }
                 }).data('kendoGrid');
                 grid.dataSource.transport.options.grid = grid;
+                
+                
+                function detailInit(e) {
+                  
+                  var ds = helperDirective.getDataSource(options);
+                  ds.filter = { field: "Id", operator: "eq", value: e.data.Id };
+                  
+                  debugger;
+                    $("<div/>").appendTo(e.detailCell).kendoGrid({
+                        dataSource: ds,
+                        scrollable: false,
+                        sortable: true,
+                        pageable: true,
+                        columns: [
+                            { field: "Id", width: "110px" },
+                            { field: "Model", title:"Model", width: "110px" },
+                            { field: "Price", title:"Price" },
+                        ]
+                    });
+                    
+                    $("<div/>").appendTo(e.detailCell).kendoGrid({
+                        dataSource: ds,
+                        scrollable: false,
+                        sortable: true,
+                        pageable: true,
+                        columns: [
+                            { field: "Id", width: "110px" },
+                            { field: "Model", title:"Model", width: "110px" },
+                            { field: "Price", title:"Price" },
+                        ]
+                    });
+                }
                 
                 
             });

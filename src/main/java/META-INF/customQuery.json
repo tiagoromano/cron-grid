@@ -250,21 +250,85 @@
 		"screen": "",
 		"sourceType": "entityFullName",
 		"blockly": null,
-		"entitySimpleName": "TodosOsCampos",
-		"entityFullName": "app.entity.TodosOsCampos",
+		"entitySimpleName": "User",
+		"entityFullName": "app.entity.User",
+		"query": {
+			"isEmpty": true,
+			"isRawSql": true,
+			"sqlContent": "select NEW app.RomanoLindo(u.id, r.id) from User u, Role r\n",
+			"multiTenant": true,
+			"paginatorAutomatic": false
+		},
+		"queryParamsValues": [],
+		"verbs": {
+			"GET": true,
+			"GETAuthorities": null,
+			"POST": true,
+			"POSTAuthorities": null,
+			"PUT": true,
+			"PUTAuthorities": null,
+			"DELETE": true,
+			"DELETEAuthorities": null,
+			"FILTER": true,
+			"FILTERAuthorities": null
+		},
+		"events": {
+			"beforeInsert": null,
+			"beforeUpdate": null,
+			"beforeDelete": null,
+			"afterInsert": null,
+			"afterUpdate": null,
+			"afterDelete": null,
+			"onNavigate": null,
+			"onGetData": null
+		},
+		"defaultValues": {
+			"id": null,
+			"email": null,
+			"name": null,
+			"login": null,
+			"picture": null,
+			"password": null,
+			"theme": null
+		},
+		"security": {
+			"id": null,
+			"email": null,
+			"name": null,
+			"login": null,
+			"picture": null,
+			"password": null,
+			"theme": null
+		},
+		"calcFields": {},
+		"calcFieldsSecurity": {},
+		"errorHandles": {
+			"primaryKey": null,
+			"foreignKey": null
+		},
+		"serviceUrl": "api/cronapi/query/trz3n2ne14c7/"
+	},
+	"u8aqyz41dctu": {
+		"customId": "carros",
+		"queryName": "Carros",
+		"screen": "",
+		"sourceType": "entityFullName",
+		"blockly": null,
+		"entitySimpleName": "Car",
+		"entityFullName": "app.entity.Car",
 		"query": {
 			"isValid": true,
 			"rulesEntity": [
 				{
-					"entity": "TodosOsCampos",
-					"alias": "t",
-					"namespace": "app.entity.TodosOsCampos"
+					"entity": "Car",
+					"alias": "c",
+					"namespace": "app.entity.Car"
 				}
 			],
 			"rulesSelect": [
 				{
 					"func": "get",
-					"field": "t"
+					"field": "c"
 				}
 			],
 			"rulesGroupBy": [],
@@ -302,41 +366,17 @@
 		},
 		"defaultValues": {
 			"id": null,
-			"xinteger": null,
-			"xlong": null,
-			"xcharacter": null,
-			"xdouble": null,
-			"xtime": null,
-			"xtimeStamp": null,
-			"xdate": null,
-			"xboolean": null,
-			"xuUID": null,
-			"xint2": null,
-			"xfloat2": null,
-			"xfloat22": null,
-			"xdouble2": null,
-			"xboolean2": null,
-			"xlong2": null,
-			"xbigDecimal": null
+			"model": null,
+			"price": null,
+			"modelYear": null,
+			"updated": null
 		},
 		"security": {
 			"id": null,
-			"xinteger": null,
-			"xlong": null,
-			"xcharacter": null,
-			"xdouble": null,
-			"xtime": null,
-			"xtimeStamp": null,
-			"xdate": null,
-			"xboolean": null,
-			"xuUID": null,
-			"xint2": null,
-			"xfloat2": null,
-			"xfloat22": null,
-			"xdouble2": null,
-			"xboolean2": null,
-			"xlong2": null,
-			"xbigDecimal": null
+			"model": null,
+			"price": null,
+			"modelYear": null,
+			"updated": null
 		},
 		"calcFields": {},
 		"calcFieldsSecurity": {},
@@ -344,6 +384,6 @@
 			"primaryKey": null,
 			"foreignKey": null
 		},
-		"serviceUrl": "api/cronapi/query/trz3n2ne14c7/"
+		"serviceUrl": "api/cronapi/query/u8aqyz41dctu/"
 	}
 }
