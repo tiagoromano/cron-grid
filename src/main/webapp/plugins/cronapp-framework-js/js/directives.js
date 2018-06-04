@@ -799,7 +799,46 @@
           restrict: 'E',
           replace: true,
           require: 'ngModel',
+          parseToTinyMCEOptions: function(optionsSelected) {
+            
+            var toolbarGroup = {};
+            toolbarGroup["allowFullScreen"] = "fullscreen |";
+            toolbarGroup["allowPage"] = "fullpage newdocument code pagebreak |";
+            toolbarGroup["allowPrint"] = "preview print |";
+            toolbarGroup["allowTransferArea"] = "cut copy paste |";
+            toolbarGroup["allowDoUndo"] = "undo redo |";
+            toolbarGroup["allowSymbol"] = "charmap |";
+            toolbarGroup["allowEmbeddedImage"] = "bdesk_photo |";
+            toolbarGroup["allowFont"] = "formatselect fontselect fontsizeselect strikethrough bold italic underline removeformat |";
+            toolbarGroup["allowLinks"] = "link unlink anchor |";
+            toolbarGroup["allowParagraph"] = "alignleft aligncenter alignright alignjustify numlist bullist outdent indent blockquote hr |";
+            toolbarGroup["allowFormulas"] = "tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry tiny_mce_wiris_CAS |";
+            
+            
+            var tinyMCEOptions = {
+              menubar: false,
+              statusbar: false,
+              plugins: "bdesk_photo advlist anchor autolink autoresize autosave charmap code colorpicker contextmenu directionality emoticons fullpage fullscreen hr image imagetools importcss insertdatetime legacyoutput link lists media nonbreaking noneditable pagebreak paste preview print save searchreplace tabfocus table template toc visualblocks visualchars wordcount tiny_mce_wiris",
+              toolbar: "",
+              content_style: ""
+            };
+            
+            for (var key in optionsSelected) {
+              if (key.startsWith("allow")) {
+                if (optionsSelected[key]) 
+                  tinyMCEOptions.toolbar += " " + toolbarGroup[key];
+              }
+            }
+            tinyMCEOptions.menubar = optionsSelected.showMenuBar;
+            tinyMCEOptions.statusbar = optionsSelected.showStatusBar;
+            tinyMCEOptions.content_style = optionsSelected.contentStyle;
+            
+            return JSON.stringify(tinyMCEOptions);
+          },
           link: function (scope, element, attrs, ngModelCtrl) {
+           
+            var optionsSelected = JSON.parse(attrs.options);
+            var tinyMCEOptions = this.parseToTinyMCEOptions(optionsSelected);
             
             var templateDyn    = '\
               <textarea \
@@ -809,7 +848,7 @@
             ';
             templateDyn = $(templateDyn
                 .split('$ngModel$').join(attrs.ngModel)
-                .split('$options$').join(attrs.options)
+                .split('$options$').join(escape(tinyMCEOptions))
             );
 
             var x = angular.element(templateDyn);
@@ -839,15 +878,15 @@
               return "string";
             };
             
-            var schema = {
-              model: {
-                    id: "Id",
-                    fields: {
-                        Id: { editable: true, type: "string",  validation: { required: true  } },
-                        Model: { type: "string", editable: true, nullable: true }
-                    }
-                }
-            };
+            // var schema = {
+            //   model: {
+            //         id: "Id",
+            //         fields: {
+            //             Id: { editable: true, type: "string",  validation: { required: true  } },
+            //             Model: { type: "string", editable: true, nullable: true }
+            //         }
+            //     }
+            // };
             
             // var schema = {
             //   model: {
@@ -861,32 +900,33 @@
             //         }
             //     }
             // };
-            // var schema = { 
-            //   model : {
-            //     id : undefined,
-            //     fields: {}
-            //   }
-            // };
-            // if (options.dataSource && options.dataSource.schemaFields) {
-            //   options.dataSource.schemaFields.forEach((field) => {
-            //     if (field.key)
-            //       schema.model.id = field.name;
-            //     schema.model.fields[field.name] = {
-            //       type: parseType(field.type),
-            //       editable: true,
-            //       nullable: field.nullable,
-            //       validation: { required: !field.nullable },
-            //     }
-            //   });
-            // }
+            var schema = { 
+              model : {
+                id : undefined,
+                fields: {}
+              }
+            };
+            if (options.dataSource && options.dataSource.schemaFields) {
+              options.dataSource.schemaFields.forEach((field) => {
+                if (field.key)
+                  schema.model.id = field.name;
+                schema.model.fields[field.name] = {
+                  type: parseType(field.type),
+                  editable: true,
+                  nullable: field.nullable,
+                  validation: { required: !field.nullable },
+                }
+              });
+            }
             return schema;
           },
           getDataSource: function(options, schema) {
-            var crudServiceBaseUrl = "http://localhost:8080/MyFormula.svc/Cars?$select=Id,Model";
-            // var crudServiceBaseUrl = "";
-            // if (options.dataSource && options.dataSource.serviceUrlODATA)
-            //   crudServiceBaseUrl = "/" + options.dataSource.serviceUrlODATA;
-              
+            // var crudServiceBaseUrl = "http://localhost:8080/MyFormula.svc/Cars?$select=Id,Model";
+            var crudServiceBaseUrl = "";
+            if (options.dataSource && options.dataSource.serviceUrlODATA) {
+              // crudServiceBaseUrl = "/" + options.dataSource.serviceUrlODATA;
+              crudServiceBaseUrl = options.dataSource.serviceUrlODATA;
+            }
             var parseParameter = function(data) {
               for (var attr in data) {
                 if (schema.model.fields.hasOwnProperty(attr)) {
@@ -968,18 +1008,20 @@
             var columns = [];
             if (options.columns) {
               options.columns.forEach(function(column)  {
-                var addColumn = {
-                  field: column.field,
-                  title: column.headerText,
-                  type: column.type,
-                  width: column.width,
-                  sortable: column.sortable,
-                  filterable: column.filterable,
-                };
-                if (column.format)
-                  addColumn.format = column.format;
-                  
-                columns.push(addColumn);
+                if (column.visible) {
+                  var addColumn = {
+                    field: column.field,
+                    title: column.headerText,
+                    type: column.type,
+                    width: column.width,
+                    sortable: column.sortable,
+                    filterable: column.filterable,
+                  };
+                  if (column.format)
+                    addColumn.format = column.format;
+                    
+                  columns.push(addColumn);
+                }
               });
             }
             
@@ -1023,6 +1065,7 @@
             return toolbar;
           },
           link: function (scope, element, attrs, ngModelCtrl) {
+            debugger;
             var options = JSON.parse(attrs.options || "{}");
             
             var schema = this.getSchema(options);
@@ -1085,7 +1128,6 @@
                   var ds = helperDirective.getDataSource(options);
                   ds.filter = { field: "Id", operator: "eq", value: e.data.Id };
                   
-                  debugger;
                     $("<div/>").appendTo(e.detailCell).kendoGrid({
                         dataSource: ds,
                         scrollable: false,
@@ -1098,17 +1140,7 @@
                         ]
                     });
                     
-                    $("<div/>").appendTo(e.detailCell).kendoGrid({
-                        dataSource: ds,
-                        scrollable: false,
-                        sortable: true,
-                        pageable: true,
-                        columns: [
-                            { field: "Id", width: "110px" },
-                            { field: "Model", title:"Model", width: "110px" },
-                            { field: "Price", title:"Price" },
-                        ]
-                    });
+                
                 }
                 
                 
