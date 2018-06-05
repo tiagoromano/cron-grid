@@ -1064,9 +1064,18 @@
               toolbar = undefined;
             return toolbar;
           },
-          link: function (scope, element, attrs, ngModelCtrl) {
-            debugger;
-            var options = JSON.parse(attrs.options || "{}");
+          generateKendoGridInit: function(options) {
+            
+            var helperDirective = this;
+            function detailInit(e) {
+              
+              debugger;
+              var currentOptions = e.sender.options.currentOptions;
+              var currentKendoGridInit = helperDirective.generateKendoGridInit(currentOptions);
+              currentKendoGridInit.dataSource.filter = { field: "Id", operator: "eq", value: e.data.Id };
+              var grid = $("<div/>").appendTo(e.detailCell).kendoGrid(currentKendoGridInit).data('kendoGrid');
+              grid.dataSource.transport.options.grid = grid;
+            }
             
             var schema = this.getSchema(options);
             var datasource = this.getDataSource(options, schema);
@@ -1074,74 +1083,60 @@
             var pageAble = this.getPageAble(options);
             var toolbar = this.getToolbar(options);
             
-            var $templateDyn = $('<div></div>');
+            var kendoGridInit = {
+              toolbar: toolbar,
+              pdf: {
+                  allPages: true,
+                  avoidLinks: true,
+                  paperSize: "A4",
+                  margin: { top: "2cm", left: "1cm", right: "1cm", bottom: "1cm" },
+                  landscape: true,
+                  repeatHeaders: true,
+                  // template: $("#page-template").html(),
+                  scale: 0.8
+              },
+              dataSource: datasource,
+              editable: "inline",
+              height: options.height,
+              groupable: options.allowGrouping,
+              sortable: options.allowSorting,
+              filterable: true,
+              dataBound: function() {
+                if (!options.allowUpdate) {
+                    this.table.find(".k-grid-edit").hide();
+                }
+              },
+              pageable: pageAble,
+              columns: columns,
+            };
+            if (options.details && options.details.length > 0) {
+              kendoGridInit.detailInit = detailInit;
+              kendoGridInit.currentOptions = options.details[0];
+            }
             
-    
+            return kendoGridInit;
+            
+          },
+          link: function (scope, element, attrs, ngModelCtrl) {
+            debugger;
+            
+            var $templateDyn = $('<div></div>');
             var baseUrl = 'plugins/cronapp-framework-js/dist/js/kendo-ui/js/messages/kendo.messages.';
             if ($translate.use() == 'pt_br')
               baseUrl += "pt-BR.min.js";
             else
               baseUrl += "en-US.min.js";
               
-            
             var helperDirective = this;
-            
               
             $.getScript(baseUrl, function () {
                 console.log('loaded language');
                 
-                let grid = $templateDyn.kendoGrid({
-                    toolbar: toolbar,
-                    pdf: {
-                        allPages: true,
-                        avoidLinks: true,
-                        paperSize: "A4",
-                        margin: { top: "2cm", left: "1cm", right: "1cm", bottom: "1cm" },
-                        landscape: true,
-                        repeatHeaders: true,
-                        // template: $("#page-template").html(),
-                        scale: 0.8
-                    },
-                    dataSource: datasource,
-                    editable: "inline",
-                    height: options.height,
-                    groupable: options.allowGrouping,
-                    sortable: options.allowSorting,
-                    filterable: true,
-                    dataBound: function() {
-                      if (!options.allowUpdate) {
-                          this.table.find(".k-grid-edit").hide();
-                      }
-                    },
-                    pageable: pageAble,
-                    columns: columns,
-                    detailInit: detailInit,
-                    // dataBound: function() {
-                    //     this.expandRow(this.tbody.find("tr.k-master-row").first());
-                    // }
-                }).data('kendoGrid');
+                var options = JSON.parse(attrs.options || "{}");
+                var kendoGridInit = helperDirective.generateKendoGridInit(options);
+                
+                let grid = $templateDyn.kendoGrid(kendoGridInit).data('kendoGrid');
                 grid.dataSource.transport.options.grid = grid;
-                
-                
-                function detailInit(e) {
-                  
-                  var ds = helperDirective.getDataSource(options);
-                  ds.filter = { field: "Id", operator: "eq", value: e.data.Id };
-                  
-                    $("<div/>").appendTo(e.detailCell).kendoGrid({
-                        dataSource: ds,
-                        scrollable: false,
-                        sortable: true,
-                        pageable: true,
-                        columns: [
-                            { field: "Id", width: "110px" },
-                            { field: "Model", title:"Model", width: "110px" },
-                            { field: "Price", title:"Price" },
-                        ]
-                    });
-                    
-                
-                }
                 
                 
             });
