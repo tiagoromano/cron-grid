@@ -1068,13 +1068,19 @@
             
             var helperDirective = this;
             function detailInit(e) {
-              
               debugger;
-              var currentOptions = e.sender.options.currentOptions;
-              var currentKendoGridInit = helperDirective.generateKendoGridInit(currentOptions);
-              currentKendoGridInit.dataSource.filter = { field: "Id", operator: "eq", value: e.data.Id };
-              var grid = $("<div/>").appendTo(e.detailCell).kendoGrid(currentKendoGridInit).data('kendoGrid');
-              grid.dataSource.transport.options.grid = grid;
+              e.sender.options.listCurrentOptions.forEach(currentOptions => {
+                var currentKendoGridInit = helperDirective.generateKendoGridInit(currentOptions);
+                currentKendoGridInit.dataSource.filter = [];
+                currentOptions.columns.forEach( c => {
+                  if (c.linkParentField && c.linkParentField.length > 0) {
+                    var filter = { field: c.field, operator: "eq", value: e.data[c.linkParentField] };
+                    currentKendoGridInit.dataSource.filter.push(filter);
+                  }
+                });
+                var grid = $("<div/>").appendTo(e.detailCell).kendoGrid(currentKendoGridInit).data('kendoGrid');
+                grid.dataSource.transport.options.grid = grid;
+              });
             }
             
             var schema = this.getSchema(options);
@@ -1111,7 +1117,7 @@
             };
             if (options.details && options.details.length > 0) {
               kendoGridInit.detailInit = detailInit;
-              kendoGridInit.currentOptions = options.details[0];
+              kendoGridInit.listCurrentOptions = options.details;
             }
             
             return kendoGridInit;
