@@ -4,7 +4,6 @@
   angular.module('ui.tinymce', [])
   .value('uiTinymceConfig', {})
   .directive('uiTinymce', ['$rootScope', '$compile', '$timeout', '$window', '$sce', 'uiTinymceConfig', 'uiTinymceService','$translate', function($rootScope, $compile, $timeout, $window, $sce, uiTinymceConfig, uiTinymceService, $translate) {
-    debugger;
     uiTinymceConfig = uiTinymceConfig || {};
     if (uiTinymceConfig.baseUrl) {
       tinymce.baseURL = uiTinymceConfig.baseUrl;
@@ -14,7 +13,6 @@
       require: ['ngModel', '^?form'],
       priority: 599,
       link: function(scope, element, attrs, ctrls) {
-        debugger;
         if (!$window.tinymce) {
           return;
         }

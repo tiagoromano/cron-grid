@@ -1000,6 +1000,7 @@
               serverPaging: true,
               serverFiltering: true,
               serverSorting: true,
+              batch: true,
               schema: schema
             };
             return datasource;
@@ -1102,7 +1103,8 @@
                   scale: 0.8
               },
               dataSource: datasource,
-              editable: "inline",
+              // editable: "inline",
+              editable: true,
               height: options.height,
               groupable: options.allowGrouping,
               sortable: options.allowSorting,

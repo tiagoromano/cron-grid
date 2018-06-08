@@ -4,6 +4,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
+import cronapi.odata.server.*;
 
 import java.util.TimeZone;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -21,7 +22,8 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 	"reports",
 	"cronapi",
 	"blockly",
-	"app"
+	"app",
+	"cronapi.odata.server"
 })
 @EnableAutoConfiguration(exclude = { DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
 public class SpringBootMain extends SpringBootServletInitializer {

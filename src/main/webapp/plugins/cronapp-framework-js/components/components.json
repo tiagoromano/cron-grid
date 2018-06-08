@@ -1689,18 +1689,19 @@
     "text_en_US": "Grid",
     "class": "adjust-icon mdi mdi-nutrition",
     "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/cron-grid.template.html",
-    "wrapper": false,
-    "autoWrapper": true,
     "properties": {
       "options": {
-          "removable": false,
-          "global": "true"
-      },
-      "myegg": {
-          "removable": false,
-          "global": "true"
+        "removable": false,
+        "global": "true"
       }
-    }
+    },
+    "groupedChildren": [
+      {
+        "text_pt_BR": "Configuração",
+        "text_en_US": "Configuration",
+        "selector": "cron-grid"
+      }
+    ]
   }
   ]
 }
