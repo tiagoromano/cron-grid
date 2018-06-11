@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?><blockly formTarget="" resourceType="JS" ruleDescription="" ruleName="TesteCliente" ruleSynchronous="false" ruleTimeout="" ruleType="">
+  <metadata scale="1" scrollx="8.000000000000341" scrolly="7" target="6f7GtYyePIsR+BzhUFyB"/>
+  <block colour="#995ba5" id="6f7GtYyePIsR+BzhUFyB" origintype="procedures_defreturn" output="false" tooltip="Cria uma função que possui um valor de retorno." type="procedures_defreturn" x="68" y="98">
+    <mutation>
+      <arg name="param1"/>
+      <arg name="param2"/>
+      <arg name="param3"/>
+    </mutation>
+    <field name="NAME">faça algo</field>
+    <comment h="80" pinned="false" w="160">Descreva esta função...</comment>
+    <value name="RETURN">
+      <block colour="#a55b80" dependencyby="6f7GtYyePIsR+BzhUFyB" id="?*j5p*bEKP!M6m@)ggJa" origintype="variables_get" output="true" tooltip="Retorna o valor desta variável." type="variables_get">
+        <field name="VAR">item</field>
+      </block>
+    </value>
+  </block>
+</blockly>

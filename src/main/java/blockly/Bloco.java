@@ -13,10 +13,12 @@ public class Bloco {
 	/**
 	 *
 	 * @param Dados
+	 * @param param2
+	 * @param param3
 	 * @return Var
 	 */
 	// Bloco
-	public static Var Executar(Var Dados) throws Exception {
+	public static Var Executar(Var Dados, Var param2, Var param3) throws Exception {
 		return new Callable<Var>() {
 
 			public Var call() throws Exception {
