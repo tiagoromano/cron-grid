@@ -1010,33 +1010,48 @@
             if (options.columns) {
               options.columns.forEach(function(column)  {
                 if (column.visible) {
-                  var addColumn = {
-                    field: column.field,
-                    title: column.headerText,
-                    type: column.type,
-                    width: column.width,
-                    sortable: column.sortable,
-                    filterable: column.filterable,
-                  };
-                  if (column.format)
-                    addColumn.format = column.format;
+                  if (column.dataType == "Database") {
                     
-                  columns.push(addColumn);
+                    var addColumn = {
+                      field: column.field,
+                      title: column.headerText,
+                      type: column.type,
+                      width: column.width,
+                      sortable: column.sortable,
+                      filterable: column.filterable,
+                    };
+                    if (column.format)
+                      addColumn.format = column.format;
+                    columns.push(addColumn);
+                    
+                  }
+                  else if (column.dataType == "Command") {
+                    
+                    var addColumn = {
+                      command: [column.command],
+                      title: column.headerText,
+                      width: column.width
+                    };
+                    columns.push(addColumn);
+                    
+                  }
+                    
+                  
                 }
               });
             }
             
-            var commandToEditDestroy = {
-              command: [],
-              title: "&nbsp;",
-              width: "250px"
-            };
-            if (options.allowInsert || options.allowUpdate)
-              commandToEditDestroy.command.push("edit");
-            if (options.allowDelete)
-              commandToEditDestroy.command.push("destroy");
-            if (commandToEditDestroy.command.length > 0)  
-              columns.push(commandToEditDestroy);
+            // var commandToEditDestroy = {
+            //   command: [],
+            //   title: "&nbsp;",
+            //   width: "250px"
+            // };
+            // if (options.allowInsert || options.allowUpdate)
+            //   commandToEditDestroy.command.push("edit");
+            // if (options.allowDelete)
+            //   commandToEditDestroy.command.push("destroy");
+            // if (commandToEditDestroy.command.length > 0)  
+            //   columns.push(commandToEditDestroy);
               
             return columns;
           },
@@ -1054,12 +1069,18 @@
           },
           getToolbar: function(options) {
             var toolbar = [];
-            if (options.exportExcel)
-              toolbar.push("excel");
-            if (options.exportPDF)
-              toolbar.push("pdf");
-            if (options.allowInsert)
-              toolbar.push("create");
+            
+            options.toolBarButtons.forEach(function(toolbarButton) {
+              if (toolbarButton.type == "Native")
+                toolbar.push(toolbarButton.title);
+            });
+            
+            // if (options.exportExcel)
+            //   toolbar.push("excel");
+            // if (options.exportPDF)
+            //   toolbar.push("pdf");
+            // if (options.allowInsert)
+            //   toolbar.push("create");
               
             if (toolbar.length == 0)
               toolbar = undefined;
@@ -1103,17 +1124,17 @@
                   scale: 0.8
               },
               dataSource: datasource,
-              // editable: "inline",
-              editable: true,
+              editable: "inline",
+              // editable: true,
               height: options.height,
               groupable: options.allowGrouping,
               sortable: options.allowSorting,
               filterable: true,
-              dataBound: function() {
-                if (!options.allowUpdate) {
-                    this.table.find(".k-grid-edit").hide();
-                }
-              },
+              // dataBound: function() {
+              //   if (!options.allowUpdate) {
+              //       this.table.find(".k-grid-edit").hide();
+              //   }
+              // },
               pageable: pageAble,
               columns: columns,
             };
