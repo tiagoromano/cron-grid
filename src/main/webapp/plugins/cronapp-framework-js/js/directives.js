@@ -950,6 +950,13 @@
               return data;
             };
             
+            
+            var pageSize = options.pageCount;
+            //Se permitir paginar, coloca quantidade default de registros, caso n tenha
+            if (options.allowPaging)
+              pageSize = options.pageCount ? options.pageCount : 10;
+            
+
             var datasource = {
               type: "odata",
               transport: {
@@ -959,7 +966,16 @@
                   },
                   update: {
                       url: function(data) {
-                        return data.__metadata.uri;
+                        // if (options.editable == 'batch') {
+                        //   var urls = [];
+                        //   data.models.forEach((m) => {
+                        //     urls.push(m.__metadata.uri);
+                        //   });
+                        //   return urls;
+                        // }
+                        // else {
+                          return data.__metadata.uri;
+                        // }
                       },
                   },
                   create: {
@@ -969,6 +985,9 @@
                       url: function(data) {
                           return data.__metadata.uri;
                       }
+                  },
+                  batch: {
+                      url: crudServiceBaseUrl,
                   },
                   parameterMap: function (data, type) {
                     if (type == "read") {
@@ -995,12 +1014,11 @@
                     return kendo.stringify(data);
                   }
               },
-              pageSize: options.pageCount,
-              // batch: false,
+              pageSize: pageSize,
               serverPaging: true,
               serverFiltering: true,
               serverSorting: true,
-              batch: true,
+              batch: false,
               schema: schema
             };
             return datasource;
@@ -1026,13 +1044,16 @@
                     
                   }
                   else if (column.dataType == "Command") {
-                    
-                    var addColumn = {
-                      command: [column.command],
-                      title: column.headerText,
-                      width: column.width
-                    };
-                    columns.push(addColumn);
+                    //Se não for editavel, não adiciona colunas de comando
+                    if (options.editable != 'no') {
+                      var command = column.command.split('|');
+                      var addColumn = {
+                        command: command,
+                        title: column.headerText,
+                        width: column.width
+                      };
+                      columns.push(addColumn);
+                    }
                     
                   }
                     
@@ -1056,6 +1077,7 @@
             return columns;
           },
           getPageAble: function(options) {
+            debugger;
             var pageable = {
                 refresh:  options.allowRefreshGrid,
                 pageSizes: options.allowSelectionTotalPageToShow,
@@ -1071,8 +1093,27 @@
             var toolbar = [];
             
             options.toolBarButtons.forEach(function(toolbarButton) {
-              if (toolbarButton.type == "Native")
-                toolbar.push(toolbarButton.title);
+              if (toolbarButton.type == "Native") {
+                //Se a grade for editavel, adiciona todos os commands
+                if (options.editable != 'no') {
+                  if (toolbarButton.title == "save" || toolbarButton.title == "cancel") {
+                    //O Salvar e cancelar na toolbar só é possível no batch mode
+                    if (options.editable == 'batch')
+                      toolbar.push(toolbarButton.title);
+                  }
+                  else
+                    toolbar.push(toolbarButton.title);
+                }
+                //Senão, adiciona somente commands que não sejam de crud
+                else {
+                  if (toolbarButton.title == "pdf" || toolbarButton.title == "excel") {
+                    toolbar.push(toolbarButton.title);
+                  }
+                }
+                
+                
+              }
+              
             });
             
             // if (options.exportExcel)
@@ -1085,6 +1126,17 @@
             if (toolbar.length == 0)
               toolbar = undefined;
             return toolbar;
+          },
+          getEditable: function(options) {
+            
+            var editable = options.editable;
+            if (options.editable == 'batch') {
+              editable = true;
+            }
+            else if (options.editable == 'no') {
+              editable = false;
+            }
+            return editable;
           },
           generateKendoGridInit: function(options) {
             
@@ -1110,6 +1162,7 @@
             var columns = this.getColumns(options);
             var pageAble = this.getPageAble(options);
             var toolbar = this.getToolbar(options);
+            var editable = this.getEditable(options);
             
             var kendoGridInit = {
               toolbar: toolbar,
@@ -1124,8 +1177,7 @@
                   scale: 0.8
               },
               dataSource: datasource,
-              editable: "inline",
-              // editable: true,
+              editable: editable,
               height: options.height,
               groupable: options.allowGrouping,
               sortable: options.allowSorting,
