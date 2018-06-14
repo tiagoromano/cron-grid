@@ -865,9 +865,10 @@
           getSchema: function(options) {
             
             var parseAttribute = [
-              { kendoType: "string", entityType: ["string", "character", "uuid"] },
-              { kendoType: "number", entityType: ["integer", "long", "double", "int", "float", "bigdecimal"] },
-              { kendoType: "date", entityType: ["date"] }
+              { kendoType: "string", entityType: ["string", "character", "uuid", "guid"] },
+              { kendoType: "number", entityType: ["integer", "long", "double", "int", "float", "bigdecimal", "single", "int32", "int64", "decimal"] },
+              { kendoType: "date", entityType: ["date", "time", "datetime"] },
+              { kendoType: "boolean", entityType: ["boolean"] }
             ];
             
             var parseType = function(type) {

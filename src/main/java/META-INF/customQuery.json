@@ -250,14 +250,32 @@
 		"screen": "",
 		"sourceType": "entityFullName",
 		"blockly": null,
-		"entitySimpleName": "User",
-		"entityFullName": "app.entity.User",
+		"entitySimpleName": "TodosOsCampos",
+		"entityFullName": "app.entity.TodosOsCampos",
 		"query": {
-			"isEmpty": true,
-			"isRawSql": true,
-			"sqlContent": "select NEW app.RomanoLindo(u.id, r.id) from User u, Role r\n",
-			"multiTenant": true,
-			"paginatorAutomatic": false
+			"isValid": true,
+			"rulesEntity": [
+				{
+					"entity": "TodosOsCampos",
+					"alias": "t",
+					"namespace": "app.entity.TodosOsCampos"
+				}
+			],
+			"rulesSelect": [
+				{
+					"func": "get",
+					"field": "t"
+				}
+			],
+			"rulesGroupBy": [],
+			"rulesHaving": [],
+			"rulesOrderBy": [],
+			"rules": {
+				"condition": "AND",
+				"not": false,
+				"valid": true,
+				"rules": []
+			}
 		},
 		"queryParamsValues": [],
 		"verbs": {
@@ -284,21 +302,41 @@
 		},
 		"defaultValues": {
 			"id": null,
-			"email": null,
-			"name": null,
-			"login": null,
-			"picture": null,
-			"password": null,
-			"theme": null
+			"xinteger": null,
+			"xlong": null,
+			"xcharacter": null,
+			"xdouble": null,
+			"xtime": null,
+			"xtimeStamp": null,
+			"xdate": null,
+			"xboolean": null,
+			"xuUID": null,
+			"xint2": null,
+			"xfloat2": null,
+			"xfloat22": null,
+			"xdouble2": null,
+			"xboolean2": null,
+			"xlong2": null,
+			"xbigDecimal": null
 		},
 		"security": {
 			"id": null,
-			"email": null,
-			"name": null,
-			"login": null,
-			"picture": null,
-			"password": null,
-			"theme": null
+			"xinteger": null,
+			"xlong": null,
+			"xcharacter": null,
+			"xdouble": null,
+			"xtime": null,
+			"xtimeStamp": null,
+			"xdate": null,
+			"xboolean": null,
+			"xuUID": null,
+			"xint2": null,
+			"xfloat2": null,
+			"xfloat22": null,
+			"xdouble2": null,
+			"xboolean2": null,
+			"xlong2": null,
+			"xbigDecimal": null
 		},
 		"calcFields": {},
 		"calcFieldsSecurity": {},

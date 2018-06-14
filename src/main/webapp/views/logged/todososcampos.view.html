@@ -1,0 +1,373 @@
+<h3>TodosOsCampos</h3>
+
+<!-- div row para pesquisa -->
+<!--<div class="row">-->
+
+    <div ng-hide="TodosOsCampos.inserting || TodosOsCampos.editing" data-component="crn-datasource-filter" id="crn-datasource-filter-general" class="">
+        <div class="form-group">
+            <label for="textinput-filter" class="">{{"template.crud.search" | translate}}</label>
+            <input type="text" ng-model="vars.search" cronapp-filter="xdate;" cronapp-filter-operator="" cronapp-filter-caseinsensitive="false" cronapp-filter-autopost="true" crn-datasource="TodosOsCampos" class="form-control" value="" placeholder="{{'template.crud.search' | translate}}">
+        </div>
+    </div>
+
+<div data-component="crn-button" id="crn-button-564202" class="">
+    <button class="btn btn-primary" type="submit" onclick="" data-component="crn-button" ng-click="TodosOsCampos.startInserting()" ng-hide="TodosOsCampos.inserting || TodosOsCampos.editing"><i class="fa fa-user"></i> <span class="">{{"template.crud.new" | translate}}</span></button>
+</div>
+<!-- fim div row para pesquisa -->
+<!--</div>-->
+
+<datasource filter="" name="TodosOsCampos" entity="api/cronapi/crud/app.entity.TodosOsCampos" keys="id" rows-per-page="100" delete-message="Deseja remover?" class=""></datasource>
+<div class="component-holder" data-component="crn-grid" id="crn-grid-TodosOsCampos">
+    <div crn-datasource="TodosOsCampos" class="" ng-hide="TodosOsCampos.editing || TodosOsCampos.inserting">
+        <table class="table  table-bordered table-hover table-striped">
+            <thead>
+            <tr class="table-header">
+                <th class="">
+                    <div class="">Id</div>
+                </th>
+                <th class="">
+                    <div class="">X Integer</div>
+                </th>
+                <th class="">
+                    <div class="">X Long</div>
+                </th>
+                <th class="">
+                    <div class="">{{"template.crud.actions" | translate}}</div>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="table-content" ng-repeat="rowData in datasource.data">
+                <td class="">
+                    <div class="">
+                                {{rowData.id  }}
+                    </div>
+                </td>
+                <td class="">
+                    <div class="">
+                                {{rowData.xinteger  }}
+                    </div>
+                </td>
+                <td class="">
+                    <div class="">
+                                {{rowData.xlong  }}
+                    </div>
+                </td>
+                <td class="">
+                    <div class="">
+                        <button class="btn btn-default btn-sm" data-component="crn-button" type="submit" ng-click="datasource.startEditing(rowData)"><i class="fa fa-edit"></i></button>
+                        <button class="btn btn-default btn-sm" data-component="crn-button" type="submit" ng-click="datasource.remove(rowData)"><i class="fa fa-times"></i></button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="table-footer-controls">
+            <button class="btn btn-default btn-block btn-clicked" data-component="crn-button" ng-show="datasource.hasNextPage()" ng-click="datasource.nextPage()">{{"template.crud.load_more" | translate}}...</button>
+        </div>
+    </div>
+</div>
+<div data-component="crn-form" id="crn-form-form-TodosOsCampos">
+    <div class="form" ng-show="TodosOsCampos.editing || TodosOsCampos.inserting">
+        <form crn-datasource="TodosOsCampos" class="">
+            <div class="tool-bar" ng-hide="datasource.editing || datasource.inserting">
+                <button class="btn btn-primary" data-component="crn-button" ng-click="datasource.startInserting()"><i class="glyphicon glyphicon-plus-sign"></i></button>
+                <button class="btn btn-success" data-component="crn-button" ng-click="datasource.startEditing()"><i class="glyphicon glyphicon-edit"></i></button>
+                <button class="btn btn-primary" data-component="crn-button" ng-disabled="!datasource.hasPrevious()" ng-click="datasource.previous()"><i class="glyphicon glyphicon-chevron-left"></i></button>
+                <button class="btn btn-primary" data-component="crn-button" ng-disabled="!datasource.hasNext()" ng-click="datasource.next()"><i class="glyphicon glyphicon-chevron-right"></i></button>
+                <button class="btn btn-primary" data-component="crn-button" ng-click="datasource.remove()"><i class="glyphicon glyphicon-trash"></i></button>
+            </div>
+            <div class="active-bar" ng-hide="!datasource.editing &amp;&amp; !datasource.inserting">
+                <button class="btn btn-success" data-component="crn-button" ng-click="datasource.post()"><i class="glyphicon glyphicon-ok"></i></button>
+                <button class="btn btn-danger" data-component="crn-button" ng-click="datasource.cancel()"><i class="glyphicon glyphicon-remove"></i></button>
+            </div>
+            <br/>
+            <fieldset ng-disabled="!datasource.editing &amp;&amp; !datasource.inserting">
+
+                <div data-component="crn-textinput" id="crn-textinput-xinteger" class="">
+                    <div class="form-group">
+                        <label for="textinput-xinteger" class="">X Integer</label>
+ <!-- else for if !model.hasCronappFramework() -->
+                                <input
+                                            type="integer"
+                                            ng-model="TodosOsCampos.active.xinteger"
+                                            class="form-control"
+                                            id="textinput-xinteger"
+                                            placeholder="X Integer"
+                                            mask=""
+                                            mask-placeholder=""
+                                            ng-required="false">
+                         <!-- end if !model.hasCronappFramework() -->
+                    </div>
+                </div>
+
+                <div data-component="crn-textinput" id="crn-textinput-xlong" class="">
+                    <div class="form-group">
+                        <label for="textinput-xlong" class="">X Long</label>
+ <!-- else for if !model.hasCronappFramework() -->
+                                <input
+                                            type="integer"
+                                            ng-model="TodosOsCampos.active.xlong"
+                                            class="form-control"
+                                            id="textinput-xlong"
+                                            placeholder="X Long"
+                                            mask=""
+                                            mask-placeholder=""
+                                            ng-required="false">
+                         <!-- end if !model.hasCronappFramework() -->
+                    </div>
+                </div>
+
+                <div data-component="crn-textinput" id="crn-textinput-xcharacter" class="">
+                    <div class="form-group">
+                        <label for="textinput-xcharacter" class="">X Character</label>
+ <!-- else for if !model.hasCronappFramework() -->
+                                <input
+                                            type="text"
+                                            ng-model="TodosOsCampos.active.xcharacter"
+                                            class="form-control"
+                                            id="textinput-xcharacter"
+                                            placeholder="X Character"
+                                            mask=""
+                                            mask-placeholder=""
+                                            ng-required="false">
+                         <!-- end if !model.hasCronappFramework() -->
+                    </div>
+                </div>
+
+                <div data-component="crn-textinput" id="crn-textinput-xdouble" class="">
+                    <div class="form-group">
+                        <label for="textinput-xdouble" class="">X Double</label>
+ <!-- else for if !model.hasCronappFramework() -->
+                                <input
+                                            type="number"
+                                            ng-model="TodosOsCampos.active.xdouble"
+                                            class="form-control"
+                                            id="textinput-xdouble"
+                                            placeholder="X Double"
+                                            mask=""
+                                            mask-placeholder=""
+                                            ng-required="false">
+                         <!-- end if !model.hasCronappFramework() -->
+                    </div>
+                </div>
+
+                <div data-component="crn-textinput" id="crn-textinput-xtime" class="">
+                    <div class="form-group">
+                        <label for="textinput-xtime" class="">X Time</label>
+ <!-- else for if !model.hasCronappFramework() -->
+                                <input
+                                            type="time"
+                                            ng-model="TodosOsCampos.active.xtime"
+                                            class="form-control"
+                                            id="textinput-xtime"
+                                            placeholder="X Time"
+                                            mask=""
+                                            mask-placeholder=""
+                                            ng-required="false">
+                         <!-- end if !model.hasCronappFramework() -->
+                    </div>
+                </div>
+
+                <div data-component="crn-textinput" id="crn-textinput-xtimeStamp" class="">
+                    <div class="form-group">
+                        <label for="textinput-xtimeStamp" class="">X Time Stamp</label>
+ <!-- else for if !model.hasCronappFramework() -->
+                                <input
+                                            type="datetime"
+                                            ng-model="TodosOsCampos.active.xtimeStamp"
+                                            class="form-control"
+                                            id="textinput-xtimeStamp"
+                                            placeholder="X Time Stamp"
+                                            mask=""
+                                            mask-placeholder=""
+                                            ng-required="false">
+                         <!-- end if !model.hasCronappFramework() -->
+                    </div>
+                </div>
+
+                <div data-component="crn-textinput" id="crn-textinput-xdate" class="">
+                    <div class="form-group">
+                        <label for="textinput-xdate" class="">X Date</label>
+ <!-- else for if !model.hasCronappFramework() -->
+                                <input
+                                            type="date"
+                                            ng-model="TodosOsCampos.active.xdate"
+                                            class="form-control"
+                                            id="textinput-xdate"
+                                            placeholder="X Date"
+                                            mask=""
+                                            mask-placeholder=""
+                                            ng-required="false">
+                         <!-- end if !model.hasCronappFramework() -->
+                    </div>
+                </div>
+
+                <div data-component="crn-textinput" id="crn-textinput-xboolean" class="">
+                    <div class="form-group">
+                        <label for="textinput-xboolean" class="">X Boolean</label>
+ <!-- else for if !model.hasCronappFramework() -->
+                                <input
+                                            type="checkbox"
+                                            ng-model="TodosOsCampos.active.xboolean"
+                                            class="form-control"
+                                            id="textinput-xboolean"
+                                            placeholder="X Boolean"
+                                            mask=""
+                                            mask-placeholder=""
+                                            ng-required="false">
+                         <!-- end if !model.hasCronappFramework() -->
+                    </div>
+                </div>
+
+                <div data-component="crn-textinput" id="crn-textinput-xuUID" class="">
+                    <div class="form-group">
+                        <label for="textinput-xuUID" class="">X UUID</label>
+ <!-- else for if !model.hasCronappFramework() -->
+                                <input
+                                            type="text"
+                                            ng-model="TodosOsCampos.active.xuUID"
+                                            class="form-control"
+                                            id="textinput-xuUID"
+                                            placeholder="X UUID"
+                                            mask=""
+                                            mask-placeholder=""
+                                            ng-required="false">
+                         <!-- end if !model.hasCronappFramework() -->
+                    </div>
+                </div>
+
+                <div data-component="crn-textinput" id="crn-textinput-xint2" class="">
+                    <div class="form-group">
+                        <label for="textinput-xint2" class="">Xint 2</label>
+ <!-- else for if !model.hasCronappFramework() -->
+                                <input
+                                            type="integer"
+                                            ng-model="TodosOsCampos.active.xint2"
+                                            class="form-control"
+                                            id="textinput-xint2"
+                                            placeholder="Xint 2"
+                                            mask=""
+                                            mask-placeholder=""
+                                            ng-required="false">
+                         <!-- end if !model.hasCronappFramework() -->
+                    </div>
+                </div>
+
+                <div data-component="crn-textinput" id="crn-textinput-xfloat2" class="">
+                    <div class="form-group">
+                        <label for="textinput-xfloat2" class="">Xfloat 2</label>
+ <!-- else for if !model.hasCronappFramework() -->
+                                <input
+                                            type="number"
+                                            ng-model="TodosOsCampos.active.xfloat2"
+                                            class="form-control"
+                                            id="textinput-xfloat2"
+                                            placeholder="Xfloat 2"
+                                            mask=""
+                                            mask-placeholder=""
+                                            ng-required="false">
+                         <!-- end if !model.hasCronappFramework() -->
+                    </div>
+                </div>
+
+                <div data-component="crn-textinput" id="crn-textinput-xfloat22" class="">
+                    <div class="form-group">
+                        <label for="textinput-xfloat22" class="">Xfloat 22</label>
+ <!-- else for if !model.hasCronappFramework() -->
+                                <input
+                                            type="number"
+                                            ng-model="TodosOsCampos.active.xfloat22"
+                                            class="form-control"
+                                            id="textinput-xfloat22"
+                                            placeholder="Xfloat 22"
+                                            mask=""
+                                            mask-placeholder=""
+                                            ng-required="false">
+                         <!-- end if !model.hasCronappFramework() -->
+                    </div>
+                </div>
+
+                <div data-component="crn-textinput" id="crn-textinput-xdouble2" class="">
+                    <div class="form-group">
+                        <label for="textinput-xdouble2" class="">Xdouble 2</label>
+ <!-- else for if !model.hasCronappFramework() -->
+                                <input
+                                            type="number"
+                                            ng-model="TodosOsCampos.active.xdouble2"
+                                            class="form-control"
+                                            id="textinput-xdouble2"
+                                            placeholder="Xdouble 2"
+                                            mask=""
+                                            mask-placeholder=""
+                                            ng-required="false">
+                         <!-- end if !model.hasCronappFramework() -->
+                    </div>
+                </div>
+
+                <div data-component="crn-textinput" id="crn-textinput-xboolean2" class="">
+                    <div class="form-group">
+                        <label for="textinput-xboolean2" class="">Xboolean 2</label>
+ <!-- else for if !model.hasCronappFramework() -->
+                                <input
+                                            type="checkbox"
+                                            ng-model="TodosOsCampos.active.xboolean2"
+                                            class="form-control"
+                                            id="textinput-xboolean2"
+                                            placeholder="Xboolean 2"
+                                            mask=""
+                                            mask-placeholder=""
+                                            ng-required="false">
+                         <!-- end if !model.hasCronappFramework() -->
+                    </div>
+                </div>
+
+                <div data-component="crn-textinput" id="crn-textinput-xlong2" class="">
+                    <div class="form-group">
+                        <label for="textinput-xlong2" class="">Xlong 2</label>
+ <!-- else for if !model.hasCronappFramework() -->
+                                <input
+                                            type="integer"
+                                            ng-model="TodosOsCampos.active.xlong2"
+                                            class="form-control"
+                                            id="textinput-xlong2"
+                                            placeholder="Xlong 2"
+                                            mask=""
+                                            mask-placeholder=""
+                                            ng-required="false">
+                         <!-- end if !model.hasCronappFramework() -->
+                    </div>
+                </div>
+
+                <div data-component="crn-textinput" id="crn-textinput-xbigDecimal" class="">
+                    <div class="form-group">
+                        <label for="textinput-xbigDecimal" class="">X Big Decimal</label>
+ <!-- else for if !model.hasCronappFramework() -->
+                                <input
+                                            type="number"
+                                            ng-model="TodosOsCampos.active.xbigDecimal"
+                                            class="form-control"
+                                            id="textinput-xbigDecimal"
+                                            placeholder="X Big Decimal"
+                                            mask=""
+                                            mask-placeholder=""
+                                            ng-required="false">
+                         <!-- end if !model.hasCronappFramework() -->
+                    </div>
+                </div>
+                <!-- NtoN  -->
+                <!-- NtoN  end-->
+            </fieldset>
+        </form>
+        <form>
+            <fieldset>
+                <!-- OneToN -->
+                <!-- OneToOne  end -->
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+
+<!-- OneToOne modal -->
+<!-- OneToOne modal end-->

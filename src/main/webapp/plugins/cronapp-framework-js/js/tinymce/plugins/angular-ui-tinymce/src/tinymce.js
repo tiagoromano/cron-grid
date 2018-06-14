@@ -55,7 +55,8 @@
 
         expression = {};
 
-        angular.extend(expression, scope.$eval(attrs.uiTinymce));
+        // angular.extend(expression, scope.$eval(attrs.uiTinymce));
+        angular.extend(expression, JSON.parse(unescape(attrs.uiTinymce)));
 
         //Debounce update and save action
         var debouncedUpdate = (function(debouncedUpdateDelay) {
@@ -134,7 +135,6 @@
         // element to be present in DOM before instantiating editor when
         // re-rendering directive
         $timeout(function() {
-          debugger;
           if (options.baseURL){
             tinymce.baseURL = options.baseURL;
           }
@@ -146,6 +146,9 @@
               options.language = 'en_CA';
           }
           var maybeInitPromise = tinymce.init(options);
+          var removeBy = setInterval(function() {
+            $('.mce-branding.mce-widget.mce-label.mce-flow-layout-item.mce-last').remove();  
+          }, 100);
           if(maybeInitPromise && typeof maybeInitPromise.then === 'function') {
             maybeInitPromise.then(function() {
               toggleDisable(scope.$eval(attrs.ngDisabled));
