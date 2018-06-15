@@ -289,6 +289,8 @@ app.registerEventsCronapi = function($scope, $translate) {
   }
 };
 
+
+
 window.safeApply = function(fn) {
   var phase = this.$root.$$phase;
   if (phase == '$apply' || phase == '$digest') {

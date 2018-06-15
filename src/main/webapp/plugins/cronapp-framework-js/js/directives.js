@@ -862,7 +862,7 @@
         return {
           restrict: 'E',
           replace: true,
-          getSchema: function(options) {
+          getSchema: function(dataSource) {
             
             var parseAttribute = [
               { kendoType: "string", entityType: ["string", "character", "uuid", "guid"] },
@@ -878,37 +878,15 @@
               }
               return "string";
             };
-            
-            // var schema = {
-            //   model: {
-            //         id: "Id",
-            //         fields: {
-            //             Id: { editable: true, type: "string",  validation: { required: true  } },
-            //             Model: { type: "string", editable: true, nullable: true }
-            //         }
-            //     }
-            // };
-            
-            // var schema = {
-            //   model: {
-            //         id: "Id",
-            //         fields: {
-            //             Id: { editable: true, type: "string",  validation: { required: true  } },
-            //             Model: { type: "string", editable: true, nullable: true },
-            //             Price: { type: "string", validation: { required: true, min: 1} },
-            //             ModelYear: { type: "number" },
-            //             Updated: { type: "date", validation: { min: 0, required: true } }
-            //         }
-            //     }
-            // };
+           
             var schema = { 
               model : {
                 id : undefined,
                 fields: {}
               }
             };
-            if (options.dataSource && options.dataSource.schemaFields) {
-              options.dataSource.schemaFields.forEach((field) => {
+            if (dataSource && dataSource.schemaFields) {
+              dataSource.schemaFields.forEach((field) => {
                 if (field.key)
                   schema.model.id = field.name;
                 schema.model.fields[field.name] = {
@@ -921,13 +899,12 @@
             }
             return schema;
           },
-          getDataSource: function(options, schema) {
-            // var crudServiceBaseUrl = "http://localhost:8080/MyFormula.svc/Cars?$select=Id,Model";
+          getDataSource: function(dataSource, allowPaging, pageCount) {
             var crudServiceBaseUrl = "";
-            if (options.dataSource && options.dataSource.serviceUrlODATA) {
-              // crudServiceBaseUrl = "/" + options.dataSource.serviceUrlODATA;
-              crudServiceBaseUrl = options.dataSource.serviceUrlODATA;
-            }
+            var schema = this.getSchema(dataSource);
+            if (dataSource.serviceUrlODATA) 
+              crudServiceBaseUrl = dataSource.serviceUrlODATA;
+            
             var parseParameter = function(data) {
               for (var attr in data) {
                 if (schema.model.fields.hasOwnProperty(attr)) {
@@ -952,10 +929,10 @@
             };
             
             
-            var pageSize = options.pageCount;
+            var pageSize = pageCount;
             //Se permitir paginar, coloca quantidade default de registros, caso n tenha
-            if (options.allowPaging)
-              pageSize = options.pageCount ? options.pageCount : 10;
+            if (allowPaging)
+              pageSize = pageCount ? pageCount : 10;
             
 
             var datasource = {
@@ -975,7 +952,9 @@
                         //   return urls;
                         // }
                         // else {
+                          
                           return data.__metadata.uri;
+                          
                         // }
                       },
                   },
@@ -1158,8 +1137,9 @@
               });
             }
             
-            var schema = this.getSchema(options);
-            var datasource = this.getDataSource(options, schema);
+            // var datasource = this.getDataSource(options.dataSource, options.allowPaging, options.pageCount);
+            debugger;
+            var datasource = app.kendoHelper.getDataSource(options.dataSource, options.allowPaging, options.pageCount);
             var columns = this.getColumns(options);
             var pageAble = this.getPageAble(options);
             var toolbar = this.getToolbar(options);

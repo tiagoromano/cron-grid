@@ -360,3 +360,145 @@ window.safeApply = function(fn) {
     this.$apply(fn);
   }
 };
+
+app.kendoHelper = {
+  getSchema: function(dataSource) {
+    var parseAttribute = [
+      { kendoType: "string", entityType: ["string", "character", "uuid", "guid"] },
+      { kendoType: "number", entityType: ["integer", "long", "double", "int", "float", "bigdecimal", "single", "int32", "int64", "decimal"] },
+      { kendoType: "date", entityType: ["date", "time", "datetime"] },
+      { kendoType: "boolean", entityType: ["boolean"] }
+    ];
+    
+    var parseType = function(type) {
+      for (var i = 0; i < parseAttribute.length; i++) {
+        if (parseAttribute[i].entityType.includes(type.toLocaleLowerCase()))
+          return parseAttribute[i].kendoType;
+      }
+      return "string";
+    };
+   
+    var schema = { 
+      model : {
+        id : undefined,
+        fields: {}
+      }
+    };
+    if (dataSource && dataSource.schemaFields) {
+      dataSource.schemaFields.forEach((field) => {
+        if (field.key)
+          schema.model.id = field.name;
+        schema.model.fields[field.name] = {
+          type: parseType(field.type),
+          editable: true,
+          nullable: field.nullable,
+          validation: { required: !field.nullable },
+        }
+      });
+    }
+    return schema;
+  },
+  getDataSource: function(dataSource, allowPaging, pageCount) {
+    var crudServiceBaseUrl = "";
+    var schema = this.getSchema(dataSource);
+    if (dataSource.serviceUrlODATA) 
+      crudServiceBaseUrl = dataSource.serviceUrlODATA;
+    
+    var parseParameter = function(data) {
+      for (var attr in data) {
+        if (schema.model.fields.hasOwnProperty(attr)) {
+          
+          var schemaField = schema.model.fields[attr]; 
+          if (schemaField.type == 'string' && data[attr] != undefined)
+            data[attr] = data[attr] + "";
+          else if (schemaField.type == 'number' && data[attr] != undefined)
+            data[attr] = parseFloat(data[attr]);
+          else if (schemaField.type == 'date' && data[attr] != undefined)
+            data[attr] = '/Date('+data[attr].getTime()+')/';
+            
+          //Significa que é o ID
+          if (schema.model.id == attr) {
+            //Se o mesmo for vazio, remover do data
+            if (data[attr] != undefined && data[attr].toString().length == 0)
+              delete data[attr];
+          }  
+        }
+      }
+      return data;
+    };
+    
+    var pageSize = pageCount;
+    //Se permitir paginar, coloca quantidade default de registros, caso n tenha
+    if (allowPaging)
+      pageSize = pageCount ? pageCount : 10;
+    
+
+    var datasource = {
+      type: "odata",
+      transport: {
+          read:  {
+             url: crudServiceBaseUrl,
+             dataType: "json"
+          },
+          update: {
+              url: function(data) {
+                // if (options.editable == 'batch') {
+                //   var urls = [];
+                //   data.models.forEach((m) => {
+                //     urls.push(m.__metadata.uri);
+                //   });
+                //   return urls;
+                // }
+                // else {
+                  
+                  return data.__metadata.uri;
+                  
+                // }
+              },
+          },
+          create: {
+              url: crudServiceBaseUrl,
+          },
+          destroy: {
+              url: function(data) {
+                  return data.__metadata.uri;
+              }
+          },
+          batch: {
+              url: crudServiceBaseUrl,
+          },
+          parameterMap: function (data, type) {
+            if (type == "read") {
+              var paramsOData = kendo.data.transports.odata.parameterMap(data, type, true);
+              
+              var orderBy = '';
+              if (this.options.grid) {
+                this.options.grid.dataSource.group().forEach((group) => { 
+                  orderBy += group.field +" " + group.dir + ","; 
+                });
+              }
+              if (orderBy.length > 0) {
+                orderBy = orderBy.substr(0, orderBy.length-1);
+                if (paramsOData.$orderby)
+                  paramsOData.$orderby =  orderBy + "," + paramsOData.$orderby;
+                else
+                  paramsOData.$orderby = orderBy;
+              }
+              return paramsOData;
+            }
+            else 
+              data = parseParameter(data);
+            
+            return kendo.stringify(data);
+          }
+      },
+      pageSize: pageSize,
+      serverPaging: true,
+      serverFiltering: true,
+      serverSorting: true,
+      batch: false,
+      schema: schema
+    };
+    return datasource;
+  }
+};
