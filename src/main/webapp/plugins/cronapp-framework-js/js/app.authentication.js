@@ -385,7 +385,7 @@ app.kendoHelper = {
       }
     };
     if (dataSource && dataSource.schemaFields) {
-      dataSource.schemaFields.forEach((field) => {
+      dataSource.schemaFields.forEach(function(field) {
         if (field.key)
           schema.model.id = field.name;
         schema.model.fields[field.name] = {
@@ -473,7 +473,7 @@ app.kendoHelper = {
               
               var orderBy = '';
               if (this.options.grid) {
-                this.options.grid.dataSource.group().forEach((group) => { 
+                this.options.grid.dataSource.group().forEach(function(group) { 
                   orderBy += group.field +" " + group.dir + ","; 
                 });
               }

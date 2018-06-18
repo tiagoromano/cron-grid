@@ -862,147 +862,6 @@
         return {
           restrict: 'E',
           replace: true,
-          getSchema: function(dataSource) {
-            
-            var parseAttribute = [
-              { kendoType: "string", entityType: ["string", "character", "uuid", "guid"] },
-              { kendoType: "number", entityType: ["integer", "long", "double", "int", "float", "bigdecimal", "single", "int32", "int64", "decimal"] },
-              { kendoType: "date", entityType: ["date", "time", "datetime"] },
-              { kendoType: "boolean", entityType: ["boolean"] }
-            ];
-            
-            var parseType = function(type) {
-              for (var i = 0; i < parseAttribute.length; i++) {
-                if (parseAttribute[i].entityType.includes(type.toLocaleLowerCase()))
-                  return parseAttribute[i].kendoType;
-              }
-              return "string";
-            };
-           
-            var schema = { 
-              model : {
-                id : undefined,
-                fields: {}
-              }
-            };
-            if (dataSource && dataSource.schemaFields) {
-              dataSource.schemaFields.forEach((field) => {
-                if (field.key)
-                  schema.model.id = field.name;
-                schema.model.fields[field.name] = {
-                  type: parseType(field.type),
-                  editable: true,
-                  nullable: field.nullable,
-                  validation: { required: !field.nullable },
-                }
-              });
-            }
-            return schema;
-          },
-          getDataSource: function(dataSource, allowPaging, pageCount) {
-            var crudServiceBaseUrl = "";
-            var schema = this.getSchema(dataSource);
-            if (dataSource.serviceUrlODATA) 
-              crudServiceBaseUrl = dataSource.serviceUrlODATA;
-            
-            var parseParameter = function(data) {
-              for (var attr in data) {
-                if (schema.model.fields.hasOwnProperty(attr)) {
-                  
-                  var schemaField = schema.model.fields[attr]; 
-                  if (schemaField.type == 'string' && data[attr] != undefined)
-                    data[attr] = data[attr] + "";
-                  else if (schemaField.type == 'number' && data[attr] != undefined)
-                    data[attr] = parseFloat(data[attr]);
-                  else if (schemaField.type == 'date' && data[attr] != undefined)
-                    data[attr] = '/Date('+data[attr].getTime()+')/';
-                    
-                  //Significa que é o ID
-                  if (schema.model.id == attr) {
-                    //Se o mesmo for vazio, remover do data
-                    if (data[attr] != undefined && data[attr].toString().length == 0)
-                      delete data[attr];
-                  }  
-                }
-              }
-              return data;
-            };
-            
-            
-            var pageSize = pageCount;
-            //Se permitir paginar, coloca quantidade default de registros, caso n tenha
-            if (allowPaging)
-              pageSize = pageCount ? pageCount : 10;
-            
-
-            var datasource = {
-              type: "odata",
-              transport: {
-                  read:  {
-                     url: crudServiceBaseUrl,
-                     dataType: "json"
-                  },
-                  update: {
-                      url: function(data) {
-                        // if (options.editable == 'batch') {
-                        //   var urls = [];
-                        //   data.models.forEach((m) => {
-                        //     urls.push(m.__metadata.uri);
-                        //   });
-                        //   return urls;
-                        // }
-                        // else {
-                          
-                          return data.__metadata.uri;
-                          
-                        // }
-                      },
-                  },
-                  create: {
-                      url: crudServiceBaseUrl,
-                  },
-                  destroy: {
-                      url: function(data) {
-                          return data.__metadata.uri;
-                      }
-                  },
-                  batch: {
-                      url: crudServiceBaseUrl,
-                  },
-                  parameterMap: function (data, type) {
-                    if (type == "read") {
-                      var paramsOData = kendo.data.transports.odata.parameterMap(data, type, true);
-                      
-                      var orderBy = '';
-                      if (this.options.grid) {
-                        this.options.grid.dataSource.group().forEach((group) => { 
-                          orderBy += group.field +" " + group.dir + ","; 
-                        });
-                      }
-                      if (orderBy.length > 0) {
-                        orderBy = orderBy.substr(0, orderBy.length-1);
-                        if (paramsOData.$orderby)
-                          paramsOData.$orderby =  orderBy + "," + paramsOData.$orderby;
-                        else
-                          paramsOData.$orderby = orderBy;
-                      }
-                      return paramsOData;
-                    }
-                    else 
-                      data = parseParameter(data);
-                    
-                    return kendo.stringify(data);
-                  }
-              },
-              pageSize: pageSize,
-              serverPaging: true,
-              serverFiltering: true,
-              serverSorting: true,
-              batch: false,
-              schema: schema
-            };
-            return datasource;
-          },
           getColumns: function(options) {
             var columns = [];
             if (options.columns) {
@@ -1057,7 +916,6 @@
             return columns;
           },
           getPageAble: function(options) {
-            debugger;
             var pageable = {
                 refresh:  options.allowRefreshGrid,
                 pageSizes: options.allowSelectionTotalPageToShow,
@@ -1073,6 +931,7 @@
             var toolbar = [];
             
             options.toolBarButtons.forEach(function(toolbarButton) {
+              debugger;
               if (toolbarButton.type == "Native") {
                 //Se a grade for editavel, adiciona todos os commands
                 if (options.editable != 'no') {
@@ -1090,7 +949,8 @@
                     toolbar.push(toolbarButton.title);
                   }
                 }
-                
+              }
+              else if (toolbarButton.type == "Blockly") {
                 
               }
               
@@ -1122,11 +982,10 @@
             
             var helperDirective = this;
             function detailInit(e) {
-              debugger;
-              e.sender.options.listCurrentOptions.forEach(currentOptions => {
+              e.sender.options.listCurrentOptions.forEach(function(currentOptions) {
                 var currentKendoGridInit = helperDirective.generateKendoGridInit(currentOptions);
                 currentKendoGridInit.dataSource.filter = [];
-                currentOptions.columns.forEach( c => {
+                currentOptions.columns.forEach( function(c) {
                   if (c.linkParentField && c.linkParentField.length > 0) {
                     var filter = { field: c.field, operator: "eq", value: e.data[c.linkParentField] };
                     currentKendoGridInit.dataSource.filter.push(filter);
@@ -1137,8 +996,6 @@
               });
             }
             
-            // var datasource = this.getDataSource(options.dataSource, options.allowPaging, options.pageCount);
-            debugger;
             var datasource = app.kendoHelper.getDataSource(options.dataSource, options.allowPaging, options.pageCount);
             var columns = this.getColumns(options);
             var pageAble = this.getPageAble(options);
@@ -1180,8 +1037,6 @@
             
           },
           link: function (scope, element, attrs, ngModelCtrl) {
-            debugger;
-            
             var $templateDyn = $('<div></div>');
             var baseUrl = 'plugins/cronapp-framework-js/dist/js/kendo-ui/js/messages/kendo.messages.';
             if ($translate.use() == 'pt_br')
@@ -1197,7 +1052,7 @@
                 var options = JSON.parse(attrs.options || "{}");
                 var kendoGridInit = helperDirective.generateKendoGridInit(options);
                 
-                let grid = $templateDyn.kendoGrid(kendoGridInit).data('kendoGrid');
+                var grid = $templateDyn.kendoGrid(kendoGridInit).data('kendoGrid');
                 grid.dataSource.transport.options.grid = grid;
                 
                 

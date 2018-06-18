@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><blockly formTarget="" resourceType="JS" ruleDescription="" ruleName="TesteCliente" ruleSynchronous="false" ruleTimeout="" ruleType="">
-  <metadata scale="1" scrollx="8.000000000000341" scrolly="7" target="6f7GtYyePIsR+BzhUFyB"/>
+  <metadata scale="1" scrollx="8.000000000000455" scrolly="7.000000000000057" target="6f7GtYyePIsR+BzhUFyB"/>
   <block colour="#995ba5" id="6f7GtYyePIsR+BzhUFyB" origintype="procedures_defreturn" output="false" tooltip="Cria uma função que possui um valor de retorno." type="procedures_defreturn" x="68" y="98">
     <mutation>
       <arg name="param1"/>
@@ -8,10 +8,14 @@
     </mutation>
     <field name="NAME">faça algo</field>
     <comment h="80" pinned="false" w="160">Descreva esta função...</comment>
-    <value name="RETURN">
-      <block colour="#a55b80" dependencyby="6f7GtYyePIsR+BzhUFyB" id="?*j5p*bEKP!M6m@)ggJa" origintype="variables_get" output="true" tooltip="Retorna o valor desta variável." type="variables_get">
-        <field name="VAR">item</field>
+    <statement name="STACK">
+      <block colour="#5ba58c" dependencyby="6f7GtYyePIsR+BzhUFyB" id="CpdO]p42Hh8(T;b5NJ`y" origintype="text_print" output="false" tooltip="Imprime o texto, número ou valor especificado." type="text_print">
+        <value name="TEXT">
+          <shadow colour="#5ba593" dependencyby="6f7GtYyePIsR+BzhUFyB" id=":YL4LRoLp4Zps%9Nl)3b" origintype="text" output="true" tooltip="function () { [native code] }" type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
       </block>
-    </value>
+    </statement>
   </block>
 </blockly>

@@ -423,5 +423,87 @@
 			"foreignKey": null
 		},
 		"serviceUrl": "api/cronapi/query/u8aqyz41dctu/"
+	},
+	"1hrutdl4eyddl": {
+		"customId": "romano",
+		"queryName": "romano",
+		"screen": "",
+		"sourceType": "entityFullName",
+		"blockly": null,
+		"entitySimpleName": "User",
+		"entityFullName": "app.entity.User",
+		"query": {
+			"isValid": true,
+			"rulesEntity": [
+				{
+					"entity": "User",
+					"alias": "u",
+					"namespace": "app.entity.User"
+				}
+			],
+			"rulesSelect": [
+				{
+					"func": "get",
+					"field": "u"
+				}
+			],
+			"rulesGroupBy": [],
+			"rulesHaving": [],
+			"rulesOrderBy": [],
+			"rules": {
+				"condition": "AND",
+				"not": false,
+				"valid": true,
+				"rules": []
+			}
+		},
+		"queryParamsValues": [],
+		"verbs": {
+			"GET": true,
+			"GETAuthorities": null,
+			"POST": true,
+			"POSTAuthorities": null,
+			"PUT": true,
+			"PUTAuthorities": null,
+			"DELETE": true,
+			"DELETEAuthorities": null,
+			"FILTER": true,
+			"FILTERAuthorities": null
+		},
+		"events": {
+			"beforeInsert": null,
+			"beforeUpdate": null,
+			"beforeDelete": null,
+			"afterInsert": null,
+			"afterUpdate": null,
+			"afterDelete": null,
+			"onNavigate": null,
+			"onGetData": null
+		},
+		"defaultValues": {
+			"id": null,
+			"email": null,
+			"name": null,
+			"login": null,
+			"picture": null,
+			"password": null,
+			"theme": null
+		},
+		"security": {
+			"id": null,
+			"email": null,
+			"name": null,
+			"login": null,
+			"picture": null,
+			"password": null,
+			"theme": null
+		},
+		"calcFields": {},
+		"calcFieldsSecurity": {},
+		"errorHandles": {
+			"primaryKey": null,
+			"foreignKey": null
+		},
+		"serviceUrl": "api/cronapi/query/1hrutdl4eyddl/"
 	}
 }
