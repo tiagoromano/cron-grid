@@ -399,10 +399,8 @@ app.kendoHelper = {
     return schema;
   },
   getDataSource: function(dataSource, allowPaging, pageCount) {
-    var crudServiceBaseUrl = "";
+    var crudServiceBaseUrl = dataSourceMap[dataSource.id].serviceUrlODATA;
     var schema = this.getSchema(dataSource);
-    if (dataSource.serviceUrlODATA) 
-      crudServiceBaseUrl = dataSource.serviceUrlODATA;
     
     var parseParameter = function(data) {
       for (var attr in data) {

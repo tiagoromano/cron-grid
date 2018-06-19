@@ -862,6 +862,12 @@
         return {
           restrict: 'E',
           replace: true,
+          htmlEncode: function(value){
+            return $('<div/>').text(value).html();
+          },
+          htmlDecode: function(value){
+            return $('<div/>').html(value).text();
+          },
           getColumns: function(options) {
             var columns = [];
             if (options.columns) {
@@ -951,10 +957,33 @@
                 }
               }
               else if (toolbarButton.type == "Blockly") {
-                
+                if (toolbarButton.blocklyInfo.type == "client")  {
+                  debugger;
+                  var thisDirective = this;
+                  var splitedClass = toolbarButton.blocklyInfo.blocklyClass.split('/');
+                  var blocklyName = splitedClass[splitedClass.length-1];
+                  blocklyName = "blockly.js.blockly." + blocklyName;
+                  blocklyName += "." +  toolbarButton.blocklyInfo.blocklyMethod;
+                  
+                  var params = "()";
+                  if (toolbarButton.blocklyInfo.blocklyParams.length > 0) {
+                    params = "(";
+                    toolbarButton.blocklyInfo.blocklyParams.forEach(function(p) {
+                      params += this.htmlEncode(p.value) + ",";
+                    }.bind(this))
+                    params = params.substr(0, params.length - 1);
+                    params += ")";
+                  }
+                  
+                  blocklyName += params;
+                  
+                  var buttonBlockly = { template: '<a class="k-button" href="\\#" onclick="'+blocklyName+'">'+toolbarButton.title+'</a>' };
+                  
+                  toolbar.push(buttonBlockly);
+                }
               }
               
-            });
+            }.bind(this));
             
             // if (options.exportExcel)
             //   toolbar.push("excel");
