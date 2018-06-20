@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><blockly formTarget="" resourceType="JAVA" ruleDescription="Bloco" ruleName="Bloco" ruleSynchronous="false" ruleTimeout="" ruleType="I">
-  <metadata scale="1" scrollx="357.0000000000007" scrolly="0" target="Anb:u5+^,0vLkL9QIqn5"/>
+  <metadata scale="1" scrollx="357.0000000000009" scrolly="-1.2789769243681803e-13" target="Anb:u5+^,0vLkL9QIqn5"/>
   <block colour="#995ba5" id="Anb:u5+^,0vLkL9QIqn5" origintype="procedures_defreturn" output="false" tooltip="Cria uma função que possui um valor de retorno." type="procedures_defreturn" x="-350" y="130">
     <mutation>
       <arg name="Dados"/>
@@ -8,5 +8,41 @@
     </mutation>
     <field name="NAME">Executar</field>
     <comment h="80" pinned="false" w="160">Bloco</comment>
+    <statement name="STACK">
+      <block colour="#5ba58c" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="j:;(!jb1u%u+c!2C{5q$" origintype="text_print" output="false" tooltip="Imprime o texto, número ou valor especificado." type="text_print">
+        <value name="TEXT">
+          <shadow colour="#5ba593" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="j|({8ek~7;~MZN5b5Mfe" origintype="text" output="true" tooltip="function () { [native code] }" type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+          <block colour="#a55b80" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="-qvgL]K5yMFz-!/!@t~h" origintype="variables_get" output="true" tooltip="Retorna o valor desta variável." type="variables_get">
+            <field name="VAR">Dados</field>
+          </block>
+        </value>
+        <next>
+          <block colour="#5ba58c" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="w+/|id%s.-fhd%q:pYbr" origintype="text_print" output="false" tooltip="Imprime o texto, número ou valor especificado." type="text_print">
+            <value name="TEXT">
+              <shadow colour="#5ba593" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="j|({8ek~7;~MZN5b5Mfe" origintype="text" output="true" tooltip="function () { [native code] }" type="text" xmlns="">
+                <field name="TEXT">abc</field>
+              </shadow>
+              <block colour="#a55b80" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="^@|}iOdvE)n[b*ZAZ!a$" origintype="variables_get" output="true" tooltip="Retorna o valor desta variável." type="variables_get">
+                <field name="VAR">param2</field>
+              </block>
+            </value>
+            <next>
+              <block colour="#5ba58c" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="9B5R_Gr^=,P.Xe@i;|Hi" origintype="text_print" output="false" tooltip="Imprime o texto, número ou valor especificado." type="text_print">
+                <value name="TEXT">
+                  <shadow colour="#5ba593" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="j|({8ek~7;~MZN5b5Mfe" origintype="text" output="true" tooltip="function () { [native code] }" type="text" xmlns="">
+                    <field name="TEXT">abc</field>
+                  </shadow>
+                  <block colour="#a55b80" dependencyby="Anb:u5+^,0vLkL9QIqn5" id="/Cd7l(SRu,YZ:VtyXO[m" origintype="variables_get" output="true" tooltip="Retorna o valor desta variável." type="variables_get">
+                    <field name="VAR">Dados</field>
+                  </block>
+                </value>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
   </block>
 </blockly>

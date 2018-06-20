@@ -22,6 +22,9 @@ public class Bloco {
 		return new Callable<Var>() {
 
 			public Var call() throws Exception {
+				System.out.println(Dados.getObjectAsString());
+				System.out.println(param2.getObjectAsString());
+				System.out.println(param3.getObjectAsString());
 				return Var.VAR_NULL;
 			}
 		}.call();

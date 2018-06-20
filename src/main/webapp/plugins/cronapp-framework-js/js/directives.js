@@ -862,13 +862,101 @@
         return {
           restrict: 'E',
           replace: true,
-          htmlEncode: function(value){
-            return $('<div/>').text(value).html();
+          generateId: function() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+              .toString(16)
+              .substring(1);
           },
-          htmlDecode: function(value){
-            return $('<div/>').html(value).text();
+          generateToolbarButtonBlockly: function(toolbarButton, scope) {
+            var buttonBlockly;
+            
+            var generateObjTemplate = function(functionToCall, title) { 
+                var obj = {
+                  template: function() {
+                    var buttonId = this.generateId();
+                    return compileTemplateAngular(buttonId, functionToCall, title);
+                    
+                    // var template = '<a class="k-button" id="#BUTTONID#" href="javascript:void(0)" onclick="#FUNCTIONCALL#">#TITLE#</a>';
+                    // template = template
+                    //     .split('#BUTTONID#').join(buttonId)
+                    //     .split('#FUNCTIONCALL#').join(functionToCall)
+                    //     .split('#TITLE#').join(title);
+                    // return template;
+                  }.bind(this)
+                };
+                return obj;
+            }.bind(this);
+            
+            var compileTemplateAngular = function(buttonId, functionToCall, title) {
+              var template = '<a class="k-button" id="#BUTTONID#" href="javascript:void(0)" ng-click="#FUNCTIONCALL#">#TITLE#</a>';
+              template = template
+                        .split('#BUTTONID#').join(buttonId)
+                        .split('#FUNCTIONCALL#').join(functionToCall)
+                        .split('#TITLE#').join(title);
+                        
+              var waitRender = setInterval(function() {
+                if ($('#' + buttonId).length > 0) {
+                  var x = angular.element($('#' + buttonId ));
+                  $compile(x)(scope);
+                  clearInterval(waitRender);
+                }
+              },200);
+              
+              return template;
+            };
+            
+            if (toolbarButton.blocklyInfo.type == "client")  {
+              var splitedClass = toolbarButton.blocklyInfo.blocklyClass.split('/');
+              var blocklyName = splitedClass[splitedClass.length-1];
+              var call = "blockly.js.blockly." + blocklyName;
+              call += "." +  toolbarButton.blocklyInfo.blocklyMethod;
+              // call += ".bind(window)";
+              
+              var params = "()";
+              if (toolbarButton.blocklyInfo.blocklyParams.length > 0) {
+                params = "(";
+                toolbarButton.blocklyInfo.blocklyParams.forEach(function(p) {
+                  params += this.encodeHTML(p.value) + ",";
+                }.bind(this))
+                params = params.substr(0, params.length - 1);
+                params += ")";
+              }
+              
+              call += params;
+              buttonBlockly = generateObjTemplate(call, toolbarButton.title);
+            }
+            else if (toolbarButton.blocklyInfo.type == "server") {
+              var blocklyName = toolbarButton.blocklyInfo.blocklyClass + ':' + toolbarButton.blocklyInfo.blocklyMethod;
+              
+              // var call = "cronapi.util.makeCallServerBlocklyAsync.bind(window)('"+blocklyName+"',null,null,";
+              var call = "cronapi.util.makeCallServerBlocklyAsync('"+blocklyName+"',null,null,";
+              if (toolbarButton.blocklyInfo.blocklyParams.length > 0) {
+                toolbarButton.blocklyInfo.blocklyParams.forEach(function(p) {
+                  call += this.encodeHTML(p.value) + ",";
+                }.bind(this))
+              }
+              call = call.substr(0, call.length - 1);
+              call += ")";
+              
+              buttonBlockly = generateObjTemplate(call, toolbarButton.title);
+            }
+            return buttonBlockly;
           },
-          getColumns: function(options) {
+          encodeHTML: function(value){
+            return value.replace(/&/g, '&amp;')
+               .replace(/</g, '&lt;')
+               .replace(/>/g, '&gt;')
+               .replace(/"/g, '&quot;')
+               .replace(/'/g, '&apos;');
+          },
+          decodeHTML: function(value){
+            return value.replace(/&apos;/g, "'")
+               .replace(/&quot;/g, '"')
+               .replace(/&gt;/g, '>')
+               .replace(/&lt;/g, '<')
+               .replace(/&amp;/g, '&');
+          },
+          getColumns: function(options, scope) {
             var columns = [];
             if (options.columns) {
               options.columns.forEach(function(column)  {
@@ -907,6 +995,50 @@
               });
             }
             
+            var teste = { command: [{
+                  name: "details",
+                  click: function(e) {
+                    debugger;
+                      // prevent page scroll position change
+                      e.preventDefault();
+                      // e.target is the DOM element representing the button
+                      var tr = $(e.target).closest("tr"); // get the current table row (tr)
+                      // get the data bound to the current table row
+                      var data = this.dataItem(tr);
+                      
+                      var teste = "scope.cronapi.util.makeCallServerBlocklyAsync('blockly.Bloco:Executar',null,null,data['name'],'tudo bem?','Sim, tudo otimo');";
+                      eval(teste);
+                      
+                      // scope.cronapi.util.makeCallServerBlocklyAsync('blockly.Bloco:Executar',null,null,'ola','tudo bem?','Sim, tudo otimo');
+                      console.log("Details for: " + data.name);
+                  }
+                }]
+             };
+            columns.push(teste);
+            // var teste = {
+            //   field: "teste",
+            //   template: function(dataItem) {
+            //     var buttonId = "meuovo";
+            //     var title = "click block";
+            //     var template = '<a class="k-button" id="#BUTTONID#" href="javascript:void(0)" ng-click="#FUNCTIONCALL#">#TITLE#</a>';
+            //     template = template
+            //               .split('#BUTTONID#').join(buttonId)
+            //               .split('#FUNCTIONCALL#').join("cronapi.util.makeCallServerBlocklyAsync('blockly.Bloco:Executar',null,null,'ola','tudo bem?','Sim, tudo otimo')")
+            //               .split('#TITLE#').join(title);
+                          
+            //     var waitRender = setInterval(function() {
+            //       if ($('#' + buttonId).length > 0) {
+            //         var x = angular.element($('#' + buttonId ));
+            //         $compile(x)(scope);
+            //         clearInterval(waitRender);
+            //       }
+            //     },200)
+            //     return template;
+            //   }
+            // };
+            // columns.push(teste);
+            
+            
             // var commandToEditDestroy = {
             //   command: [],
             //   title: "&nbsp;",
@@ -933,11 +1065,10 @@
                     
             return pageable;
           },
-          getToolbar: function(options) {
+          getToolbar: function(options, scope) {
             var toolbar = [];
             
             options.toolBarButtons.forEach(function(toolbarButton) {
-              debugger;
               if (toolbarButton.type == "Native") {
                 //Se a grade for editavel, adiciona todos os commands
                 if (options.editable != 'no') {
@@ -957,41 +1088,19 @@
                 }
               }
               else if (toolbarButton.type == "Blockly") {
-                if (toolbarButton.blocklyInfo.type == "client")  {
-                  debugger;
-                  var thisDirective = this;
-                  var splitedClass = toolbarButton.blocklyInfo.blocklyClass.split('/');
-                  var blocklyName = splitedClass[splitedClass.length-1];
-                  blocklyName = "blockly.js.blockly." + blocklyName;
-                  blocklyName += "." +  toolbarButton.blocklyInfo.blocklyMethod;
-                  
-                  var params = "()";
-                  if (toolbarButton.blocklyInfo.blocklyParams.length > 0) {
-                    params = "(";
-                    toolbarButton.blocklyInfo.blocklyParams.forEach(function(p) {
-                      params += this.htmlEncode(p.value) + ",";
-                    }.bind(this))
-                    params = params.substr(0, params.length - 1);
-                    params += ")";
-                  }
-                  
-                  blocklyName += params;
-                  
-                  var buttonBlockly = { template: '<a class="k-button" href="\\#" onclick="'+blocklyName+'">'+toolbarButton.title+'</a>' };
-                  
-                  toolbar.push(buttonBlockly);
+                var buttonBlockly = this.generateToolbarButtonBlockly(toolbarButton, scope);
+                toolbar.push(buttonBlockly);
+              }
+              else if (toolbarButton.type == "Template") {
+                debugger;
+                var buttonTemplate =  {
+                  template: toolbarButton.template
                 }
+                toolbar.push(buttonTemplate);
               }
               
             }.bind(this));
             
-            // if (options.exportExcel)
-            //   toolbar.push("excel");
-            // if (options.exportPDF)
-            //   toolbar.push("pdf");
-            // if (options.allowInsert)
-            //   toolbar.push("create");
-              
             if (toolbar.length == 0)
               toolbar = undefined;
             return toolbar;
@@ -1007,7 +1116,7 @@
             }
             return editable;
           },
-          generateKendoGridInit: function(options) {
+          generateKendoGridInit: function(options, scope) {
             
             var helperDirective = this;
             function detailInit(e) {
@@ -1026,9 +1135,9 @@
             }
             
             var datasource = app.kendoHelper.getDataSource(options.dataSource, options.allowPaging, options.pageCount);
-            var columns = this.getColumns(options);
+            var columns = this.getColumns(options, scope);
             var pageAble = this.getPageAble(options);
-            var toolbar = this.getToolbar(options);
+            var toolbar = this.getToolbar(options, scope);
             var editable = this.getEditable(options);
             
             var kendoGridInit = {
@@ -1079,7 +1188,7 @@
                 console.log('loaded language');
                 
                 var options = JSON.parse(attrs.options || "{}");
-                var kendoGridInit = helperDirective.generateKendoGridInit(options);
+                var kendoGridInit = helperDirective.generateKendoGridInit(options, scope);
                 
                 var grid = $templateDyn.kendoGrid(kendoGridInit).data('kendoGrid');
                 grid.dataSource.transport.options.grid = grid;
