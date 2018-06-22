@@ -11,7 +11,7 @@ window.blockly.js.blockly.TesteCliente.fa_C3_A7a_algo = function(param1,
 		param2, param3) {
 
 	var item, param1, param2, param3;
-	window.alert(param1);
-	window.alert(param2);
-	window.alert(param3);
+	console.log(param1);
+	console.log(param2);
+	console.log(param3);
 }

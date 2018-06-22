@@ -735,7 +735,6 @@
               datasourceName = attrs.crnDatasource;
             else
               datasourceName = $element.parent().attr('crn-datasource')
-            debugger;
             var requiredFilter = attrs.requiredFilter && attrs.requiredFilter.toString() == "true";
             if (requiredFilter) {
               this.forceDisableDatasource(datasourceName, scope);
@@ -867,6 +866,38 @@
               .toString(16)
               .substring(1);
           },
+          generateBlocklyCall: function(blocklyInfo) {
+            var call;
+            if (blocklyInfo.type == "client")  {
+              var splitedClass = blocklyInfo.blocklyClass.split('/');
+              var blocklyName = splitedClass[splitedClass.length-1];
+              call = "blockly.js.blockly." + blocklyName;
+              call += "." +  blocklyInfo.blocklyMethod;
+              var params = "()";
+              if (blocklyInfo.blocklyParams.length > 0) {
+                params = "(";
+                blocklyInfo.blocklyParams.forEach(function(p) {
+                  params += this.encodeHTML(p.value) + ",";
+                }.bind(this))
+                params = params.substr(0, params.length - 1);
+                params += ")";
+              }
+              call += params;
+            }
+            else if (blocklyInfo.type == "server") {
+              var blocklyName = blocklyInfo.blocklyClass + ':' + blocklyInfo.blocklyMethod;
+              call = "cronapi.util.makeCallServerBlocklyAsync('"+blocklyName+"',null,null,";
+              if (blocklyInfo.blocklyParams.length > 0) {
+                blocklyInfo.blocklyParams.forEach(function(p) {
+                  call += this.encodeHTML(p.value) + ",";
+                }.bind(this))
+              }
+              call = call.substr(0, call.length - 1);
+              call += ")";
+            }
+            return call;
+            
+          },
           generateToolbarButtonBlockly: function(toolbarButton, scope) {
             var buttonBlockly;
             
@@ -875,13 +906,6 @@
                   template: function() {
                     var buttonId = this.generateId();
                     return compileTemplateAngular(buttonId, functionToCall, title);
-                    
-                    // var template = '<a class="k-button" id="#BUTTONID#" href="javascript:void(0)" onclick="#FUNCTIONCALL#">#TITLE#</a>';
-                    // template = template
-                    //     .split('#BUTTONID#').join(buttonId)
-                    //     .split('#FUNCTIONCALL#').join(functionToCall)
-                    //     .split('#TITLE#').join(title);
-                    // return template;
                   }.bind(this)
                 };
                 return obj;
@@ -905,41 +929,8 @@
               return template;
             };
             
-            if (toolbarButton.blocklyInfo.type == "client")  {
-              var splitedClass = toolbarButton.blocklyInfo.blocklyClass.split('/');
-              var blocklyName = splitedClass[splitedClass.length-1];
-              var call = "blockly.js.blockly." + blocklyName;
-              call += "." +  toolbarButton.blocklyInfo.blocklyMethod;
-              // call += ".bind(window)";
-              
-              var params = "()";
-              if (toolbarButton.blocklyInfo.blocklyParams.length > 0) {
-                params = "(";
-                toolbarButton.blocklyInfo.blocklyParams.forEach(function(p) {
-                  params += this.encodeHTML(p.value) + ",";
-                }.bind(this))
-                params = params.substr(0, params.length - 1);
-                params += ")";
-              }
-              
-              call += params;
-              buttonBlockly = generateObjTemplate(call, toolbarButton.title);
-            }
-            else if (toolbarButton.blocklyInfo.type == "server") {
-              var blocklyName = toolbarButton.blocklyInfo.blocklyClass + ':' + toolbarButton.blocklyInfo.blocklyMethod;
-              
-              // var call = "cronapi.util.makeCallServerBlocklyAsync.bind(window)('"+blocklyName+"',null,null,";
-              var call = "cronapi.util.makeCallServerBlocklyAsync('"+blocklyName+"',null,null,";
-              if (toolbarButton.blocklyInfo.blocklyParams.length > 0) {
-                toolbarButton.blocklyInfo.blocklyParams.forEach(function(p) {
-                  call += this.encodeHTML(p.value) + ",";
-                }.bind(this))
-              }
-              call = call.substr(0, call.length - 1);
-              call += ")";
-              
-              buttonBlockly = generateObjTemplate(call, toolbarButton.title);
-            }
+            var call = this.generateBlocklyCall(toolbarButton.blocklyInfo);
+            buttonBlockly = generateObjTemplate(call, toolbarButton.title);
             return buttonBlockly;
           },
           encodeHTML: function(value){
@@ -987,70 +978,39 @@
                       };
                       columns.push(addColumn);
                     }
-                    
                   }
-                    
+                  else if (column.dataType == "Blockly") {
+                    var directiveContext = this;
+                    var addColumn = { 
+                      command: [{
+                        name: this.generateId(),
+                        text: column.headerText,
+                        click: function(e) {
+                          debugger;
+                          e.preventDefault();
+                          var tr = $(e.target).closest("tr"); // get the current table row (tr)
+                          var grid = tr.closest('table');
+                          
+                          var item = this.dataItem(tr);
+                          var index = $(grid).find('tr').index(tr);
+                          var consolidated = {
+                            item: item,
+                            index: index
+                          }
+                          var call = 'scope.' + directiveContext.generateBlocklyCall(column.blocklyInfo);
+                          eval(call);
+                          return;
+                        }
+                      }],
+                      width: column.width
+                    };
+                    columns.push(addColumn);
+                  }
                   
                 }
-              });
+              }.bind(this));
             }
             
-            var teste = { command: [{
-                  name: "details",
-                  click: function(e) {
-                    debugger;
-                      // prevent page scroll position change
-                      e.preventDefault();
-                      // e.target is the DOM element representing the button
-                      var tr = $(e.target).closest("tr"); // get the current table row (tr)
-                      // get the data bound to the current table row
-                      var data = this.dataItem(tr);
-                      
-                      var teste = "scope.cronapi.util.makeCallServerBlocklyAsync('blockly.Bloco:Executar',null,null,data['name'],'tudo bem?','Sim, tudo otimo');";
-                      eval(teste);
-                      
-                      // scope.cronapi.util.makeCallServerBlocklyAsync('blockly.Bloco:Executar',null,null,'ola','tudo bem?','Sim, tudo otimo');
-                      console.log("Details for: " + data.name);
-                  }
-                }]
-             };
-            columns.push(teste);
-            // var teste = {
-            //   field: "teste",
-            //   template: function(dataItem) {
-            //     var buttonId = "meuovo";
-            //     var title = "click block";
-            //     var template = '<a class="k-button" id="#BUTTONID#" href="javascript:void(0)" ng-click="#FUNCTIONCALL#">#TITLE#</a>';
-            //     template = template
-            //               .split('#BUTTONID#').join(buttonId)
-            //               .split('#FUNCTIONCALL#').join("cronapi.util.makeCallServerBlocklyAsync('blockly.Bloco:Executar',null,null,'ola','tudo bem?','Sim, tudo otimo')")
-            //               .split('#TITLE#').join(title);
-                          
-            //     var waitRender = setInterval(function() {
-            //       if ($('#' + buttonId).length > 0) {
-            //         var x = angular.element($('#' + buttonId ));
-            //         $compile(x)(scope);
-            //         clearInterval(waitRender);
-            //       }
-            //     },200)
-            //     return template;
-            //   }
-            // };
-            // columns.push(teste);
-            
-            
-            // var commandToEditDestroy = {
-            //   command: [],
-            //   title: "&nbsp;",
-            //   width: "250px"
-            // };
-            // if (options.allowInsert || options.allowUpdate)
-            //   commandToEditDestroy.command.push("edit");
-            // if (options.allowDelete)
-            //   commandToEditDestroy.command.push("destroy");
-            // if (commandToEditDestroy.command.length > 0)  
-            //   columns.push(commandToEditDestroy);
-              
             return columns;
           },
           getPageAble: function(options) {
@@ -1092,7 +1052,6 @@
                 toolbar.push(buttonBlockly);
               }
               else if (toolbarButton.type == "Template") {
-                debugger;
                 var buttonTemplate =  {
                   template: toolbarButton.template
                 }
@@ -1121,7 +1080,7 @@
             var helperDirective = this;
             function detailInit(e) {
               e.sender.options.listCurrentOptions.forEach(function(currentOptions) {
-                var currentKendoGridInit = helperDirective.generateKendoGridInit(currentOptions);
+                var currentKendoGridInit = helperDirective.generateKendoGridInit(currentOptions, scope);
                 currentKendoGridInit.dataSource.filter = [];
                 currentOptions.columns.forEach( function(c) {
                   if (c.linkParentField && c.linkParentField.length > 0) {
@@ -1149,7 +1108,6 @@
                   margin: { top: "2cm", left: "1cm", right: "1cm", bottom: "1cm" },
                   landscape: true,
                   repeatHeaders: true,
-                  // template: $("#page-template").html(),
                   scale: 0.8
               },
               dataSource: datasource,
@@ -1158,11 +1116,6 @@
               groupable: options.allowGrouping,
               sortable: options.allowSorting,
               filterable: true,
-              // dataBound: function() {
-              //   if (!options.allowUpdate) {
-              //       this.table.find(".k-grid-edit").hide();
-              //   }
-              // },
               pageable: pageAble,
               columns: columns,
             };

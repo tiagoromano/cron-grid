@@ -425,7 +425,7 @@
 		"serviceUrl": "api/cronapi/query/u8aqyz41dctu/"
 	},
 	"1hrutdl4eyddl": {
-		"customId": "romano",
+		"customId": "romano2",
 		"queryName": "romano",
 		"screen": "",
 		"sourceType": "entityFullName",
@@ -505,5 +505,153 @@
 			"foreignKey": null
 		},
 		"serviceUrl": "api/cronapi/query/1hrutdl4eyddl/"
+	},
+	"1hbm1qhds42n6": {
+		"customId": "cidades",
+		"queryName": "Obter todas as cidades",
+		"screen": "",
+		"sourceType": "entityFullName",
+		"blockly": null,
+		"entitySimpleName": "Cidade",
+		"entityFullName": "app.entity.Cidade",
+		"query": {
+			"isValid": true,
+			"rulesEntity": [
+				{
+					"entity": "Cidade",
+					"alias": "c",
+					"namespace": "app.entity.Cidade"
+				}
+			],
+			"rulesSelect": [
+				{
+					"func": "get",
+					"field": "c"
+				}
+			],
+			"rulesGroupBy": [],
+			"rulesHaving": [],
+			"rulesOrderBy": [],
+			"rules": {
+				"condition": "AND",
+				"not": false,
+				"valid": true,
+				"rules": []
+			}
+		},
+		"queryParamsValues": [],
+		"verbs": {
+			"GET": true,
+			"GETAuthorities": null,
+			"POST": true,
+			"POSTAuthorities": null,
+			"PUT": true,
+			"PUTAuthorities": null,
+			"DELETE": true,
+			"DELETEAuthorities": null,
+			"FILTER": true,
+			"FILTERAuthorities": null
+		},
+		"events": {
+			"beforeInsert": null,
+			"beforeUpdate": null,
+			"beforeDelete": null,
+			"afterInsert": null,
+			"afterUpdate": null,
+			"afterDelete": null,
+			"onNavigate": null,
+			"onGetData": null
+		},
+		"defaultValues": {
+			"id": null,
+			"nome": null,
+			"estado": null
+		},
+		"security": {
+			"id": null,
+			"nome": null,
+			"estado": null
+		},
+		"calcFields": {},
+		"calcFieldsSecurity": {},
+		"errorHandles": {
+			"primaryKey": null,
+			"foreignKey": null
+		},
+		"serviceUrl": "api/cronapi/query/1hbm1qhds42n6/"
+	},
+	"u8dh6mizgtia": {
+		"customId": "bairros",
+		"queryName": "Obter todos os bairros",
+		"screen": "",
+		"sourceType": "entityFullName",
+		"blockly": null,
+		"entitySimpleName": "Bairro",
+		"entityFullName": "app.entity.Bairro",
+		"query": {
+			"isValid": true,
+			"rulesEntity": [
+				{
+					"entity": "Bairro",
+					"alias": "b",
+					"namespace": "app.entity.Bairro"
+				}
+			],
+			"rulesSelect": [
+				{
+					"func": "get",
+					"field": "b"
+				}
+			],
+			"rulesGroupBy": [],
+			"rulesHaving": [],
+			"rulesOrderBy": [],
+			"rules": {
+				"condition": "AND",
+				"not": false,
+				"valid": true,
+				"rules": []
+			}
+		},
+		"queryParamsValues": [],
+		"verbs": {
+			"GET": true,
+			"GETAuthorities": null,
+			"POST": true,
+			"POSTAuthorities": null,
+			"PUT": true,
+			"PUTAuthorities": null,
+			"DELETE": true,
+			"DELETEAuthorities": null,
+			"FILTER": true,
+			"FILTERAuthorities": null
+		},
+		"events": {
+			"beforeInsert": null,
+			"beforeUpdate": null,
+			"beforeDelete": null,
+			"afterInsert": null,
+			"afterUpdate": null,
+			"afterDelete": null,
+			"onNavigate": null,
+			"onGetData": null
+		},
+		"defaultValues": {
+			"id": null,
+			"nome": null,
+			"cidade": null
+		},
+		"security": {
+			"id": null,
+			"nome": null,
+			"cidade": null
+		},
+		"calcFields": {},
+		"calcFieldsSecurity": {},
+		"errorHandles": {
+			"primaryKey": null,
+			"foreignKey": null
+		},
+		"serviceUrl": "api/cronapi/query/u8dh6mizgtia/"
 	}
 }
