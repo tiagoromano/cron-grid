@@ -992,7 +992,8 @@
                           var grid = tr.closest('table');
                           
                           var item = this.dataItem(tr);
-                          var index = $(grid).find('tr').index(tr);
+                          // var index = $(grid).find('tr.'+$(tr).attr('class')).index(tr);
+                          var index = $(grid.find('tbody')[0]).children().index(tr)
                           var consolidated = {
                             item: item,
                             index: index
