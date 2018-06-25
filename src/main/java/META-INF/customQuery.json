@@ -653,5 +653,79 @@
 			"foreignKey": null
 		},
 		"serviceUrl": "api/cronapi/query/u8dh6mizgtia/"
+	},
+	"to7ap1dqfrl1": {
+		"customId": "estados",
+		"queryName": "Obter todos os estados",
+		"screen": "",
+		"sourceType": "entityFullName",
+		"blockly": null,
+		"entitySimpleName": "Estado",
+		"entityFullName": "app.entity.Estado",
+		"query": {
+			"isValid": true,
+			"rulesEntity": [
+				{
+					"entity": "Estado",
+					"alias": "e",
+					"namespace": "app.entity.Estado"
+				}
+			],
+			"rulesSelect": [
+				{
+					"func": "get",
+					"field": "e"
+				}
+			],
+			"rulesGroupBy": [],
+			"rulesHaving": [],
+			"rulesOrderBy": [],
+			"rules": {
+				"condition": "AND",
+				"not": false,
+				"valid": true,
+				"rules": []
+			}
+		},
+		"queryParamsValues": [],
+		"verbs": {
+			"GET": true,
+			"GETAuthorities": null,
+			"POST": true,
+			"POSTAuthorities": null,
+			"PUT": true,
+			"PUTAuthorities": null,
+			"DELETE": true,
+			"DELETEAuthorities": null,
+			"FILTER": true,
+			"FILTERAuthorities": null
+		},
+		"events": {
+			"beforeInsert": null,
+			"beforeUpdate": null,
+			"beforeDelete": null,
+			"afterInsert": null,
+			"afterUpdate": null,
+			"afterDelete": null,
+			"onNavigate": null,
+			"onGetData": null
+		},
+		"defaultValues": {
+			"id": null,
+			"nome": null,
+			"uf": null
+		},
+		"security": {
+			"id": null,
+			"nome": null,
+			"uf": null
+		},
+		"calcFields": {},
+		"calcFieldsSecurity": {},
+		"errorHandles": {
+			"primaryKey": null,
+			"foreignKey": null
+		},
+		"serviceUrl": "api/cronapi/query/to7ap1dqfrl1/"
 	}
 }

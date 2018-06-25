@@ -948,6 +948,25 @@
                .replace(/&amp;/g, '&');
           },
           getColumns: function(options, scope) {
+            
+            function categoryDropDownEditor(container, options) {
+              debugger;
+              $('<input required name="' + options.field + '"/>')
+                  .appendTo(container)
+                  .kendoDropDownList({
+                      autoBind: false,
+                      dataTextField: "CategoryName",
+                      dataValueField: "CategoryID",
+                      dataSource: {
+                          type: "odata",
+                          transport: {
+                              read: "https://demos.telerik.com/kendo-ui/service/Northwind.svc/Categories"
+                          }
+                      }
+                  });
+                }
+            
+            
             var columns = [];
             if (options.columns) {
               options.columns.forEach(function(column)  {
@@ -961,6 +980,7 @@
                       width: column.width,
                       sortable: column.sortable,
                       filterable: column.filterable,
+                      editor: categoryDropDownEditor
                     };
                     if (column.format)
                       addColumn.format = column.format;
@@ -1080,17 +1100,42 @@
             
             var helperDirective = this;
             function detailInit(e) {
+              debugger;
               e.sender.options.listCurrentOptions.forEach(function(currentOptions) {
                 var currentKendoGridInit = helperDirective.generateKendoGridInit(currentOptions, scope);
-                currentKendoGridInit.dataSource.filter = [];
-                currentOptions.columns.forEach( function(c) {
-                  if (c.linkParentField && c.linkParentField.length > 0) {
-                    var filter = { field: c.field, operator: "eq", value: e.data[c.linkParentField] };
-                    currentKendoGridInit.dataSource.filter.push(filter);
+                
+                // currentKendoGridInit.dataSource.filter = currentKendoGridInit.dataSource.filter || [];
+                // currentOptions.columns.forEach( function(c) {
+                //   if ("hierarchy" == c.linkParentType && c.linkParentField && c.linkParentField.length > 0) {
+                //     var filter = { field: c.field, operator: "eq", value: e.data[c.linkParentField], linkParentType: c.linkParentType};
+                //     currentKendoGridInit.dataSource.filter.push(filter);
+                //   }
+                // });
+                currentKendoGridInit.dataSource.filter.forEach(function(f) {
+                  if (f.linkParentType == "hierarchy" ) {
+                    f.value = e.data[f.linkParentField];
                   }
                 });
                 var grid = $("<div/>").appendTo(e.detailCell).kendoGrid(currentKendoGridInit).data('kendoGrid');
                 grid.dataSource.transport.options.grid = grid;
+                
+                // scope.$watch('vars.testeRomano', function(newValue, oldValue) {
+                //     debugger;
+                //     if (grid) {
+                      
+                //       grid.dataSource.options.filter.forEach(function(f) {
+                //         if (f.type && f.type == "angular") {
+                //           // if (f.name )
+                //         }
+                //       });
+                      
+                //       grid.dataSource.read();
+                //       grid.refresh();
+                //     }
+                // });
+                
+                
+                
               });
             }
             
@@ -1099,6 +1144,37 @@
             var pageAble = this.getPageAble(options);
             var toolbar = this.getToolbar(options, scope);
             var editable = this.getEditable(options);
+          
+            debugger;
+            datasource.filter = [];
+            options.columns.forEach( function(c) {
+              if (c.linkParentField && c.linkParentField.length > 0 && 
+                  c.linkParentType && c.linkParentType.length > 0) 
+              {
+                var filter = { field: c.field, operator: "eq", value: "", linkParentField: c.linkParentField, linkParentType: c.linkParentType};
+                if (filter.linkParentType == "screen")
+                  filter.value = eval("scope."+filter.linkParentField);
+                datasource.filter.push(filter);
+              }
+            });
+            
+            // scope.$watch('vars.testeRomano', function(newValue, oldValue) {
+            //     debugger;
+            //     if (datasource) {
+                  
+            //       grid.dataSource.options.filter.forEach(function(f) {
+            //         if (f.type && f.type == "angular") {
+            //           // if (f.name )
+            //         }
+            //       });
+                  
+            //       grid.dataSource.read();
+            //       grid.refresh();
+            //     }
+            // });
+                
+                
+            
             
             var kendoGridInit = {
               toolbar: toolbar,
