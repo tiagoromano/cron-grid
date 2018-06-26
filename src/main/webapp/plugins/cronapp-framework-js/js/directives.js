@@ -861,6 +861,7 @@
         return {
           restrict: 'E',
           replace: true,
+          require: 'ngModel',
           generateId: function() {
             return Math.floor((1 + Math.random()) * 0x10000)
               .toString(16)
@@ -933,6 +934,21 @@
             buttonBlockly = generateObjTemplate(call, toolbarButton.title);
             return buttonBlockly;
           },
+          updateFiltersFromAngular: function(grid, scope) {
+            grid.dataSource.options.filter.forEach(function(f) {
+              if ("screen" == f.linkParentType) {
+                scope.$watch(f.linkParentField, function(newValue, oldValue) {
+                  grid.dataSource.options.filter.forEach(function(filterToUpdate) {
+                    if ("screen" == f.linkParentType && f.linkParentField == filterToUpdate.linkParentField) {
+                      filterToUpdate.value = newValue;
+                    }
+                  });
+                  grid.dataSource.read();
+                  grid.refresh();
+                });
+              }
+            });
+          },
           encodeHTML: function(value){
             return value.replace(/&/g, '&amp;')
                .replace(/</g, '&lt;')
@@ -980,7 +996,7 @@
                       width: column.width,
                       sortable: column.sortable,
                       filterable: column.filterable,
-                      editor: categoryDropDownEditor
+                      // editor: categoryDropDownEditor
                     };
                     if (column.format)
                       addColumn.format = column.format;
@@ -1100,41 +1116,18 @@
             
             var helperDirective = this;
             function detailInit(e) {
-              debugger;
               e.sender.options.listCurrentOptions.forEach(function(currentOptions) {
                 var currentKendoGridInit = helperDirective.generateKendoGridInit(currentOptions, scope);
                 
-                // currentKendoGridInit.dataSource.filter = currentKendoGridInit.dataSource.filter || [];
-                // currentOptions.columns.forEach( function(c) {
-                //   if ("hierarchy" == c.linkParentType && c.linkParentField && c.linkParentField.length > 0) {
-                //     var filter = { field: c.field, operator: "eq", value: e.data[c.linkParentField], linkParentType: c.linkParentType};
-                //     currentKendoGridInit.dataSource.filter.push(filter);
-                //   }
-                // });
                 currentKendoGridInit.dataSource.filter.forEach(function(f) {
                   if (f.linkParentType == "hierarchy" ) {
                     f.value = e.data[f.linkParentField];
                   }
                 });
+                
                 var grid = $("<div/>").appendTo(e.detailCell).kendoGrid(currentKendoGridInit).data('kendoGrid');
                 grid.dataSource.transport.options.grid = grid;
-                
-                // scope.$watch('vars.testeRomano', function(newValue, oldValue) {
-                //     debugger;
-                //     if (grid) {
-                      
-                //       grid.dataSource.options.filter.forEach(function(f) {
-                //         if (f.type && f.type == "angular") {
-                //           // if (f.name )
-                //         }
-                //       });
-                      
-                //       grid.dataSource.read();
-                //       grid.refresh();
-                //     }
-                // });
-                
-                
+                helperDirective.updateFiltersFromAngular(grid, scope);
                 
               });
             }
@@ -1145,36 +1138,21 @@
             var toolbar = this.getToolbar(options, scope);
             var editable = this.getEditable(options);
           
-            debugger;
             datasource.filter = [];
             options.columns.forEach( function(c) {
               if (c.linkParentField && c.linkParentField.length > 0 && 
                   c.linkParentType && c.linkParentType.length > 0) 
               {
-                var filter = { field: c.field, operator: "eq", value: "", linkParentField: c.linkParentField, linkParentType: c.linkParentType};
-                if (filter.linkParentType == "screen")
-                  filter.value = eval("scope."+filter.linkParentField);
+                var filter = { field: c.field, operator: "eq", value: "", linkParentField: c.linkParentField, linkParentType: c.linkParentType };
+                if (filter.linkParentType == "screen") {
+                  var value = eval("scope."+filter.linkParentField);
+                  if (!value)
+                    value = "";
+                  filter.value = value;
+                }
                 datasource.filter.push(filter);
               }
             });
-            
-            // scope.$watch('vars.testeRomano', function(newValue, oldValue) {
-            //     debugger;
-            //     if (datasource) {
-                  
-            //       grid.dataSource.options.filter.forEach(function(f) {
-            //         if (f.type && f.type == "angular") {
-            //           // if (f.name )
-            //         }
-            //       });
-                  
-            //       grid.dataSource.read();
-            //       grid.refresh();
-            //     }
-            // });
-                
-                
-            
             
             var kendoGridInit = {
               toolbar: toolbar,
@@ -1195,6 +1173,8 @@
               filterable: true,
               pageable: pageAble,
               columns: columns,
+              selectable: true,
+              
             };
             if (options.details && options.details.length > 0) {
               kendoGridInit.detailInit = detailInit;
@@ -1220,9 +1200,24 @@
                 var options = JSON.parse(attrs.options || "{}");
                 var kendoGridInit = helperDirective.generateKendoGridInit(options, scope);
                 
+                kendoGridInit.change = function(e) {
+                  debugger;
+                  var item = this.dataItem(this.select());
+                  var value;
+                  if (item) {
+                    if (this.dataSource.options.schema.model.id) {
+                      var fieldIdName = this.dataSource.options.schema.model.id;
+                      value = item[fieldIdName];
+                    }
+                  }
+                  var fcChangeValue = eval('scope.cronapi.screen.changeValueOfField')
+                  fcChangeValue(attrs['ngModel'], value);
+                }
+                
+                
                 var grid = $templateDyn.kendoGrid(kendoGridInit).data('kendoGrid');
                 grid.dataSource.transport.options.grid = grid;
-                
+                helperDirective.updateFiltersFromAngular(grid, scope);
                 
             });
             

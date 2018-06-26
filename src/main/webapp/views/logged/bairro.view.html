@@ -1,0 +1,121 @@
+<h3>Bairro</h3> 
+<!-- div row para pesquisa --> 
+<!--<div class="row">--> 
+<div ng-hide="Bairro.inserting || Bairro.editing" data-component="crn-datasource-filter" id="crn-datasource-filter-general" class=""> 
+  <div class="form-group"> 
+    <label for="textinput-filter" class="">{{"template.crud.search" | translate}}</label> 
+    <input type="text" ng-model="vars.search" cronapp-filter="nome;" cronapp-filter-operator="" cronapp-filter-caseinsensitive="false" cronapp-filter-autopost="true" crn-datasource="Bairro" class="form-control" value="" placeholder="{{'template.crud.search' | translate}}"> 
+  </div> 
+</div> 
+<div data-component="crn-button" id="crn-button-564202" class=""> 
+  <button class="btn btn-primary" type="submit" onclick="" data-component="crn-button" ng-click="Bairro.startInserting()" ng-hide="Bairro.inserting || Bairro.editing"><i class="fa fa-user"></i> <span class="">{{"template.crud.new" | translate}}</span></button> 
+</div> 
+<!-- fim div row para pesquisa --> 
+<!--</div>--> 
+<datasource filter="" name="Bairro" entity="api/cronapi/crud/app.entity.Bairro" keys="id" rows-per-page="100" delete-message="Deseja remover?" class=""></datasource> 
+<div class="component-holder" data-component="crn-grid" id="crn-grid-Bairro"> 
+  <div crn-datasource="Bairro" class="" ng-hide="Bairro.editing || Bairro.inserting"> 
+    <table class="table  table-bordered table-hover table-striped"> 
+      <thead> 
+        <tr class="table-header"> 
+          <th class=""> 
+            <div class="">
+              Nome
+            </div> </th> 
+          <th class=""> 
+            <div class="">
+              Cidade
+            </div> </th> 
+          <th class=""> 
+            <div class="">
+              {{"template.crud.actions" | translate}}
+            </div> </th> 
+        </tr> 
+      </thead> 
+      <tbody> 
+        <tr class="table-content" ng-repeat="rowData in datasource.data"> 
+          <td class=""> 
+            <div class="">
+               {{rowData.nome }} 
+            </div> </td> 
+          <td class=""> 
+            <div class="">
+               {{rowData.cidade.nome}} 
+            </div> </td> 
+          <td class=""> 
+            <div class=""> 
+              <button class="btn btn-default btn-sm" data-component="crn-button" type="submit" ng-click="datasource.startEditing(rowData)"><i class="fa fa-edit"></i></button> 
+              <button class="btn btn-default btn-sm" data-component="crn-button" type="submit" ng-click="datasource.remove(rowData)"><i class="fa fa-times"></i></button> 
+            </div> </td> 
+        </tr> 
+      </tbody> 
+    </table> 
+    <div class="table-footer-controls"> 
+      <button class="btn btn-default btn-block btn-clicked" data-component="crn-button" ng-show="datasource.hasNextPage()" ng-click="datasource.nextPage()">{{"template.crud.load_more" | translate}}...</button> 
+    </div> 
+  </div> 
+</div> 
+<div data-component="crn-form" id="crn-form-form-Bairro"> 
+  <div class="form" ng-show="Bairro.editing || Bairro.inserting"> 
+    <form crn-datasource="Bairro" class=""> 
+      <div class="tool-bar" ng-hide="datasource.editing || datasource.inserting"> 
+        <button class="btn btn-primary" data-component="crn-button" ng-click="datasource.startInserting()"><i class="glyphicon glyphicon-plus-sign"></i></button> 
+        <button class="btn btn-success" data-component="crn-button" ng-click="datasource.startEditing()"><i class="glyphicon glyphicon-edit"></i></button> 
+        <button class="btn btn-primary" data-component="crn-button" ng-disabled="!datasource.hasPrevious()" ng-click="datasource.previous()"><i class="glyphicon glyphicon-chevron-left"></i></button> 
+        <button class="btn btn-primary" data-component="crn-button" ng-disabled="!datasource.hasNext()" ng-click="datasource.next()"><i class="glyphicon glyphicon-chevron-right"></i></button> 
+        <button class="btn btn-primary" data-component="crn-button" ng-click="datasource.remove()"><i class="glyphicon glyphicon-trash"></i></button> 
+      </div> 
+      <div class="active-bar" ng-hide="!datasource.editing &amp;&amp; !datasource.inserting"> 
+        <button class="btn btn-success" data-component="crn-button" ng-click="datasource.post()"><i class="glyphicon glyphicon-ok"></i></button> 
+        <button class="btn btn-danger" data-component="crn-button" ng-click="datasource.cancel()"><i class="glyphicon glyphicon-remove"></i></button> 
+      </div> 
+      <br> 
+      <fieldset ng-disabled="!datasource.editing &amp;&amp; !datasource.inserting"> 
+        <div class="component-holder ng-binding ng-scope" data-component="crn-cron-grid" id="crn-cron-grid-1004052"> 
+          <cron-grid options="{&quot;dataSource&quot;:{&quot;id&quot;:&quot;1hbm1qhds42n6&quot;,&quot;paramValues&quot;:[],&quot;entityFullName&quot;:&quot;app.entity.Cidade&quot;,&quot;schemaFields&quot;:[{&quot;name&quot;:&quot;estado&quot;,&quot;type&quot;:&quot;String&quot;,&quot;nullable&quot;:true,&quot;key&quot;:false},{&quot;name&quot;:&quot;id&quot;,&quot;type&quot;:&quot;String&quot;,&quot;nullable&quot;:false,&quot;key&quot;:true},{&quot;name&quot;:&quot;nome&quot;,&quot;type&quot;:&quot;String&quot;,&quot;nullable&quot;:true,&quot;key&quot;:false}]},&quot;name&quot;:null,&quot;allowPaging&quot;:true,&quot;allowSorting&quot;:true,&quot;allowGrouping&quot;:true,&quot;allowSelectionTotalPageToShow&quot;:true,&quot;allowRefreshGrid&quot;:true,&quot;editable&quot;:&quot;popup&quot;,&quot;height&quot;:null,&quot;pageCount&quot;:null,&quot;columns&quot;:[{&quot;dataType&quot;:&quot;Database&quot;,&quot;field&quot;:&quot;estado&quot;,&quot;headerText&quot;:&quot;Estado&quot;,&quot;width&quot;:null,&quot;type&quot;:&quot;string&quot;,&quot;sortable&quot;:true,&quot;filterable&quot;:true,&quot;format&quot;:null,&quot;visible&quot;:true,&quot;linkParentType&quot;:null,&quot;linkParentField&quot;:null,&quot;command&quot;:null,&quot;blocklyInfo&quot;:{&quot;type&quot;:null,&quot;blocklyMethod&quot;:null,&quot;blocklyClass&quot;:null,&quot;blocklyLanguage&quot;:null,&quot;blocklyParams&quot;:[]}},{&quot;dataType&quot;:&quot;Database&quot;,&quot;field&quot;:&quot;nome&quot;,&quot;headerText&quot;:&quot;Nome&quot;,&quot;width&quot;:null,&quot;type&quot;:&quot;string&quot;,&quot;sortable&quot;:true,&quot;filterable&quot;:true,&quot;format&quot;:null,&quot;visible&quot;:true,&quot;linkParentType&quot;:null,&quot;linkParentField&quot;:null,&quot;command&quot;:null,&quot;blocklyInfo&quot;:{&quot;type&quot;:null,&quot;blocklyMethod&quot;:null,&quot;blocklyClass&quot;:null,&quot;blocklyLanguage&quot;:null,&quot;blocklyParams&quot;:[]}},{&quot;dataType&quot;:&quot;Command&quot;,&quot;field&quot;:null,&quot;headerText&quot;:null,&quot;width&quot;:null,&quot;type&quot;:null,&quot;sortable&quot;:false,&quot;filterable&quot;:false,&quot;format&quot;:null,&quot;visible&quot;:true,&quot;linkParentType&quot;:null,&quot;linkParentField&quot;:null,&quot;command&quot;:&quot;edit|destroy&quot;,&quot;blocklyInfo&quot;:{&quot;type&quot;:null,&quot;blocklyMethod&quot;:null,&quot;blocklyClass&quot;:null,&quot;blocklyLanguage&quot;:null,&quot;blocklyParams&quot;:[]}},{&quot;dataType&quot;:&quot;Blockly&quot;,&quot;field&quot;:null,&quot;headerText&quot;:&quot;Blockly Server Test&quot;,&quot;width&quot;:null,&quot;type&quot;:null,&quot;sortable&quot;:false,&quot;filterable&quot;:false,&quot;format&quot;:null,&quot;visible&quot;:true,&quot;linkParentType&quot;:null,&quot;linkParentField&quot;:null,&quot;command&quot;:null,&quot;blocklyInfo&quot;:{&quot;type&quot;:&quot;server&quot;,&quot;blocklyMethod&quot;:&quot;Executar&quot;,&quot;blocklyClass&quot;:&quot;blockly.Bloco&quot;,&quot;blocklyLanguage&quot;:&quot;java&quot;,&quot;blocklyParams&quot;:[{&quot;name&quot;:&quot;Dados&quot;,&quot;value&quot;:&quot;item&quot;,&quot;type&quot;:&quot;CUSTOM&quot;},{&quot;name&quot;:&quot;param2&quot;,&quot;value&quot;:&quot;consolidated&quot;,&quot;type&quot;:&quot;CUSTOM&quot;},{&quot;name&quot;:&quot;param3&quot;,&quot;value&quot;:&quot;index&quot;,&quot;type&quot;:&quot;CUSTOM&quot;}]}},{&quot;dataType&quot;:&quot;Blockly&quot;,&quot;field&quot;:null,&quot;headerText&quot;:&quot;Blockly Client Test&quot;,&quot;width&quot;:null,&quot;type&quot;:null,&quot;sortable&quot;:false,&quot;filterable&quot;:false,&quot;format&quot;:null,&quot;visible&quot;:true,&quot;linkParentType&quot;:null,&quot;linkParentField&quot;:null,&quot;command&quot;:null,&quot;blocklyInfo&quot;:{&quot;type&quot;:&quot;client&quot;,&quot;blocklyMethod&quot;:&quot;fa_C3_A7a_algo&quot;,&quot;blocklyClass&quot;:&quot;src/main/webapp/js/blockly/TesteCliente&quot;,&quot;blocklyLanguage&quot;:&quot;js&quot;,&quot;blocklyParams&quot;:[{&quot;name&quot;:&quot;param1&quot;,&quot;value&quot;:&quot;item&quot;,&quot;type&quot;:&quot;CUSTOM&quot;},{&quot;name&quot;:&quot;param2&quot;,&quot;value&quot;:&quot;consolidated&quot;,&quot;type&quot;:&quot;CUSTOM&quot;},{&quot;name&quot;:&quot;param3&quot;,&quot;value&quot;:&quot;index&quot;,&quot;type&quot;:&quot;CUSTOM&quot;}]}}],&quot;toolBarButtons&quot;:[{&quot;type&quot;:&quot;Native&quot;,&quot;title&quot;:&quot;create&quot;,&quot;blocklyInfo&quot;:{&quot;type&quot;:null,&quot;blocklyMethod&quot;:null,&quot;blocklyClass&quot;:null,&quot;blocklyLanguage&quot;:null,&quot;blocklyParams&quot;:[]},&quot;template&quot;:&quot;&quot;},{&quot;type&quot;:&quot;Blockly&quot;,&quot;title&quot;:&quot;Blockly Server Test&quot;,&quot;blocklyInfo&quot;:{&quot;type&quot;:&quot;server&quot;,&quot;blocklyMethod&quot;:&quot;Executar&quot;,&quot;blocklyClass&quot;:&quot;blockly.Bloco&quot;,&quot;blocklyLanguage&quot;:&quot;java&quot;,&quot;blocklyParams&quot;:[{&quot;name&quot;:&quot;Dados&quot;,&quot;value&quot;:&quot;\&quot;Hello!\&quot;&quot;,&quot;type&quot;:&quot;CONSTANT&quot;},{&quot;name&quot;:&quot;param2&quot;,&quot;value&quot;:&quot;\&quot;How are you?\&quot;&quot;,&quot;type&quot;:&quot;CONSTANT&quot;},{&quot;name&quot;:&quot;param3&quot;,&quot;value&quot;:&quot;\&quot;I´m fine, thanks\&quot;&quot;,&quot;type&quot;:&quot;CONSTANT&quot;}]},&quot;template&quot;:&quot;&quot;}],&quot;details&quot;:[{&quot;dataSource&quot;:{&quot;id&quot;:&quot;u8dh6mizgtia&quot;,&quot;paramValues&quot;:[],&quot;entityFullName&quot;:&quot;app.entity.Bairro&quot;,&quot;schemaFields&quot;:[{&quot;name&quot;:&quot;cidade&quot;,&quot;type&quot;:&quot;String&quot;,&quot;nullable&quot;:true,&quot;key&quot;:false},{&quot;name&quot;:&quot;id&quot;,&quot;type&quot;:&quot;String&quot;,&quot;nullable&quot;:false,&quot;key&quot;:true},{&quot;name&quot;:&quot;nome&quot;,&quot;type&quot;:&quot;String&quot;,&quot;nullable&quot;:true,&quot;key&quot;:false}]},&quot;name&quot;:&quot;Bairros&quot;,&quot;allowPaging&quot;:false,&quot;allowSorting&quot;:false,&quot;allowGrouping&quot;:false,&quot;allowSelectionTotalPageToShow&quot;:false,&quot;allowRefreshGrid&quot;:false,&quot;editable&quot;:&quot;no&quot;,&quot;height&quot;:null,&quot;pageCount&quot;:null,&quot;columns&quot;:[{&quot;dataType&quot;:&quot;Database&quot;,&quot;field&quot;:&quot;cidade&quot;,&quot;headerText&quot;:&quot;Cidade&quot;,&quot;width&quot;:null,&quot;type&quot;:&quot;string&quot;,&quot;sortable&quot;:true,&quot;filterable&quot;:true,&quot;format&quot;:null,&quot;visible&quot;:false,&quot;linkParentType&quot;:&quot;hierarchy&quot;,&quot;linkParentField&quot;:&quot;id&quot;,&quot;command&quot;:null,&quot;blocklyInfo&quot;:{&quot;type&quot;:null,&quot;blocklyMethod&quot;:null,&quot;blocklyClass&quot;:null,&quot;blocklyLanguage&quot;:null,&quot;blocklyParams&quot;:[]}},{&quot;dataType&quot;:&quot;Database&quot;,&quot;field&quot;:&quot;id&quot;,&quot;headerText&quot;:&quot;Id&quot;,&quot;width&quot;:null,&quot;type&quot;:&quot;string&quot;,&quot;sortable&quot;:true,&quot;filterable&quot;:true,&quot;format&quot;:null,&quot;visible&quot;:true,&quot;linkParentType&quot;:null,&quot;linkParentField&quot;:null,&quot;command&quot;:null,&quot;blocklyInfo&quot;:{&quot;type&quot;:null,&quot;blocklyMethod&quot;:null,&quot;blocklyClass&quot;:null,&quot;blocklyLanguage&quot;:null,&quot;blocklyParams&quot;:[]}},{&quot;dataType&quot;:&quot;Database&quot;,&quot;field&quot;:&quot;nome&quot;,&quot;headerText&quot;:&quot;Nome&quot;,&quot;width&quot;:null,&quot;type&quot;:&quot;string&quot;,&quot;sortable&quot;:true,&quot;filterable&quot;:true,&quot;format&quot;:null,&quot;visible&quot;:true,&quot;linkParentType&quot;:&quot;screen&quot;,&quot;linkParentField&quot;:&quot;Bairro.active.nome&quot;,&quot;command&quot;:null,&quot;blocklyInfo&quot;:{&quot;type&quot;:null,&quot;blocklyMethod&quot;:null,&quot;blocklyClass&quot;:null,&quot;blocklyLanguage&quot;:null,&quot;blocklyParams&quot;:[]}},{&quot;dataType&quot;:&quot;Blockly&quot;,&quot;field&quot;:null,&quot;headerText&quot;:&quot;Blockly Client Test&quot;,&quot;width&quot;:null,&quot;type&quot;:null,&quot;sortable&quot;:false,&quot;filterable&quot;:false,&quot;format&quot;:null,&quot;visible&quot;:true,&quot;linkParentField&quot;:null,&quot;command&quot;:null,&quot;blocklyInfo&quot;:{&quot;type&quot;:&quot;client&quot;,&quot;blocklyMethod&quot;:&quot;fa_C3_A7a_algo&quot;,&quot;blocklyClass&quot;:&quot;src/main/webapp/js/blockly/TesteCliente&quot;,&quot;blocklyLanguage&quot;:&quot;js&quot;,&quot;blocklyParams&quot;:[{&quot;name&quot;:&quot;param1&quot;,&quot;value&quot;:&quot;item&quot;,&quot;type&quot;:&quot;CUSTOM&quot;},{&quot;name&quot;:&quot;param2&quot;,&quot;value&quot;:&quot;consolidated&quot;,&quot;type&quot;:&quot;CUSTOM&quot;},{&quot;name&quot;:&quot;param3&quot;,&quot;value&quot;:&quot;index&quot;,&quot;type&quot;:&quot;CUSTOM&quot;}]}}],&quot;toolBarButtons&quot;:[],&quot;details&quot;:[]}]}"> 
+            <img width="100%" src="plugins/cronapp-framework-js/dist/img/cronGrid.png"> 
+          </cron-grid> 
+        </div> 
+        
+        
+        
+        <div data-component="crn-textinput" id="crn-textinput-nome" class=""> 
+          <div class="form-group"> 
+            <label for="textinput-nome" class="">Nome</label> 
+            <!-- else for if !model.hasCronappFramework() --> 
+            <input type="text" ng-model="Bairro.active.nome" class="form-control" id="textinput-nome" placeholder="Nome" mask="" mask-placeholder="" ng-required="false"> 
+            <!-- end if !model.hasCronappFramework() --> 
+          </div> 
+        </div> 
+        <datasource name="Cidade" entity="api/cronapi/crud/app.entity.Cidade" keys="id" class="" dependent-by="{{Bairro}}"></datasource> 
+        <div data-component="crn-combobox-dynamic" id="crn-combobox-dynamic-cidade" class=""> 
+          <div class="form-group"> 
+            <label for="combobox-dynamic-cidade" class="">Cidade</label> 
+            <!-- else for if !model.hasCronappFramework() --> 
+            <ui-select ng-model="Bairro.active.cidade" crn-datasource="Cidade" class="crn-select" id="combobox-dynamic-cidade" ng-required="false" theme="bootstrap"> 
+              <ui-select-match class="" placeholder="Select...">
+                 {{$select.selected.nome}} 
+              </ui-select-match> 
+              <ui-select-choices repeat="rowData in datasource.data | filter : $select.search" class="" refresh="" refresh-deplay=""> 
+                <div class="" data-container="true">
+                   {{rowData.nome}} 
+                </div> 
+              </ui-select-choices> 
+            </ui-select> 
+            <!-- end if !model.hasCronappFramework() --> 
+          </div> 
+        </div> 
+        <!-- NtoN  --> 
+        <!-- NtoN  end--> 
+      </fieldset> 
+    </form> 
+    <form> 
+      <fieldset> 
+        <!-- OneToN --> 
+        <!-- OneToOne  end --> 
+      </fieldset> 
+    </form> 
+  </div> 
+</div> 
+<!-- OneToOne modal --> 
+<!-- OneToOne modal end-->
