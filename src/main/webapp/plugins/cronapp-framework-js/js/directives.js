@@ -934,20 +934,38 @@
             buttonBlockly = generateObjTemplate(call, toolbarButton.title);
             return buttonBlockly;
           },
+          getObjectId: function(obj) {
+            if (!obj)
+              obj = "";
+            if (typeof obj === 'object') {
+              //Verifica se tem id, senão pega o primeiro campo
+              if (obj["id"])
+                obj = obj["id"];
+              else {
+                for (var key in obj) {
+                  obj = obj[key];
+                  break;
+                }  
+              }
+            }
+            return obj;
+          },
           updateFiltersFromAngular: function(grid, scope) {
+            
             grid.dataSource.options.filter.forEach(function(f) {
               if ("screen" == f.linkParentType) {
                 scope.$watch(f.linkParentField, function(newValue, oldValue) {
                   grid.dataSource.options.filter.forEach(function(filterToUpdate) {
                     if ("screen" == f.linkParentType && f.linkParentField == filterToUpdate.linkParentField) {
+                      newValue = this.getObjectId(newValue);
                       filterToUpdate.value = newValue;
                     }
-                  });
+                  }.bind(this));
                   grid.dataSource.read();
                   grid.refresh();
-                });
+                }.bind(this));
               }
-            });
+            }.bind(this));
           },
           encodeHTML: function(value){
             return value.replace(/&/g, '&amp;')
@@ -1145,14 +1163,14 @@
               {
                 var filter = { field: c.field, operator: "eq", value: "", linkParentField: c.linkParentField, linkParentType: c.linkParentType };
                 if (filter.linkParentType == "screen") {
+                  debugger;
                   var value = eval("scope."+filter.linkParentField);
-                  if (!value)
-                    value = "";
+                  value = this.getObjectId(value);
                   filter.value = value;
                 }
                 datasource.filter.push(filter);
               }
-            });
+            }.bind(this));
             
             var kendoGridInit = {
               toolbar: toolbar,
@@ -1200,7 +1218,6 @@
                 var kendoGridInit = helperDirective.generateKendoGridInit(options, scope);
                 
                 kendoGridInit.change = function(e) {
-                  debugger;
                   var value;
                   var item = this.dataItem(this.select());
                   if (item) {
