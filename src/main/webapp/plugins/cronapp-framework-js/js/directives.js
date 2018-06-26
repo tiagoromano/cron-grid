@@ -1173,8 +1173,7 @@
               filterable: true,
               pageable: pageAble,
               columns: columns,
-              selectable: true,
-              
+              selectable: options.allowSelectionRow
             };
             if (options.details && options.details.length > 0) {
               kendoGridInit.detailInit = detailInit;
@@ -1202,8 +1201,8 @@
                 
                 kendoGridInit.change = function(e) {
                   debugger;
-                  var item = this.dataItem(this.select());
                   var value;
+                  var item = this.dataItem(this.select());
                   if (item) {
                     if (this.dataSource.options.schema.model.id) {
                       var fieldIdName = this.dataSource.options.schema.model.id;
