@@ -963,7 +963,25 @@
                   }.bind(this));
                   grid.dataSource.read();
                   grid.refresh();
+                  grid.trigger('change');
                 }.bind(this));
+              }
+            }.bind(this));
+          },
+          // updateNgModel
+          setFiltersFromLinkColumns: function(datasource, options, scope) {
+            datasource.filter = [];
+            options.columns.forEach( function(c) {
+              if (c.linkParentField && c.linkParentField.length > 0 && 
+                  c.linkParentType && c.linkParentType.length > 0) 
+              {
+                var filter = { field: c.field, operator: "eq", value: "", linkParentField: c.linkParentField, linkParentType: c.linkParentType };
+                if (filter.linkParentType == "screen") {
+                  var value = scope[filter.linkParentField];
+                  value = this.getObjectId(value);
+                  filter.value = value;
+                }
+                datasource.filter.push(filter);
               }
             }.bind(this));
           },
@@ -1155,22 +1173,8 @@
             var pageAble = this.getPageAble(options);
             var toolbar = this.getToolbar(options, scope);
             var editable = this.getEditable(options);
-          
-            datasource.filter = [];
-            options.columns.forEach( function(c) {
-              if (c.linkParentField && c.linkParentField.length > 0 && 
-                  c.linkParentType && c.linkParentType.length > 0) 
-              {
-                var filter = { field: c.field, operator: "eq", value: "", linkParentField: c.linkParentField, linkParentType: c.linkParentType };
-                if (filter.linkParentType == "screen") {
-                  debugger;
-                  var value = eval("scope."+filter.linkParentField);
-                  value = this.getObjectId(value);
-                  filter.value = value;
-                }
-                datasource.filter.push(filter);
-              }
-            }.bind(this));
+            //Adiciona os campos de ligação (Filtro do datasource)
+            this.setFiltersFromLinkColumns(datasource, options, scope);
             
             var kendoGridInit = {
               toolbar: toolbar,
@@ -1191,12 +1195,10 @@
               filterable: true,
               pageable: pageAble,
               columns: columns,
-              selectable: options.allowSelectionRow
+              selectable: options.allowSelectionRow,
+              detailInit: (options.details && options.details.length > 0) ? detailInit : undefined,
+              listCurrentOptions: (options.details && options.details.length > 0) ? options.details : undefined
             };
-            if (options.details && options.details.length > 0) {
-              kendoGridInit.detailInit = detailInit;
-              kendoGridInit.listCurrentOptions = options.details;
-            }
             
             return kendoGridInit;
             
@@ -1218,16 +1220,9 @@
                 var kendoGridInit = helperDirective.generateKendoGridInit(options, scope);
                 
                 kendoGridInit.change = function(e) {
-                  var value;
                   var item = this.dataItem(this.select());
-                  if (item) {
-                    if (this.dataSource.options.schema.model.id) {
-                      var fieldIdName = this.dataSource.options.schema.model.id;
-                      value = item[fieldIdName];
-                    }
-                  }
                   var fcChangeValue = eval('scope.cronapi.screen.changeValueOfField')
-                  fcChangeValue(attrs['ngModel'], value);
+                  fcChangeValue(attrs['ngModel'], item);
                 }
                 
                 
