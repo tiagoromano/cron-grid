@@ -1688,6 +1688,8 @@
     "text_pt_BR": "Grade",
     "text_en_US": "Grid",
     "class": "adjust-icon mdi mdi-nutrition",
+    "designTimeHTML": "<img width='100%' src='plugins/cronapp-framework-js/dist/img/cronGrid.png'>",
+    "designTimeSelector": "cron-grid",
     "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/cron-grid.template.html",
     "properties": {
       "options": {

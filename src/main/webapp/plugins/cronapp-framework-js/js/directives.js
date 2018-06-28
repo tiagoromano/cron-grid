@@ -1001,21 +1001,26 @@
           },
           getColumns: function(options, scope) {
             
-            function categoryDropDownEditor(container, options) {
-              debugger;
-              $('<input required name="' + options.field + '"/>')
-              .appendTo(container)
-              .kendoDropDownList({
-                  autoBind: false,
-                  dataTextField: "CategoryName",
-                  dataValueField: "CategoryID",
-                  dataSource: {
-                      type: "odata",
-                      transport: {
-                          read: "https://demos.telerik.com/kendo-ui/service/Northwind.svc/Categories"
-                      }
-                  }
+            // var helperDirective = this;
+            
+            function getColumnByField(fieldName) {
+              var selected = null;
+              options.columns.forEach(function(column)  {
+                if (column.field == fieldName)
+                  selected = column;
               });
+              return selected;
+            } 
+            
+            function comboBoxEditor(container, opt) {
+              debugger;
+              var column = getColumnByField(opt.field);              
+              var kendoConfig = app.kendoHelper.getConfigCombobox(column.comboboxOptions);
+              kendoConfig.autoBind = true;
+              kendoConfig.optionLabel = undefined;
+              $('<input required name="' + opt.field + '"/>')
+              .appendTo(container)
+              .kendoDropDownList(kendoConfig);
             }
             
             
@@ -1031,11 +1036,12 @@
                       type: column.type,
                       width: column.width,
                       sortable: column.sortable,
-                      filterable: column.filterable,
-                      // editor: categoryDropDownEditor
+                      filterable: column.filterable
                     };
                     if (column.format)
                       addColumn.format = column.format;
+                    if (column.inputType == 'dynamicComboBox' || column.inputType == 'comboBox')
+                      addColumn.editor = comboBoxEditor.bind(this);
                     columns.push(addColumn);
                     
                   }

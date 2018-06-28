@@ -498,5 +498,106 @@ app.kendoHelper = {
       schema: schema
     };
     return datasource;
+  },
+  getConfigCombobox: function(options) {
+    var dataSource = {};
+    var valuePrimitive = false;
+    if (options && !options.dynamic) {
+      valuePrimitive = true;
+    } else if (options.datasource) {
+      dataSource = app.kendoHelper.getDataSource(options.datasource);
+    }
+    
+    if (!options.dataValueField || options.dataValueField.trim() == '') {
+      options.dataValueField = options.dataTextField;
+    }
+    
+    var config = {
+      dataTextField: options.dataTextField,
+      dataValueField: options.dataValueField,
+      dataSource: valuePrimitive ? options.fixedDataSource : dataSource,
+      headerTemplate: options.headerTemplate,
+      template: options.template,
+      placeholder: options.placeholder,
+      footerTemplate: options.footerTemplate,
+      filter: options.filter,
+      valuePrimitive : valuePrimitive,
+      suggest: true
+    };
+    
+    if (!options.valuePrimitive) {
+      config['optionLabel'] = options.optionLabel;
+    }
+
+    return config;
+  },
+  getConfigDate: function(translate, options) {
+    var config = {};
+
+    if (config) {
+      var formatCulture = function(culture) {
+        culture = culture.replace(/_/gm,'-');
+        var parts = culture.split('-');
+        parts[parts.length - 1] = parts[parts.length - 1].toUpperCase();
+        return parts.join('-');
+      }
+
+      var formatKendoMask = function(mask) {
+        if (mask) {
+          mask = mask.replace(/:MM/gm,':mm');
+          mask = mask.replace(/:M/gm,':m');
+          mask = mask.replace(/S/gm,'s');
+          mask = mask.replace(/D/gm,'d');
+          mask = mask.replace(/Y/gm,'y');
+        }
+        return mask;
+      }
+
+      var animation = {};
+      if (options.animation) {
+        try {
+          animation = JSON.parse(options.animation);
+        } catch(err) {
+          console.log('DateAnimation invalid configuration! ' + err);
+        }
+      }
+
+      var format = formatKendoMask(options.format);
+      var culture = formatCulture(translate.use());
+      config = {
+        value: null,
+        format: format,
+        culture: culture,
+        type: options.type,
+        timeFormat: options.timeFormat,
+        weekNumber: options.weekNumber,
+        dateInput: options.dateInput,
+        animation: animation,
+        footer: options.footer
+      }
+    }
+
+    return config;
+  },
+  getConfigSlider: function(options) {
+    var config = {
+      increaseButtonTitle: options.increaseButtonTitle,
+      decreaseButtonTitle: options.decreaseButtonTitle,
+      min: options.min,
+      max: options.max,
+      smallStep: options.smallStep,
+      largeStep: options.largeStep,
+      dragHandleTitle: options.dragHandleTitle
+    }
+
+    return config;
+  },
+  getConfigSwitch: function(options) {
+    var config = {
+      onLabel: options.onLabel,
+      offLabel: options.offLabel
+    }
+
+    return config;
   }
 };
