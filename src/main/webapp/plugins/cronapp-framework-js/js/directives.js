@@ -968,7 +968,6 @@
               }
             }.bind(this));
           },
-          // updateNgModel
           setFiltersFromLinkColumns: function(datasource, options, scope) {
             datasource.filter = [];
             options.columns.forEach( function(c) {
@@ -985,6 +984,7 @@
               }
             }.bind(this));
           },
+          // updateNgModel
           encodeHTML: function(value){
             return value.replace(/&/g, '&amp;')
                .replace(/</g, '&lt;')
@@ -1004,19 +1004,19 @@
             function categoryDropDownEditor(container, options) {
               debugger;
               $('<input required name="' + options.field + '"/>')
-                  .appendTo(container)
-                  .kendoDropDownList({
-                      autoBind: false,
-                      dataTextField: "CategoryName",
-                      dataValueField: "CategoryID",
-                      dataSource: {
-                          type: "odata",
-                          transport: {
-                              read: "https://demos.telerik.com/kendo-ui/service/Northwind.svc/Categories"
-                          }
+              .appendTo(container)
+              .kendoDropDownList({
+                  autoBind: false,
+                  dataTextField: "CategoryName",
+                  dataValueField: "CategoryID",
+                  dataSource: {
+                      type: "odata",
+                      transport: {
+                          read: "https://demos.telerik.com/kendo-ui/service/Northwind.svc/Categories"
                       }
-                  });
-                }
+                  }
+              });
+            }
             
             
             var columns = [];

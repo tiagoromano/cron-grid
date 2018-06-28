@@ -116,7 +116,7 @@
         <!-- OneToN --> 
         <!--query filter 1toN --> 
         <!-- query filter 1toN end--> 
-        <div data-component="crn-datasource" class="component-holder"> 
+        <div class="component-holder ng-binding ng-scope" data-component="crn-cron-rich-editor" id="crn-cron-rich-editor-738200"><cron-rich-editor ng-model="vars.richEditor1562" options="{&quot;allowFullScreen&quot;:true,&quot;allowPage&quot;:true,&quot;allowPrint&quot;:true,&quot;allowTransferArea&quot;:true,&quot;allowDoUndo&quot;:true,&quot;allowSymbol&quot;:true,&quot;allowEmbeddedImage&quot;:true,&quot;allowFont&quot;:true,&quot;allowLinks&quot;:true,&quot;allowParagraph&quot;:true,&quot;allowFormulas&quot;:true,&quot;showMenuBar&quot;:true,&quot;showStatusBar&quot;:true,&quot;contentStyle&quot;:&quot;&quot;}"><img width="100%" src="plugins/cronapp-framework-js/dist/img/cronRichEditor.png"></cron-rich-editor></div><div data-component="crn-datasource" class="component-holder"> 
           <datasource filter="" name="RoleGrid" enabled="{{User.editing || User.inserting}}" entity="api/cronapi/crud/app.entity.User/{{User.active.id}}/relation:user:Role" keys="id,user.id" rows-per-page="100" lazy="true" auto-post="true" dependent-lazy-post="User" dependent-lazy-post-field="user"></datasource> 
         </div> 
         <button class="btn btn-primary" data-component="crn-button" onclick="$('#modalRoleGrid').modal('show');" ng-click="RoleGrid.startInserting();"><i class="fa fa-plus"></i> <span class="">{{"Add" | translate}} Função</span> </button> 
