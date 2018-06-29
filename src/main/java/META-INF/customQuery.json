@@ -515,29 +515,11 @@
 		"entitySimpleName": "Cidade",
 		"entityFullName": "app.entity.Cidade",
 		"query": {
-			"isValid": true,
-			"rulesEntity": [
-				{
-					"entity": "Cidade",
-					"alias": "c",
-					"namespace": "app.entity.Cidade"
-				}
-			],
-			"rulesSelect": [
-				{
-					"func": "get",
-					"field": "c"
-				}
-			],
-			"rulesGroupBy": [],
-			"rulesHaving": [],
-			"rulesOrderBy": [],
-			"rules": {
-				"condition": "AND",
-				"not": false,
-				"valid": true,
-				"rules": []
-			}
+			"isEmpty": true,
+			"isRawSql": true,
+			"sqlContent": "select c.id, c.nome, c.estado.id as estado_id, c.estado.nome as estado_nome from Cidade c",
+			"multiTenant": true,
+			"paginatorAutomatic": false
 		},
 		"queryParamsValues": [],
 		"verbs": {

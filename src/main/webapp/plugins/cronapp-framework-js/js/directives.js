@@ -1032,6 +1032,10 @@
                     
                     var addColumn = {
                       field: column.field,
+                      template: column.displayField && 
+                                column.displayField.length > 0 ? 
+                                "#="+column.displayField+"#" : 
+                                undefined, 
                       title: column.headerText,
                       type: column.type,
                       width: column.width,
