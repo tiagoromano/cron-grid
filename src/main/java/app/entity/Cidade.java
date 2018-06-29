@@ -49,6 +49,28 @@ public class Cidade implements Serializable {
   private Estado estado;
 
   /**
+  * @generated
+  */
+  @Column(name = "numero", nullable = true, unique = false, insertable=true, updatable=true)
+  
+  private java.lang.Integer numero;
+
+  /**
+  * @generated
+  */
+  @Column(name = "capital", nullable = true, unique = false, insertable=true, updatable=true)
+  
+  private boolean capital;
+
+  /**
+  * @generated
+  */
+  @Temporal(TemporalType.DATE)
+  @Column(name = "data_fundacao", nullable = true, unique = false, insertable=true, updatable=true)
+  
+  private java.util.Date dataFundacao;
+
+  /**
    * Construtor
    * @generated
    */
@@ -113,6 +135,66 @@ public class Cidade implements Serializable {
    */
   public Cidade setEstado(Estado estado){
     this.estado = estado;
+    return this;
+  }
+
+  /**
+   * Obtém numero
+   * return numero
+   * @generated
+   */
+  
+  public java.lang.Integer getNumero(){
+    return this.numero;
+  }
+
+  /**
+   * Define numero
+   * @param numero numero
+   * @generated
+   */
+  public Cidade setNumero(java.lang.Integer numero){
+    this.numero = numero;
+    return this;
+  }
+
+  /**
+   * Obtém capital
+   * return capital
+   * @generated
+   */
+  
+  public boolean getCapital(){
+    return this.capital;
+  }
+
+  /**
+   * Define capital
+   * @param capital capital
+   * @generated
+   */
+  public Cidade setCapital(boolean capital){
+    this.capital = capital;
+    return this;
+  }
+
+  /**
+   * Obtém dataFundacao
+   * return dataFundacao
+   * @generated
+   */
+  
+  public java.util.Date getDataFundacao(){
+    return this.dataFundacao;
+  }
+
+  /**
+   * Define dataFundacao
+   * @param dataFundacao dataFundacao
+   * @generated
+   */
+  public Cidade setDataFundacao(java.util.Date dataFundacao){
+    this.dataFundacao = dataFundacao;
     return this;
   }
 

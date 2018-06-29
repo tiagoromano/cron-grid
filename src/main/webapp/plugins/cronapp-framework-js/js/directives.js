@@ -1001,7 +1001,17 @@
           },
           getColumns: function(options, scope) {
             
-            // var helperDirective = this;
+            function getTemplate(column) {
+              var template = undefined;
+              if (column.inputType == 'checkbox') {
+                template = "<input type='checkbox' class='k-checkbox' #=" + column.field + " ? \"checked='checked'\": '' # />" +
+                           "<label class='k-checkbox-label k-no-text'></label>"
+              }
+              else if (column.displayField && column.displayField.length > 0) {
+                template = "#="+column.displayField+"#";
+              }
+              return template;
+            }
             
             function getColumnByField(fieldName) {
               var selected = null;
@@ -1010,17 +1020,54 @@
                   selected = column;
               });
               return selected;
-            } 
+            }
             
-            function comboBoxEditor(container, opt) {
-              debugger;
-              var column = getColumnByField(opt.field);              
-              var kendoConfig = app.kendoHelper.getConfigCombobox(column.comboboxOptions);
-              kendoConfig.autoBind = true;
-              kendoConfig.optionLabel = undefined;
-              $('<input required name="' + opt.field + '"/>')
-              .appendTo(container)
-              .kendoDropDownList(kendoConfig);
+            function isRequired(fieldName) {
+              var required = false;
+              var selected = null;
+              options.dataSource.schemaFields.forEach(function(field)  {
+                if (field.name == fieldName)
+                  selected = field;
+              });
+              if (selected)
+                required = !selected.nullable;
+              return required;
+            }
+            
+            function editor(container, opt) {
+              var column = getColumnByField(opt.field);
+              var required = isRequired(opt.field) ? "required" : "";
+              var $input = $('<input '+required+' name="' + opt.field + '"/>');
+              if (column.inputType == 'dynamicComboBox' || column.inputType == 'comboBox') {
+                var kendoConfig = app.kendoHelper.getConfigCombobox(column.comboboxOptions);
+                kendoConfig.autoBind = true;
+                kendoConfig.optionLabel = undefined;
+                $input.appendTo(container).kendoDropDownList(kendoConfig);
+              }
+              else if (column.inputType == 'slider') {
+                var kendoConfig = app.kendoHelper.getConfigSlider(column.sliderOptions);
+                $input.appendTo(container).kendoSlider(kendoConfig);
+              }
+              else if (column.inputType == 'switch') {
+                var kendoConfig = app.kendoHelper.getConfigSwitch(column.switchOptions);
+                $input.appendTo(container).kendoMobileSwitch(kendoConfig);
+              }
+              else if (column.inputType == 'checkbox') {
+                var guid = this.generateId();
+                $input = $('<input id="'+guid+'" name="' + opt.field + '" class="k-checkbox" type="checkbox" ><label class="k-checkbox-label" for="'+guid+'"></label>');
+                $input.appendTo(container);
+              }
+              else if (column.inputType == 'date') {
+                var kendoConfig = app.kendoHelper.getConfigDate($translate, column.dateOptions);
+                if (column.dateOptions.type == 'date') {
+                  $input.appendTo(container).kendoDatePicker(options);
+                } else if (column.dateOptions.type == 'datetime' || column.dateOptions.type == 'datetime-local') {
+                  $input.appendTo(container).kendoDateTimePicker(options); 
+                } else if (column.dateOptions.type == 'time' || column.dateOptions.type == 'time-local') {
+                  $input.appendTo(container).kendoTimePicker(options); 
+                }
+              }
+              
             }
             
             
@@ -1032,20 +1079,17 @@
                     
                     var addColumn = {
                       field: column.field,
-                      template: column.displayField && 
-                                column.displayField.length > 0 ? 
-                                "#="+column.displayField+"#" : 
-                                undefined, 
                       title: column.headerText,
                       type: column.type,
                       width: column.width,
                       sortable: column.sortable,
                       filterable: column.filterable
                     };
+                    addColumn.template = getTemplate(column);
                     if (column.format)
                       addColumn.format = column.format;
-                    if (column.inputType == 'dynamicComboBox' || column.inputType == 'comboBox')
-                      addColumn.editor = comboBoxEditor.bind(this);
+                    if (column.inputType != 'default')  
+                      addColumn.editor = editor.bind(this);
                     columns.push(addColumn);
                     
                   }

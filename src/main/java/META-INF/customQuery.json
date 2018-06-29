@@ -517,7 +517,7 @@
 		"query": {
 			"isEmpty": true,
 			"isRawSql": true,
-			"sqlContent": "select c.id, c.nome, c.estado.id as estado_id, c.estado.nome as estado_nome from Cidade c",
+			"sqlContent": "select c.id, c.nome, c.numero, c.dataFundacao, c.capital, c.estado.id as estado_id, c.estado.nome as estado_nome from Cidade c",
 			"multiTenant": true,
 			"paginatorAutomatic": false
 		},
@@ -547,12 +547,18 @@
 		"defaultValues": {
 			"id": null,
 			"nome": null,
-			"estado": null
+			"estado": null,
+			"numero": null,
+			"capital": null,
+			"dataFundacao": null
 		},
 		"security": {
 			"id": null,
 			"nome": null,
-			"estado": null
+			"estado": null,
+			"numero": null,
+			"capital": null,
+			"dataFundacao": null
 		},
 		"calcFields": {},
 		"calcFieldsSecurity": {},

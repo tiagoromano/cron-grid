@@ -501,32 +501,38 @@ app.kendoHelper = {
   },
   getConfigCombobox: function(options) {
     var dataSource = {};
+    
     var valuePrimitive = false;
-    if (options && !options.dynamic) {
+    var dataSource = {};
+    if (options && (!options['cron-dynamic'] || options['cron-dynamic']=='false')) {
       valuePrimitive = true;
-    } else if (options.datasource) {
-      dataSource = app.kendoHelper.getDataSource(options.datasource);
+      options['cron-datavaluefield'] = 'cron-key'; 
+      options['cron-datatextfield'] = 'cron-value';
+      dataSource['data'] = (options['cron-staticdatasource'] == null ? undefined : options['cron-staticdatasource']);
+    } else if (options['cron-datasource']) {
+      dataSource = app.kendoHelper.getDataSource(options['cron-datasource']);
+      valuePrimitive = (options['cron-valueprimitive'] == null ? undefined : options['cron-valueprimitive']);
     }
     
-    if (!options.dataValueField || options.dataValueField.trim() == '') {
-      options.dataValueField = options.dataTextField;
+    if (!options['cron-datavaluefield'] || options['cron-datavaluefield'].trim() == '') {
+      options['cron-datavaluefield'] = (options['cron-datatextfield'] == null ? undefined : options['cron-datatextfield']);
     }
     
     var config = {
-      dataTextField: options.dataTextField,
-      dataValueField: options.dataValueField,
-      dataSource: valuePrimitive ? options.fixedDataSource : dataSource,
-      headerTemplate: options.headerTemplate,
-      template: options.template,
-      placeholder: options.placeholder,
-      footerTemplate: options.footerTemplate,
-      filter: options.filter,
+      dataTextField: (options['cron-datatextfield'] == null ? undefined : options['cron-datatextfield']),
+      dataValueField: (options['cron-datavaluefield'] == null ? undefined : options['cron-datavaluefield']),
+      dataSource: dataSource,
+      headerTemplate: (options['cron-headertemplate'] == null ? undefined : options['cron-headertemplate']),
+      template: (options['cron-template'] == null ? undefined : options['cron-template']),
+      placeholder: (options['cron-placeholder'] == null ? undefined : options['cron-placeholder']),
+      footerTemplate: (options['cron-footertemplate'] == null ? undefined : options['cron-footertemplate']),
+      filter: (options['cron-filter'] == null ? undefined : options['cron-filter']),
       valuePrimitive : valuePrimitive,
       suggest: true
     };
     
-    if (!options.valuePrimitive) {
-      config['optionLabel'] = options.optionLabel;
+    if (!valuePrimitive) {
+      config['optionLabel'] = (options['cron-optionlabel'] == null ? undefined : options['cron-optionlabel']);
     }
 
     return config;
