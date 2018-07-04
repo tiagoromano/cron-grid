@@ -863,9 +863,13 @@
           replace: true,
           require: 'ngModel',
           generateId: function() {
-            return Math.floor((1 + Math.random()) * 0x10000)
+            var numbersOnly = '0123456789';
+            var result = Math.floor((1 + Math.random()) * 0x10000)
               .toString(16)
               .substring(1);
+            if (numbersOnly.indexOf(result.substr(0,1)) > -1)
+              return this.generateId();
+            return result;
           },
           generateBlocklyCall: function(blocklyInfo) {
             var call;
@@ -1049,6 +1053,13 @@
               return template;
             }
             
+            function getFormat(column) {
+              if (column.format && !column.type.startsWith('date') && !column.type.startsWith('time') 
+                        && !column.type.startsWith('month') && !column.type.startsWith('week'))
+                return column.format;
+              return undefined;
+            }
+            
             function getColumnByField(fieldName) {
               var selected = null;
               options.columns.forEach(function(column)  {
@@ -1070,10 +1081,19 @@
               return required;
             }
             
+            function getEditor(column) {
+              if (column.inputType != 'default' || column.type == 'number' || column.type == 'money'
+                  || column.type == 'integer') 
+              
+                return editor.bind(this);
+              return undefined;
+            }
+            
             function editor(container, opt) {
               var column = getColumnByField(opt.field);
               var required = isRequired(opt.field) ? "required" : "";
-              var $input = $('<input '+required+' name="' + opt.field + '"/>');
+              var buttonId = this.generateId();
+              var $input = $('<input '+required+' name="' + opt.field + '" id="' + buttonId + '" class="k-input k-textbox"/>');
               if (column.inputType == 'dynamicComboBox' || column.inputType == 'comboBox') {
                 var kendoConfig = app.kendoHelper.getConfigCombobox(column.comboboxOptions);
                 kendoConfig.autoBind = true;
@@ -1103,6 +1123,24 @@
                   $input.appendTo(container).kendoTimePicker(options); 
                 }
               }
+              else if (column.type == 'number' || column.type == 'money' || column.type == 'integer') {
+                debugger;
+                $input.attr('type', 'text');
+                $input.attr('mask', column.format ? column.format : '');
+                $input.appendTo(container).kendoMaskedTextBox({
+                    mask: "000,000,000,000.00",
+                    culture: "pt-BR"
+                });;
+                        
+                // var waitRender = setInterval(function() {
+                //   if ($('#' + buttonId).length > 0) {
+                //       scope['vars.'+buttonId]=11211.12;
+                //       var x = angular.element($('#' + buttonId ));
+                //       $compile(x)(scope);
+                //       clearInterval(waitRender);
+                //     }
+                // },200);
+              }
               
             }
             
@@ -1122,11 +1160,10 @@
                       filterable: column.filterable
                     };
                     addColumn.template = getTemplate(column);
-                    if (column.format && !column.type.startsWith('date') && !column.type.startsWith('time') 
-                        && !column.type.startsWith('month') && !column.type.startsWith('week'))
-                      addColumn.format = column.format;
-                    if (column.inputType != 'default')  
-                      addColumn.editor = editor.bind(this);
+                    addColumn.format = getFormat(column);
+                    addColumn.editor = getEditor.bind(this)(column);
+                    // if (column.inputType != 'default')  
+                    //   addColumn.editor = editor.bind(this);
                     columns.push(addColumn);
                     
                   }

@@ -79,6 +79,13 @@ public class Cidade implements Serializable {
   private java.util.Date dataHora;
 
   /**
+  * @generated
+  */
+  @Column(name = "numeroDouble", nullable = true, unique = false, insertable=true, updatable=true)
+  
+  private java.lang.Double numeroDouble;
+
+  /**
    * Construtor
    * @generated
    */
@@ -223,6 +230,26 @@ public class Cidade implements Serializable {
    */
   public Cidade setDataHora(java.util.Date dataHora){
     this.dataHora = dataHora;
+    return this;
+  }
+
+  /**
+   * Obtém numeroDouble
+   * return numeroDouble
+   * @generated
+   */
+  
+  public java.lang.Double getNumeroDouble(){
+    return this.numeroDouble;
+  }
+
+  /**
+   * Define numeroDouble
+   * @param numeroDouble numeroDouble
+   * @generated
+   */
+  public Cidade setNumeroDouble(java.lang.Double numeroDouble){
+    this.numeroDouble = numeroDouble;
     return this;
   }
 

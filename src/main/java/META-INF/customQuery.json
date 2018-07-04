@@ -517,7 +517,7 @@
 		"query": {
 			"isEmpty": true,
 			"isRawSql": true,
-			"sqlContent": "select c.id, c.nome, c.numero, c.dataFundacao, c.capital, \nc.estado.id as estado_id, c.estado.nome as estado_nome, c.dataHora from Cidade c",
+			"sqlContent": "select c.id, c.nome, c.numero, c.dataFundacao, c.capital, \nc.estado.id as estado_id, c.estado.nome as estado_nome, c.dataHora,\nc.numeroDouble from Cidade c",
 			"multiTenant": true,
 			"paginatorAutomatic": false
 		},
@@ -551,7 +551,8 @@
 			"numero": null,
 			"capital": null,
 			"dataFundacao": null,
-			"dataHora": null
+			"dataHora": null,
+			"numeroDouble": null
 		},
 		"security": {
 			"id": null,
@@ -560,7 +561,8 @@
 			"numero": null,
 			"capital": null,
 			"dataFundacao": null,
-			"dataHora": null
+			"dataHora": null,
+			"numeroDouble": null
 		},
 		"calcFields": {},
 		"calcFieldsSecurity": {},
