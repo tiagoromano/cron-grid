@@ -398,7 +398,7 @@ app.kendoHelper = {
     }
     return schema;
   },
-  getDataSource: function(dataSource, allowPaging, pageCount) {
+  getDataSource: function(dataSource, allowPaging, pageCount, columns) {
     var crudServiceBaseUrl = dataSourceMap[dataSource.id].serviceUrlODATA;
     var schema = this.getSchema(dataSource);
     
@@ -430,6 +430,56 @@ app.kendoHelper = {
     if (allowPaging)
       pageSize = pageCount ? pageCount : 10;
     
+    //Para exibir a data em UTC
+    // var offsetMiliseconds = new Date().getTimezoneOffset() * 60000;
+    // function onRequestEnd(e) {
+    //   debugger;
+      
+    //   if (e.response  && e.response.d && e.response.d.results) {
+    //     var items = e.response.d.results;
+    //     if (this.group().length) {
+          
+    //       columns.forEach( c=> {
+    //         if (c.dataType == 'Database') {
+    //           if (c.type == 'date' || c.type == 'datetime' || c.type == 'month' || c.type == 'time' || c.type == 'week') {
+    //             for (var i = 0; i < items.length; i++) {
+    //               var gr = items[i];
+    //               if (c.field == gr.Member) {
+    //                 gr.Key = gr.Key.replace(/\d+/,
+    //                   function (n) { return parseInt(n) + offsetMiliseconds }
+    //                 );
+    //               }
+    //               addOffset.bind(this)(gr.Items);
+    //             }
+                
+                
+    //           }
+    //         }
+    //       });
+          
+          
+    //     } else {
+    //       addOffset.bind(this)(items);
+    //     }
+    //   }
+    // }
+    
+    // function addOffset(items) {
+    //   for (var i = 0; i < items.length; i++) {
+        
+    //     columns.forEach( c=> {
+    //         if (c.dataType == 'Database') {
+    //           if (c.type == 'date' || c.type == 'datetime' || c.type == 'month' || c.type == 'time' || c.type == 'week') {
+    //             if (items[i][c.field]) {
+    //               items[i][c.field] = items[i][c.field].replace(/\d+/,
+    //                 function (n) { return parseInt(n) + offsetMiliseconds }
+    //               );
+    //             }
+    //           }
+    //         }
+    //     });
+    //   }
+    // }
 
     var datasource = {
       type: "odata",
@@ -467,7 +517,7 @@ app.kendoHelper = {
           },
           parameterMap: function (data, type) {
             if (type == "read") {
-              var paramsOData = kendo.data.transports.odata.parameterMap(data, type, true);
+              var paramsOData = kendo.data.transports.odata.parameterMap(data, type);
               
               var orderBy = '';
               if (this.options.grid) {
@@ -496,6 +546,7 @@ app.kendoHelper = {
       serverSorting: true,
       batch: false,
       schema: schema
+      //requestEnd: onRequestEnd
     };
     return datasource;
   },

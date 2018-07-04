@@ -71,6 +71,14 @@ public class Cidade implements Serializable {
   private java.util.Date dataFundacao;
 
   /**
+  * @generated
+  */
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "dataHora", nullable = true, unique = false, insertable=true, updatable=true)
+  
+  private java.util.Date dataHora;
+
+  /**
    * Construtor
    * @generated
    */
@@ -195,6 +203,26 @@ public class Cidade implements Serializable {
    */
   public Cidade setDataFundacao(java.util.Date dataFundacao){
     this.dataFundacao = dataFundacao;
+    return this;
+  }
+
+  /**
+   * Obtém dataHora
+   * return dataHora
+   * @generated
+   */
+  
+  public java.util.Date getDataHora(){
+    return this.dataHora;
+  }
+
+  /**
+   * Define dataHora
+   * @param dataHora dataHora
+   * @generated
+   */
+  public Cidade setDataHora(java.util.Date dataHora){
+    this.dataHora = dataHora;
     return this;
   }
 

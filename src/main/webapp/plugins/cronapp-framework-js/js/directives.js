@@ -937,7 +937,11 @@
           getObjectId: function(obj) {
             if (!obj)
               obj = "";
-            if (typeof obj === 'object') {
+            else if (obj instanceof Date) {
+              var momentDate = moment.utc(obj);
+              obj = new Date(momentDate.format('YYYY-MM-DDTHH:mm:ss'));
+            }
+            else if (typeof obj === 'object') {
               //Verifica se tem id, senão pega o primeiro campo
               if (obj["id"])
                 obj = obj["id"];
@@ -1001,6 +1005,26 @@
           },
           getColumns: function(options, scope) {
             
+            window.formatDate = function(value, format, type) {
+              var momentDate;
+              var formated = '';
+              
+              if (value) {
+                if (type == 'date' || type == 'datetime' || type == 'time')
+                  momentDate = moment.utc(value);
+                else
+                  momentDate = moment(value);
+                
+                if (format && format != "null") 
+                 formated = momentDate.format(format);
+                else {
+                  format= parseMaskType(type, $translate);
+                  formated = momentDate.format(format);
+                }
+              }
+              return formated
+            }
+            
             function getTemplate(column) {
               var template = undefined;
               if (column.inputType == 'checkbox') {
@@ -1008,7 +1032,19 @@
                            "<label class='k-checkbox-label k-no-text'></label>"
               }
               else if (column.displayField && column.displayField.length > 0) {
-                template = "#="+column.displayField+"#";
+                if (column.type.startsWith('date') || column.type.startsWith('month') 
+                    || column.type.startsWith('time') || column.type.startsWith('week')) {
+                  // template = "#= kendo.toString("+column.displayField+", formatDate("+column.displayField+",'"+column.format+"','"+column.type+"')) #";
+                  template = "#= formatDate("+column.displayField+",'"+column.format+"','"+column.type+"') #";
+                }
+                else {
+                  template = "#="+column.displayField+"#";
+                }
+              }
+              else if (column.type.startsWith('date') || column.type.startsWith('month') 
+                    || column.type.startsWith('time') || column.type.startsWith('week')) {
+                // template = "#= kendo.toString("+column.field+", formatDate("+column.field+",'"+column.format+"','"+column.type+"')) #";
+                template = "#= formatDate("+column.field+",'"+column.format+"','"+column.type+"') #";
               }
               return template;
             }
@@ -1086,7 +1122,8 @@
                       filterable: column.filterable
                     };
                     addColumn.template = getTemplate(column);
-                    if (column.format)
+                    if (column.format && !column.type.startsWith('date') && !column.type.startsWith('time') 
+                        && !column.type.startsWith('month') && !column.type.startsWith('week'))
                       addColumn.format = column.format;
                     if (column.inputType != 'default')  
                       addColumn.editor = editor.bind(this);
@@ -1222,7 +1259,7 @@
               });
             }
             
-            var datasource = app.kendoHelper.getDataSource(options.dataSource, options.allowPaging, options.pageCount);
+            var datasource = app.kendoHelper.getDataSource(options.dataSource, options.allowPaging, options.pageCount, options.columns);
             var columns = this.getColumns(options, scope);
             var pageAble = this.getPageAble(options);
             var toolbar = this.getToolbar(options, scope);

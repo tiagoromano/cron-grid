@@ -45,6 +45,20 @@ public interface EstadoDAO extends JpaRepository<Estado, java.lang.String> {
   public void delete(@Param(value="id") java.lang.String id);
 
 
+      
+  /**
+   * OneToMany Relation - Searchable fields - General search (Only strings fields)
+   * @generated
+   */
+  @Query("SELECT entity FROM Cidade entity WHERE entity.estado.id = :id AND (:search = :search)")
+  public Page<Cidade> findCidadeGeneralSearch(@Param(value="search") java.lang.String search, @Param(value="id") java.lang.String id, Pageable pageable);
+
+  /** 
+   * OneToMany Relation - Searchable fields - Specific search
+   * @generated
+   */
+  @Query("SELECT entity FROM Cidade entity WHERE entity.estado.id = :id AND (:dataFundacao is null OR entity.dataFundacao = :dataFundacao) AND (:dataHora is null OR entity.dataHora = :dataHora)")
+  public Page<Cidade> findCidadeSpecificSearch(@Param(value="id") java.lang.String id, @Param(value="dataFundacao") java.util.Date dataFundacao, @Param(value="dataHora") java.util.Date dataHora, Pageable pageable);
 
   /**
    * OneToMany Relation

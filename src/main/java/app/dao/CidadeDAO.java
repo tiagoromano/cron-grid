@@ -53,6 +53,21 @@ public interface CidadeDAO extends JpaRepository<Cidade, java.lang.String> {
   @Query("SELECT entity FROM Bairro entity WHERE entity.cidade.id = :id")
   public Page<Bairro> findBairro(@Param(value="id") java.lang.String id, Pageable pageable);
 
+    
+  /**
+   * Searchable fields - General search (Only strings fields)
+   * @generated
+   */
+  @Query("SELECT entity FROM Cidade entity WHERE :search = :search")
+  public Page<Cidade> generalSearch(@Param(value="search") java.lang.String search, Pageable pageable);
+
+  /**
+   * Searchable fields - Specific search
+   * @generated
+   */
+  @Query("SELECT entity FROM Cidade entity WHERE (:dataFundacao is null OR entity.dataFundacao = :dataFundacao) AND (:dataHora is null OR entity.dataHora = :dataHora)")
+  public Page<Cidade> specificSearch(@Param(value="dataFundacao") java.util.Date dataFundacao, @Param(value="dataHora") java.util.Date dataHora, Pageable pageable);
+  
   /**
    * Foreign Key estado
    * @generated
