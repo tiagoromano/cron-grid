@@ -1590,8 +1590,35 @@ function maskDirective($compile, $translate, attrName) {
           options.sideBySide = true;
         }
 
-         $element.wrap("<div style=\"position:relative\"></div>")
+        $element.wrap("<div style=\"position:relative\"></div>")
         $element.datetimepicker(options);
+        
+        $element.on('click', function() {
+          debugger;
+          var popup = $(this).offset();
+          var popupTop = popup.top - 40;
+          
+          //var datetimepickerShowing = $('.bootstrap-datetimepicker-widget.dropdown-menu.usetwentyfour.timepicker-sbs.top.pull-right');
+          // var datetimepickerShowing = $('.bootstrap-datetimepicker-widget.dropdown-menu.usetwentyfour.top');
+          var datetimepickerShowing = $(this).parent().closest('.bootstrap-datetimepicker-widget.dropdown-menu.usetwentyfour.top');
+          
+          var grid = datetimepickerShowing.closest('cron-grid');
+          datetimepickerShowing.appendTo(grid);
+          
+          var oldTop = parseInt(datetimepickerShowing.css("top").split('px').join(''));
+          var dif = popupTop - oldTop;
+          
+          var oldBottom = parseInt(datetimepickerShowing.css("bottom").split('px').join(''));
+          var bottom = oldBottom - dif;
+          
+          
+          datetimepickerShowing.css("top", popupTop);
+          datetimepickerShowing.css("bottom", bottom);
+          // datetimepickerShowing.css({
+          //   'top' : popupTop
+          // });
+
+        });
         
         var useUTC = type == 'date' || type == 'datetime' || type == 'time';
 
