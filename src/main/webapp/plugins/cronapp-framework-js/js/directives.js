@@ -857,6 +857,113 @@
           }
         };
       })
+      
+      .directive('cronDate', ['$compile', '$translate', '$window', function ($compile, $translate, $window) {
+    return {
+      restrict: 'AE',
+      require: '^ngModel',
+      link: function (scope, element, attrs, ngModelCtrl) {
+        var options = {};
+        var cronDate = {};
+        
+        try {
+          if (attrs.options)
+            cronDate =  JSON.parse(attrs.options);
+          else {
+            var json = window.buildElementOptions(element);
+            cronDate = JSON.parse(json);
+          }
+          if (!cronDate.format) {
+            cronDate.format = parseMaskType(cronDate.type, $translate)
+          }
+          options = app.kendoHelper.getConfigDate($translate, cronDate);
+        } catch(err) {
+          console.log('AutoComplete invalid configuration! ' + err);
+        }
+        
+        var useUTC = options.type == 'date' || options.type == 'datetime' || options.type == 'time';
+
+
+        var $element;
+        if (attrs.fromGrid) {
+          $element = $(element);
+        }
+        else {
+          var parent = element.parent();
+          var $input = $('<input style="width: 100%;" class="cronDate" ng-model="' + attrs.ngModel + '"/>');
+          $(parent).append($input);
+          $element = $(parent).find('input.cronDate');
+          $element.data("type", options.type);
+          $element.attr("type", "date");
+        }
+        
+        var datePicker = app.kendoHelper.buildKendoMomentPicker($element, options, scope, ngModelCtrl); 
+        
+        if (attrs.fromGrid) {
+          var unmaskedvalue = function() {
+            var momentDate = null;
+           
+            var valueDate =  $(this).val();
+            if ($(this).data('initial-date')) {
+              valueDate = $(this).data('initial-date');
+              $(this).data('initial-date', null);
+            }
+            
+            if (useUTC) {
+              momentDate = moment.utc(valueDate, options.momentFormat);
+            } else {
+              momentDate = moment(valueDate, options.momentFormat);
+            }
+            
+            datePicker.value(momentDate.format());
+            $(this).data('rawvalue', momentDate.toDate());
+          }
+          $(element).on('keydown', unmaskedvalue).on('keyup', unmaskedvalue).on('change', unmaskedvalue);
+          unmaskedvalue.bind($element)();
+        }
+        else {
+          if (ngModelCtrl) {
+            ngModelCtrl.$formatters.push(function (value) {
+              var selDate = null;
+              
+              if (value) {
+                var momentDate = null;
+  
+                if (useUTC) {
+                  momentDate = moment.utc(value);
+                } else {
+                  momentDate = moment(value);
+                }
+  
+                selDate = momentDate.format(options.momentFormat);
+              }
+              
+              datePicker.value(selDate);
+  
+              return selDate;
+            });
+  
+            ngModelCtrl.$parsers.push(function (value) {
+              if (value) {
+                var momentDate = null;
+                if (useUTC) {
+                  momentDate = moment.utc(value, options.momentFormat);
+                } else {
+                  momentDate = moment(value, options.momentFormat);
+                }
+                return momentDate.toDate();
+              }
+  
+              return null;
+            });
+          }
+          
+          $(element).remove();
+        }
+      }
+    }
+  }])
+  
       .directive('cronGrid', ['$compile', '$translate', function($compile, $translate) {
         return {
           restrict: 'E',
@@ -1038,7 +1145,6 @@
               else if (column.displayField && column.displayField.length > 0) {
                 if (column.type.startsWith('date') || column.type.startsWith('month') 
                     || column.type.startsWith('time') || column.type.startsWith('week')) {
-                  // template = "#= kendo.toString("+column.displayField+", formatDate("+column.displayField+",'"+column.format+"','"+column.type+"')) #";
                   template = "#= formatDate("+column.displayField+",'"+column.format+"','"+column.type+"') #";
                 }
                 else {
@@ -1047,7 +1153,6 @@
               }
               else if (column.type.startsWith('date') || column.type.startsWith('month') 
                     || column.type.startsWith('time') || column.type.startsWith('week')) {
-                // template = "#= kendo.toString("+column.field+", formatDate("+column.field+",'"+column.format+"','"+column.type+"')) #";
                 template = "#= formatDate("+column.field+",'"+column.format+"','"+column.type+"') #";
               }
               return template;
@@ -1082,18 +1187,21 @@
             }
             
             function getEditor(column) {
-              if (column.inputType != 'default' && !column.type.startsWith('date') &&
-                  !column.type.startsWith('time') && !column.type.startsWith('week') && 
-                  !column.type.startsWith('month')) 
+              // if (column.inputType != 'default' || 
+              //     (
+              //       !column.type.startsWith('date') && !column.type.startsWith('time') && 
+              //       !column.type.startsWith('week') && !column.type.startsWith('month')
+              //     )
+              //   )
                 return editor.bind(this);
-              return undefined;
+              // return undefined;
             }
             
             function editor(container, opt) {
               var column = getColumnByField(opt.field);
               var required = isRequired(opt.field) ? "required" : "";
               var buttonId = this.generateId();
-              var $input = $('<input '+required+' name="' + opt.field + '" id="' + buttonId + '" class="k-input k-textbox"/>');
+              var $input = $('<input '+required+' name="' + opt.field + '" id="' + buttonId + '" />');
               if (column.inputType == 'dynamicComboBox' || column.inputType == 'comboBox') {
                 var kendoConfig = app.kendoHelper.getConfigCombobox(column.comboboxOptions);
                 kendoConfig.autoBind = true;
@@ -1114,19 +1222,44 @@
                 $input.appendTo(container);
               }
               else if (column.inputType == 'date') {
-                var kendoConfig = app.kendoHelper.getConfigDate($translate, column.dateOptions);
-                if (column.dateOptions.type == 'date') {
-                  $input.appendTo(container).kendoDatePicker(options);
-                } else if (column.dateOptions.type == 'datetime' || column.dateOptions.type == 'datetime-local') {
-                  $input.appendTo(container).kendoDateTimePicker(options); 
-                } else if (column.dateOptions.type == 'time' || column.dateOptions.type == 'time-local') {
-                  $input.appendTo(container).kendoTimePicker(options); 
-                }
+                $input.attr('cron-date', '');
+                $input.attr('options', JSON.stringify(column.dateOptions));
+                $input.attr('from-grid', true);
+                $input.data('initial-date', opt.model[opt.field]);
+                
+                // var kendoConfig = app.kendoHelper.getConfigDate($translate, column.dateOptions);
+                // // $input.attr('type', column.type);
+                // // $input.attr('mask', kendoConfig.momentFormat);
+                // if (column.dateOptions.type == 'date') {
+                //   $input.appendTo(container).kendoDatePicker(kendoConfig);
+                // } else if (column.dateOptions.type == 'datetime' || column.dateOptions.type == 'datetime-local') {
+                //   $input.appendTo(container).kendoDateTimePicker(kendoConfig); 
+                // } else if (column.dateOptions.type == 'time' || column.dateOptions.type == 'time-local') {
+                //   $input.appendTo(container).kendoTimePicker(kendoConfig); 
+                // }
+                
+                $input.appendTo(container).off('change');
+                var waitRender = setInterval(function() {
+                  if ($('#' + buttonId).length > 0) {
+                    var x = angular.element($('#' + buttonId ));
+                    $compile(x)(scope);
+                    clearInterval(waitRender);
+                    
+                    $('#' + buttonId).on('change', function() {
+                      setTimeout(function() {
+                        opt.model[opt.field] = $('#' + buttonId ).data('rawvalue');
+                        opt.model.dirty = true;
+                        opt.model.dirtyFields[opt.field] = true;  
+                      }.bind(this));
+                      
+                    });
+                  }
+                },200);
               }
               else /*if (column.type == 'number' || column.type == 'money' || column.type == 'integer')*/ {
-                debugger;
                 $input.attr('type', column.type);
                 $input.attr('mask', column.format ? column.format : '');
+                $input.attr('class', 'k-input k-textbox');
                 $input.appendTo(container);
                 
                 var waitRender = setInterval(function() {
@@ -1457,18 +1590,9 @@ function maskDirective($compile, $translate, attrName) {
           options.sideBySide = true;
         }
 
-        $element.wrap("<div style=\"position:relative\"></div>")
+         $element.wrap("<div style=\"position:relative\"></div>")
         $element.datetimepicker(options);
         
-        
-
-// $element.datetimepicker().on('dp.show', function() {
-//   $(this).closest('.table-responsive').removeClass('table-responsive').addClass('temp');
-// }).on('dp.hide', function() {
-//   $(this).closest('.temp').addClass('table-responsive').removeClass('temp')
-// });
-
-
         var useUTC = type == 'date' || type == 'datetime' || type == 'time';
 
         $element.on('dp.change', function () {

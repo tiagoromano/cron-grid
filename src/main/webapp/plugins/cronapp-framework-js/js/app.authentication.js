@@ -430,7 +430,7 @@ app.kendoHelper = {
     if (allowPaging)
       pageSize = pageCount ? pageCount : 10;
     
-    //Para exibir a data em UTC
+    // //Para exibir a data em UTC
     // var offsetMiliseconds = new Date().getTimezoneOffset() * 60000;
     // function onRequestEnd(e) {
     //   debugger;
@@ -545,8 +545,8 @@ app.kendoHelper = {
       serverFiltering: true,
       serverSorting: true,
       batch: false,
-      schema: schema
-      //requestEnd: onRequestEnd
+      schema: schema,
+      // requestEnd: onRequestEnd
     };
     return datasource;
   },
@@ -653,37 +653,39 @@ app.kendoHelper = {
   },
   buildKendoMomentPicker : function($element, options, scope, ngModelCtrl) {
     var useUTC = options.type == 'date' || options.type == 'datetime' || options.type == 'time';
-    
-    var onChange = function() {
-      var value = $element.val();
-      if (!value || value.trim() == '') {
-        if (ngModelCtrl) 
-          ngModelCtrl.$setViewValue('');
-      } else {
-        var momentDate = null;
-
-        if (useUTC) {
-          momentDate = moment.utc(value, options.momentFormat);
+    if (!$element.attr('from-grid')) {
+      var onChange = function() {
+        var value = $element.val();
+        if (!value || value.trim() == '') {
+          if (ngModelCtrl) 
+            ngModelCtrl.$setViewValue('');
         } else {
-          momentDate = moment(value, options.momentFormat);
-        }
-
-        if (ngModelCtrl && momentDate.isValid()) {
-          ngModelCtrl.$setViewValue(momentDate.toDate());
-          $element.data('changed', true);
+          var momentDate = null;
+  
+          if (useUTC) {
+            momentDate = moment.utc(value, options.momentFormat);
+          } else {
+            momentDate = moment(value, options.momentFormat);
+          }
+  
+          if (ngModelCtrl && momentDate.isValid()) {
+            ngModelCtrl.$setViewValue(momentDate.toDate());
+            $element.data('changed', true);
+          }
         }
       }
+          
+      if (scope) {
+        options['change'] = function() {
+          scope.$apply(function () {
+            onChange();
+          });
+        };
+      } else {
+        options['change'] = onChange;
+      }  
     }
-        
-    if (scope) {
-      options['change'] = function() {
-        scope.$apply(function () {
-          onChange();
-        });
-      };
-    } else {
-      options['change'] = onChange;
-    }
+    
     
     if (options.type == 'date') {
       return $element.kendoDatePicker(options).data('kendoDatePicker'); 
