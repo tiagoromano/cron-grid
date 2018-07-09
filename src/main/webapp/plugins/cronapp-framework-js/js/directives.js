@@ -1082,9 +1082,9 @@
             }
             
             function getEditor(column) {
-              if (column.inputType != 'default' || column.type == 'number' || column.type == 'money'
-                  || column.type == 'integer') 
-              
+              if (column.inputType != 'default' && !column.type.startsWith('date') &&
+                  !column.type.startsWith('time') && !column.type.startsWith('week') && 
+                  !column.type.startsWith('month')) 
                 return editor.bind(this);
               return undefined;
             }
@@ -1123,23 +1123,26 @@
                   $input.appendTo(container).kendoTimePicker(options); 
                 }
               }
-              else if (column.type == 'number' || column.type == 'money' || column.type == 'integer') {
+              else /*if (column.type == 'number' || column.type == 'money' || column.type == 'integer')*/ {
                 debugger;
-                $input.attr('type', 'text');
+                $input.attr('type', column.type);
                 $input.attr('mask', column.format ? column.format : '');
-                $input.appendTo(container).kendoMaskedTextBox({
-                    mask: "000,000,000,000.00",
-                    culture: "pt-BR"
-                });;
-                        
-                // var waitRender = setInterval(function() {
-                //   if ($('#' + buttonId).length > 0) {
-                //       scope['vars.'+buttonId]=11211.12;
-                //       var x = angular.element($('#' + buttonId ));
-                //       $compile(x)(scope);
-                //       clearInterval(waitRender);
-                //     }
-                // },200);
+                $input.appendTo(container);
+                
+                var waitRender = setInterval(function() {
+                  if ($('#' + buttonId).length > 0) {
+                    $('#' + buttonId ).off('change');
+                    $('#' + buttonId ).on('change', function() {
+                      opt.model[opt.field] = $('#' + buttonId ).data('rawvalue');
+                      opt.model.dirty = true;
+                      opt.model.dirtyFields[opt.field] = true;
+                    });
+                    
+                    var x = angular.element($('#' + buttonId ));
+                    $compile(x)(scope);
+                    clearInterval(waitRender);
+                  }
+                },200);
               }
               
             }
@@ -1186,7 +1189,6 @@
                         name: this.generateId(),
                         text: column.headerText,
                         click: function(e) {
-                          debugger;
                           e.preventDefault();
                           var tr = $(e.target).closest("tr"); // get the current table row (tr)
                           var grid = tr.closest('table');
@@ -1432,6 +1434,7 @@ function maskDirective($compile, $translate, attrName) {
           locale: $translate.use(),
           showTodayButton: true,
           useStrict: true,
+          debug: true,
           tooltips: {
             today: $translate.instant('DatePicker.today'),
             clear: $translate.instant('DatePicker.clear'),
@@ -1446,7 +1449,7 @@ function maskDirective($compile, $translate, attrName) {
             prevDecade: $translate.instant('DatePicker.prevDecade'),
             nextDecade: $translate.instant('DatePicker.nextDecade'),
             prevCentury: $translate.instant('DatePicker.prevCentury'),
-            nextCentury: $translate.instant('DatePicker.nextCentury')
+            nextCentury: $translate.instant('DatePicker.nextCentury'),
           }
         };
 
@@ -1456,6 +1459,15 @@ function maskDirective($compile, $translate, attrName) {
 
         $element.wrap("<div style=\"position:relative\"></div>")
         $element.datetimepicker(options);
+        
+        
+
+// $element.datetimepicker().on('dp.show', function() {
+//   $(this).closest('.table-responsive').removeClass('table-responsive').addClass('temp');
+// }).on('dp.hide', function() {
+//   $(this).closest('.temp').addClass('table-responsive').removeClass('temp')
+// });
+
 
         var useUTC = type == 'date' || type == 'datetime' || type == 'time';
 
@@ -1475,6 +1487,17 @@ function maskDirective($compile, $translate, attrName) {
             });
           }
         });
+
+        var unmaskedvalue = function() {
+          var momentDate = null;
+          if (useUTC) {
+            momentDate = moment.utc($(this).val(), mask);
+          } else {
+            momentDate = moment($(this).val(), mask);
+          }
+          $(this).data('rawvalue', momentDate.toDate());
+        }
+        $(element).on('keydown', unmaskedvalue).on('keyup', unmaskedvalue).on('change', unmaskedvalue);
 
         if (ngModelCtrl) {
           ngModelCtrl.$formatters.push(function (value) {
@@ -1576,6 +1599,12 @@ function maskDirective($compile, $translate, attrName) {
 
         $(element).inputmask(inputmaskType, ipOptions);
 
+        var unmaskedvalue = function() {
+          $(this).data('rawvalue',$(this).inputmask('unmaskedvalue'));
+        }
+        $(element).on('keydown', unmaskedvalue).on('keyup', unmaskedvalue);
+        
+        
         if (ngModelCtrl) {
           ngModelCtrl.$formatters.push(function (value) {
             if (value != undefined && value != null && value != '') {
@@ -1606,6 +1635,13 @@ function maskDirective($compile, $translate, attrName) {
         }
 
         $element.mask(mask, options);
+        
+        var unmaskedvalue = function() {
+          if (removeMask)
+            $(this).data('rawvalue',$(this).cleanVal());
+        }
+        
+        $(element).on('keydown', unmaskedvalue).on('keyup', unmaskedvalue);
 
         if (removeMask && ngModelCtrl) {
           ngModelCtrl.$formatters.push(function (value) {
