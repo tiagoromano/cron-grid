@@ -1258,15 +1258,18 @@
                 },200);
               }
               else /*if (column.type == 'number' || column.type == 'money' || column.type == 'integer')*/ {
+                debugger;
                 $input.attr('type', column.type);
                 $input.attr('mask', column.format ? column.format : '');
                 $input.attr('class', 'k-input k-textbox');
+                $input.data('initial-value', opt.model[opt.field]);
                 $input.appendTo(container);
                 
                 var waitRender = setInterval(function() {
                   if ($('#' + buttonId).length > 0) {
                     $('#' + buttonId ).off('change');
                     $('#' + buttonId ).on('change', function() {
+                      debugger;
                       opt.model[opt.field] = $('#' + buttonId ).data('rawvalue');
                       opt.model.dirty = true;
                       opt.model.dirtyFields[opt.field] = true;
@@ -1280,7 +1283,6 @@
               }
               
             }
-            
             
             var columns = [];
             if (options.columns) {
@@ -1588,6 +1590,8 @@ function maskDirective($compile, $translate, attrName) {
         if (mask != 'DD/MM/YYYY' && mask != 'MM/DD/YYYY') {
           options.sideBySide = true;
         }
+        
+        var useUTC = type == 'date' || type == 'datetime' || type == 'time';
 
         if ($element.attr('from-grid')) {
           $element.on('click', function() {
@@ -1614,15 +1618,32 @@ function maskDirective($compile, $translate, attrName) {
             datetimepickerShowing.css("bottom", "auto");
             datetimepickerShowing.css("left", popupLeft);
           });
+          $element.on('dp.change', function () {
+            var momentDate = null;
+            if (useUTC) {
+              momentDate = moment.utc($element.val(), mask);
+            } else {
+              momentDate = moment($element.val(), mask);
+            }
+            $element.data('rawvalue', momentDate.toDate());
+          });
+          if ($element.data('initial-value')) {
+            var initialValue = $element.data('initial-value');
+            var momentDate = null;
+            if (useUTC) {
+              momentDate = moment.utc(initialValue);
+            } else {
+              momentDate = moment(initialValue);
+            }
+            $element.val(momentDate.format(mask));  
+            $element.data('initial-value', null);
+          }
+          
         }
         else
           $element.wrap("<div style=\"position:relative\"></div>");
-          
         $element.datetimepicker(options);
         
-        
-        
-        var useUTC = type == 'date' || type == 'datetime' || type == 'time';
 
         $element.on('dp.change', function () {
           if ($(this).is(":visible")) {
@@ -1641,16 +1662,16 @@ function maskDirective($compile, $translate, attrName) {
           }
         });
 
-        var unmaskedvalue = function() {
-          var momentDate = null;
-          if (useUTC) {
-            momentDate = moment.utc($(this).val(), mask);
-          } else {
-            momentDate = moment($(this).val(), mask);
-          }
-          $(this).data('rawvalue', momentDate.toDate());
-        }
-        $(element).on('keydown', unmaskedvalue).on('keyup', unmaskedvalue).on('change', unmaskedvalue);
+        // var unmaskedvalue = function() {
+        //   var momentDate = null;
+        //   if (useUTC) {
+        //     momentDate = moment.utc($(this).val(), mask);
+        //   } else {
+        //     momentDate = moment($(this).val(), mask);
+        //   }
+        //   $(this).data('rawvalue', momentDate.toDate());
+        // }
+        // $(element).on('keydown', unmaskedvalue).on('keyup', unmaskedvalue).on('change', unmaskedvalue);
 
         if (ngModelCtrl) {
           ngModelCtrl.$formatters.push(function (value) {
