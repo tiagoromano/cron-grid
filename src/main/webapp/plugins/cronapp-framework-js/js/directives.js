@@ -1198,10 +1198,12 @@
             }
             
             function editor(container, opt) {
+              $(container).css("position", "relative");
+              
               var column = getColumnByField(opt.field);
               var required = isRequired(opt.field) ? "required" : "";
               var buttonId = this.generateId();
-              var $input = $('<input '+required+' name="' + opt.field + '" id="' + buttonId + '" />');
+              var $input = $('<input '+required+' name="' + opt.field + '" id="' + buttonId + '"from-grid=true />');
               if (column.inputType == 'dynamicComboBox' || column.inputType == 'comboBox') {
                 var kendoConfig = app.kendoHelper.getConfigCombobox(column.comboboxOptions);
                 kendoConfig.autoBind = true;
@@ -1224,7 +1226,6 @@
               else if (column.inputType == 'date') {
                 $input.attr('cron-date', '');
                 $input.attr('options', JSON.stringify(column.dateOptions));
-                $input.attr('from-grid', true);
                 $input.data('initial-date', opt.model[opt.field]);
                 
                 // var kendoConfig = app.kendoHelper.getConfigDate($translate, column.dateOptions);
@@ -1298,8 +1299,6 @@
                     addColumn.template = getTemplate(column);
                     addColumn.format = getFormat(column);
                     addColumn.editor = getEditor.bind(this)(column);
-                    // if (column.inputType != 'default')  
-                    //   addColumn.editor = editor.bind(this);
                     columns.push(addColumn);
                     
                   }
@@ -1561,13 +1560,13 @@ function maskDirective($compile, $translate, attrName) {
       }
 
       if (type == 'date' || type == 'datetime' || type == 'datetime-local' || type == 'month' || type == 'time' || type == 'time-local' || type == 'week') {
-
+        debugger;
         var options = {
           format: mask,
           locale: $translate.use(),
           showTodayButton: true,
           useStrict: true,
-          debug: true,
+          // debug: true,
           tooltips: {
             today: $translate.instant('DatePicker.today'),
             clear: $translate.instant('DatePicker.clear'),
@@ -1590,35 +1589,38 @@ function maskDirective($compile, $translate, attrName) {
           options.sideBySide = true;
         }
 
-        $element.wrap("<div style=\"position:relative\"></div>")
+        if ($element.attr('from-grid')) {
+          $element.on('click', function() {
+            var popup = $(this).offset();
+            
+            var isBellowInput = true;
+            var datetimepickerShowing = $(this).parent().find('.bootstrap-datetimepicker-widget.dropdown-menu.usetwentyfour.bottom');
+            if (!datetimepickerShowing.length) {
+              isBellowInput = false;
+              datetimepickerShowing = $(this).parent().find('.bootstrap-datetimepicker-widget.dropdown-menu.usetwentyfour.top');
+            }
+            var popupLeft = $(datetimepickerShowing).offset().left;
+            
+            var grid = datetimepickerShowing.closest('cron-grid');
+            datetimepickerShowing.appendTo(grid);
+            
+            var popupTop = 0
+            if (!isBellowInput)
+              popupTop = popup.top - ($(datetimepickerShowing).height() + 15);
+            else
+              popupTop = popup.top + 35;
+            
+            datetimepickerShowing.css("top", popupTop);
+            datetimepickerShowing.css("bottom", "auto");
+            datetimepickerShowing.css("left", popupLeft);
+          });
+        }
+        else
+          $element.wrap("<div style=\"position:relative\"></div>");
+          
         $element.datetimepicker(options);
         
-        $element.on('click', function() {
-          debugger;
-          var popup = $(this).offset();
-          var popupTop = popup.top - 40;
-          
-          //var datetimepickerShowing = $('.bootstrap-datetimepicker-widget.dropdown-menu.usetwentyfour.timepicker-sbs.top.pull-right');
-          // var datetimepickerShowing = $('.bootstrap-datetimepicker-widget.dropdown-menu.usetwentyfour.top');
-          var datetimepickerShowing = $(this).parent().closest('.bootstrap-datetimepicker-widget.dropdown-menu.usetwentyfour.top');
-          
-          var grid = datetimepickerShowing.closest('cron-grid');
-          datetimepickerShowing.appendTo(grid);
-          
-          var oldTop = parseInt(datetimepickerShowing.css("top").split('px').join(''));
-          var dif = popupTop - oldTop;
-          
-          var oldBottom = parseInt(datetimepickerShowing.css("bottom").split('px').join(''));
-          var bottom = oldBottom - dif;
-          
-          
-          datetimepickerShowing.css("top", popupTop);
-          datetimepickerShowing.css("bottom", bottom);
-          // datetimepickerShowing.css({
-          //   'top' : popupTop
-          // });
-
-        });
+        
         
         var useUTC = type == 'date' || type == 'datetime' || type == 'time';
 
