@@ -1067,35 +1067,69 @@
           },
           updateFiltersFromAngular: function(grid, scope) {
             
-            grid.dataSource.options.filter.forEach(function(f) {
-              if ("screen" == f.linkParentType) {
-                scope.$watch(f.linkParentField, function(newValue, oldValue) {
-                  grid.dataSource.options.filter.forEach(function(filterToUpdate) {
-                    if ("screen" == f.linkParentType && f.linkParentField == filterToUpdate.linkParentField) {
-                      newValue = this.getObjectId(newValue);
-                      filterToUpdate.value = newValue;
-                    }
-                  }.bind(this));
-                  grid.dataSource.read();
-                  grid.refresh();
-                  grid.trigger('change');
-                }.bind(this));
+            var getIndexFilter = function(obj) {
+              var index = -1;
+              
+              var filters = grid.dataSource.filter() ? grid.dataSource.filter().filters : null;
+              if (filters) {
+                for (var i = 0; i< filters.length; i++) {
+                  if (obj.linkParentField == filters[i].linkParentField) {
+                    index = i;
+                    break;
+                  }
+                }
               }
+              return index;
+            }
+            
+            var addOrRemoveFilter = function(f) {
+              var index = getIndexFilter(f);
+              var filters = grid.dataSource.filter() ? grid.dataSource.filter().filters : null;
+              if (index > -1) {
+                if (f.value && f.value != "") 
+                  filters[index] = f;
+                else
+                  filters.splice(index, 1);
+              }
+              else {
+                if (f.value && f.value != "") 
+                  if (filters)
+                    filters.push(f)
+                  else
+                    filters = [f];
+              }
+              grid.dataSource.filter(filters);
+            } 
+            
+            grid.dataSource.options.filterScreen.forEach(function(f) {
+                scope.$watch(f.linkParentField, function(newValue, oldValue) {
+                  f.value = this.getObjectId(newValue);
+                  addOrRemoveFilter(f);
+                  setTimeout(function() { grid.trigger('change'); }, 100);
+                }.bind(this));
             }.bind(this));
           },
           setFiltersFromLinkColumns: function(datasource, options, scope) {
             datasource.filter = [];
+            //Os filtros que sejam de tela, deverão ser utilizados apenas se tiver valor, se estiver vazio, não seta
+            //no filtro principal do datasource (filter)
+            datasource.filterScreen = [];
             options.columns.forEach( function(c) {
               if (c.linkParentField && c.linkParentField.length > 0 && 
                   c.linkParentType && c.linkParentType.length > 0) 
               {
-                var filter = { field: c.field, operator: "eq", value: "", linkParentField: c.linkParentField, linkParentType: c.linkParentType };
-                if (filter.linkParentType == "screen") {
-                  var value = scope[filter.linkParentField];
+                if (c.linkParentType == "screen") {
+                  var value = scope[c.linkParentField];
                   value = this.getObjectId(value);
-                  filter.value = value;
+                  var filter = { field: c.field, operator: "eq", value: value, linkParentField: c.linkParentField, linkParentType: c.linkParentType };
+                  if (value && value != "")
+                    datasource.filter.push(filter);
+                  datasource.filterScreen.push(filter);
                 }
-                datasource.filter.push(filter);
+                else if (c.linkParentType == "hierarchy") {
+                  var filter = { field: c.field, operator: "eq", value: "", linkParentField: c.linkParentField, linkParentType: c.linkParentType };
+                  datasource.filter.push(filter);
+                }
               }
             }.bind(this));
           },
@@ -1187,14 +1221,7 @@
             }
             
             function getEditor(column) {
-              // if (column.inputType != 'default' || 
-              //     (
-              //       !column.type.startsWith('date') && !column.type.startsWith('time') && 
-              //       !column.type.startsWith('week') && !column.type.startsWith('month')
-              //     )
-              //   )
-                return editor.bind(this);
-              // return undefined;
+              return editor.bind(this);
             }
             
             function editor(container, opt) {
@@ -1208,7 +1235,7 @@
                 var kendoConfig = app.kendoHelper.getConfigCombobox(column.comboboxOptions);
                 kendoConfig.autoBind = true;
                 kendoConfig.optionLabel = undefined;
-                $input.appendTo(container).kendoDropDownList(kendoConfig);
+                $input.appendTo(container).kendoDropDownList(kendoConfig);  
               }
               else if (column.inputType == 'slider') {
                 var kendoConfig = app.kendoHelper.getConfigSlider(column.sliderOptions);
@@ -1257,8 +1284,7 @@
                   }
                 },10);
               }
-              else /*if (column.type == 'number' || column.type == 'money' || column.type == 'integer')*/ {
-                debugger;
+              else {
                 $input.attr('type', column.type);
                 $input.attr('mask', column.format ? column.format : '');
                 $input.attr('class', 'k-input k-textbox');
@@ -1269,7 +1295,6 @@
                   if ($('#' + buttonId).length > 0) {
                     $('#' + buttonId ).off('change');
                     $('#' + buttonId ).on('change', function() {
-                      debugger;
                       opt.model[opt.field] = $('#' + buttonId ).data('rawvalue');
                       opt.model.dirty = true;
                       opt.model.dirtyFields[opt.field] = true;
@@ -1562,7 +1587,6 @@ function maskDirective($compile, $translate, attrName) {
       }
 
       if (type == 'date' || type == 'datetime' || type == 'datetime-local' || type == 'month' || type == 'time' || type == 'time-local' || type == 'week') {
-        debugger;
         var options = {
           format: mask,
           locale: $translate.use(),

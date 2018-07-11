@@ -48,7 +48,7 @@
                 </td>
                 <td class="">
                     <div class="">
-                                {{rowData.dataFundacao | mask:'date'}}
+                                {{rowData.dataFundacao | mask:'week'}}
                     </div>
                 </td>
                 <td class="">
@@ -142,7 +142,7 @@
                     <div class="form-group">
                         <label for="textinput-dataFundacao" class="">Data Fundacao</label>
  <!-- else for if !model.hasCronappFramework() -->
-                                <input type="date" ng-model="Cidade.active.dataFundacao" class="form-control" id="textinput-dataFundacao" placeholder="Data Fundacao" mask="" mask-placeholder="" ng-required="false">
+                                <input type="week" ng-model="Cidade.active.dataFundacao" class="form-control" id="textinput-dataFundacao" placeholder="Data Fundacao" mask="" mask-placeholder="" ng-required="false">
                          <!-- end if !model.hasCronappFramework() -->
                     </div>
                 </div>

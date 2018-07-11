@@ -430,56 +430,62 @@ app.kendoHelper = {
     if (allowPaging)
       pageSize = pageCount ? pageCount : 10;
     
-    // //Para exibir a data em UTC
-    // var offsetMiliseconds = new Date().getTimezoneOffset() * 60000;
-    // function onRequestEnd(e) {
-    //   debugger;
-      
-    //   if (e.response  && e.response.d && e.response.d.results) {
-    //     var items = e.response.d.results;
-    //     if (this.group().length) {
-          
-    //       columns.forEach( c=> {
-    //         if (c.dataType == 'Database') {
-    //           if (c.type == 'date' || c.type == 'datetime' || c.type == 'month' || c.type == 'time' || c.type == 'week') {
-    //             for (var i = 0; i < items.length; i++) {
-    //               var gr = items[i];
-    //               if (c.field == gr.Member) {
-    //                 gr.Key = gr.Key.replace(/\d+/,
-    //                   function (n) { return parseInt(n) + offsetMiliseconds }
-    //                 );
-    //               }
-    //               addOffset.bind(this)(gr.Items);
-    //             }
-                
-                
-    //           }
-    //         }
-    //       });
-          
-          
-    //     } else {
-    //       addOffset.bind(this)(items);
-    //     }
-    //   }
-    // }
-    
-    // function addOffset(items) {
-    //   for (var i = 0; i < items.length; i++) {
+    //Quando não for data UTC
+    var offsetMiliseconds = new Date().getTimezoneOffset() * 60000;
+    function onRequestEnd(e) {
+      debugger;
+      if (e.response  && e.response.d ) {
+        var items = null;
+        if (e.response.d.results)
+          items = e.response.d.results;
+        else
+          items = [e.response.d];
         
-    //     columns.forEach( c=> {
-    //         if (c.dataType == 'Database') {
-    //           if (c.type == 'date' || c.type == 'datetime' || c.type == 'month' || c.type == 'time' || c.type == 'week') {
-    //             if (items[i][c.field]) {
-    //               items[i][c.field] = items[i][c.field].replace(/\d+/,
-    //                 function (n) { return parseInt(n) + offsetMiliseconds }
-    //               );
-    //             }
-    //           }
-    //         }
-    //     });
-    //   }
-    // }
+        debugger;
+        if (this.group().length) {
+          
+          columns.forEach( c=> {
+            if (c.dataType == 'Database') {
+              var notUseUTC = c.type == 'datetime-local' || c.type == 'month' || c.type == 'time-local' || c.type == 'week';
+              if (notUseUTC) {
+                for (var i = 0; i < items.length; i++) {
+                  var gr = items[i];
+                  if (c.field == gr.Member) {
+                    gr.Key = gr.Key.replace(/\d+/,
+                      function (n) { return parseInt(n) + offsetMiliseconds }
+                    );
+                  }
+                  addOffset.bind(this)(gr.Items);
+                }
+              }
+            }
+          });
+        } else {
+          addOffset.bind(this)(items);
+        }
+      }
+    }
+    
+    function addOffset(items) {
+      debugger;
+      for (var i = 0; i < items.length; i++) {
+        if (columns) {
+          columns.forEach( c=> {
+              if (c.dataType == 'Database') {
+                var notUseUTC = c.type == 'datetime-local' || c.type == 'month' || c.type == 'time-local' || c.type == 'week';
+                if (notUseUTC) {
+                  if (items[i][c.field]) {
+                    items[i][c.field] = items[i][c.field].replace(/\d+/,
+                      function (n) { return parseInt(n) + offsetMiliseconds }
+                    );
+                  }
+                }
+              }
+          });  
+        }
+        
+      }
+    }
 
     var datasource = {
       type: "odata",
@@ -498,7 +504,7 @@ app.kendoHelper = {
                 //   return urls;
                 // }
                 // else {
-                  
+                  debugger;
                   return data.__metadata.uri;
                   
                 // }
@@ -546,8 +552,9 @@ app.kendoHelper = {
       serverSorting: true,
       batch: false,
       schema: schema,
-      // requestEnd: onRequestEnd
+      requestEnd: onRequestEnd
     };
+      
     return datasource;
   },
   getConfigCombobox: function(options) {
