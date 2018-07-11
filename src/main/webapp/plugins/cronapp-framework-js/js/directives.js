@@ -1084,28 +1084,48 @@
             
             var addOrRemoveFilter = function(f) {
               var index = getIndexFilter(f);
+              var hasChanges = false;
               var filters = grid.dataSource.filter() ? grid.dataSource.filter().filters : null;
               if (index > -1) {
                 if (f.value && f.value != "") 
                   filters[index] = f;
                 else
                   filters.splice(index, 1);
+                hasChanges = true;
               }
               else {
-                if (f.value && f.value != "") 
+                if (f.value && f.value != "")  {
                   if (filters)
                     filters.push(f)
                   else
                     filters = [f];
+                  hasChanges = true;                
+                }
               }
-              grid.dataSource.filter(filters);
-            } 
+              if (hasChanges)
+                grid.dataSource.filter(filters);
+            }
+            
+            var updateFilterTimeout = null;
+            var updateFilter = function(newValue, f) {
+              f.value = this.getObjectId(newValue);
+              addOrRemoveFilter(f);
+              setTimeout(function() { grid.trigger('change'); }, 100);
+            };
             
             grid.dataSource.options.filterScreen.forEach(function(f) {
                 scope.$watch(f.linkParentField, function(newValue, oldValue) {
-                  f.value = this.getObjectId(newValue);
-                  addOrRemoveFilter(f);
-                  setTimeout(function() { grid.trigger('change'); }, 100);
+                  
+                  if (updateFilterTimeout) {
+                    clearTimeout(updateFilterTimeout);
+                    updateFilterTimeout = null;
+                  }
+                  
+                  updateFilterTimeout = setTimeout(function() {
+                    updateFilter.bind(this)(newValue, f)
+                  }.bind(this), 500);
+                  
+                  
                 }.bind(this));
             }.bind(this));
           },

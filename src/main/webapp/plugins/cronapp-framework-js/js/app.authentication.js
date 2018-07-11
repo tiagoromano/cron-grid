@@ -433,7 +433,6 @@ app.kendoHelper = {
     //Quando não for data UTC
     var offsetMiliseconds = new Date().getTimezoneOffset() * 60000;
     function onRequestEnd(e) {
-      debugger;
       if (e.response  && e.response.d ) {
         var items = null;
         if (e.response.d.results)
@@ -441,7 +440,6 @@ app.kendoHelper = {
         else
           items = [e.response.d];
         
-        debugger;
         if (this.group().length) {
           
           columns.forEach( c=> {
@@ -467,7 +465,6 @@ app.kendoHelper = {
     }
     
     function addOffset(items) {
-      debugger;
       for (var i = 0; i < items.length; i++) {
         if (columns) {
           columns.forEach( c=> {
@@ -504,7 +501,6 @@ app.kendoHelper = {
                 //   return urls;
                 // }
                 // else {
-                  debugger;
                   return data.__metadata.uri;
                   
                 // }
