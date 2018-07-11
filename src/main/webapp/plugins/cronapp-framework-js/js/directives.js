@@ -1255,7 +1255,7 @@
                       
                     });
                   }
-                },200);
+                },10);
               }
               else /*if (column.type == 'number' || column.type == 'money' || column.type == 'integer')*/ {
                 debugger;
@@ -1279,7 +1279,7 @@
                     $compile(x)(scope);
                     clearInterval(waitRender);
                   }
-                },200);
+                },10);
               }
               
             }
@@ -1662,17 +1662,6 @@ function maskDirective($compile, $translate, attrName) {
           }
         });
 
-        // var unmaskedvalue = function() {
-        //   var momentDate = null;
-        //   if (useUTC) {
-        //     momentDate = moment.utc($(this).val(), mask);
-        //   } else {
-        //     momentDate = moment($(this).val(), mask);
-        //   }
-        //   $(this).data('rawvalue', momentDate.toDate());
-        // }
-        // $(element).on('keydown', unmaskedvalue).on('keyup', unmaskedvalue).on('change', unmaskedvalue);
-
         if (ngModelCtrl) {
           ngModelCtrl.$formatters.push(function (value) {
             if (value) {
@@ -1814,7 +1803,6 @@ function maskDirective($compile, $translate, attrName) {
           if (removeMask)
             $(this).data('rawvalue',$(this).cleanVal());
         }
-        
         $(element).on('keydown', unmaskedvalue).on('keyup', unmaskedvalue);
 
         if (removeMask && ngModelCtrl) {
@@ -1833,6 +1821,15 @@ function maskDirective($compile, $translate, attrName) {
 
             return null;
           });
+        }
+      }
+      
+      else {
+        if ($element.attr('from-grid')) {
+          var unmaskedvalue = function() {
+            $(this).data('rawvalue',$(this).val());
+          }
+          $(element).on('keydown', unmaskedvalue).on('keyup', unmaskedvalue);
         }
       }
     }
