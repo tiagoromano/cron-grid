@@ -791,5 +791,89 @@
 			"foreignKey": null
 		},
 		"serviceUrl": "api/cronapi/query/urxh5uyrsjzt/"
+	},
+	"qxtuazy7y63o": {
+		"customId": "qxtuazy7y63o",
+		"queryName": "Obter cidades cru",
+		"screen": "",
+		"sourceType": "entityFullName",
+		"blockly": null,
+		"entitySimpleName": "Cidade",
+		"entityFullName": "app.entity.Cidade",
+		"query": {
+			"isValid": true,
+			"rulesEntity": [
+				{
+					"entity": "Cidade",
+					"alias": "c",
+					"namespace": "app.entity.Cidade"
+				}
+			],
+			"rulesSelect": [
+				{
+					"func": "get",
+					"field": "c"
+				}
+			],
+			"rulesGroupBy": [],
+			"rulesHaving": [],
+			"rulesOrderBy": [],
+			"rules": {
+				"condition": "AND",
+				"not": false,
+				"valid": true,
+				"rules": []
+			}
+		},
+		"queryParamsValues": [],
+		"verbs": {
+			"GET": true,
+			"GETAuthorities": null,
+			"POST": true,
+			"POSTAuthorities": null,
+			"PUT": true,
+			"PUTAuthorities": null,
+			"DELETE": true,
+			"DELETEAuthorities": null,
+			"FILTER": true,
+			"FILTERAuthorities": null
+		},
+		"events": {
+			"beforeInsert": null,
+			"beforeUpdate": null,
+			"beforeDelete": null,
+			"afterInsert": null,
+			"afterUpdate": null,
+			"afterDelete": null,
+			"onNavigate": null,
+			"onGetData": null
+		},
+		"defaultValues": {
+			"id": null,
+			"nome": null,
+			"estado": null,
+			"numero": null,
+			"capital": null,
+			"dataFundacao": null,
+			"dataHora": null,
+			"numeroDouble": null
+		},
+		"security": {
+			"id": null,
+			"nome": null,
+			"estado": null,
+			"numero": null,
+			"capital": null,
+			"dataFundacao": null,
+			"dataHora": null,
+			"numeroDouble": null
+		},
+		"calcFields": {},
+		"calcFieldsSecurity": {},
+		"errorHandles": {
+			"primaryKey": null,
+			"foreignKey": null
+		},
+		"serviceUrl": "api/cronapi/query/qxtuazy7y63o/"
 	}
 }
