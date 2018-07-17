@@ -442,7 +442,7 @@ app.kendoHelper = {
         
         if (this.group().length) {
           
-          columns.forEach( c=> {
+          columns.forEach( function(c) {
             if (c.dataType == 'Database') {
               var notUseUTC = c.type == 'datetime-local' || c.type == 'month' || c.type == 'time-local' || c.type == 'week';
               if (notUseUTC) {
@@ -467,7 +467,7 @@ app.kendoHelper = {
     function addOffset(items) {
       for (var i = 0; i < items.length; i++) {
         if (columns) {
-          columns.forEach( c=> {
+          columns.forEach( function(c) {
               if (c.dataType == 'Database') {
                 var notUseUTC = c.type == 'datetime-local' || c.type == 'month' || c.type == 'time-local' || c.type == 'week';
                 if (notUseUTC) {

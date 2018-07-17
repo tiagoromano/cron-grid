@@ -1087,14 +1087,14 @@
               var hasChanges = false;
               var filters = grid.dataSource.filter() ? grid.dataSource.filter().filters : null;
               if (index > -1) {
-                if (f.value && f.value != "") 
+                if ((f.value && f.value != "") || !f.linkParentLoadIfEmpty) 
                   filters[index] = f;
                 else
                   filters.splice(index, 1);
                 hasChanges = true;
               }
               else {
-                if (f.value && f.value != "")  {
+                if ((f.value && f.value != "") || !f.linkParentLoadIfEmpty)  {
                   if (filters)
                     filters.push(f)
                   else
@@ -1141,8 +1141,11 @@
                 if (c.linkParentType == "screen") {
                   var value = scope[c.linkParentField];
                   value = this.getObjectId(value);
-                  var filter = { field: c.field, operator: "eq", value: value, linkParentField: c.linkParentField, linkParentType: c.linkParentType };
-                  if (value && value != "")
+                  var filter = { 
+                    field: c.field, operator: "eq", value: value, linkParentField: c.linkParentField, linkParentType: c.linkParentType,
+                    linkParentLoadIfEmpty: c.linkParentLoadIfEmpty
+                  };
+                  if ((value && value != "") || !f.linkParentLoadIfEmpty)
                     datasource.filter.push(filter);
                   datasource.filterScreen.push(filter);
                 }
