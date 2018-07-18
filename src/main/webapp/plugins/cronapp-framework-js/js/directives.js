@@ -1156,7 +1156,6 @@
               }
             }.bind(this));
           },
-          // updateNgModel
           encodeHTML: function(value){
             return value.replace(/&/g, '&amp;')
                .replace(/</g, '&lt;')
@@ -1494,16 +1493,9 @@
             }
             
             var datasource = app.kendoHelper.getDataSource(options.dataSource, options.allowPaging, options.pageCount, options.columns);
-            
-            // scope.$watch(dsEstado.data, function(newValue, oldValue) {
-            //       console.log('watch');
-            //       console.log(dsEstado.data);
-            // }.bind(this));
-            
             //Inicio implementação do datasource do kendo para utilizar o datasource.js
             delete datasource.type;
             datasource.schema.total = function(){
-              debugger;
               return dsEstado.getRowsCount();
             };
             datasource.transport = {
@@ -1512,8 +1504,9 @@
                 dsEstado.setDataSourceEvents(
                   {
                     create: function(data) {
-                      callback.pushCreate(data);  
-                    },
+                      if (!this.options.existItemInGrid(data))
+                        callback.pushCreate(data);  
+                    }.bind(this),
                     update: function(data) {
                       callback.pushUpdate(data);  
                     },
@@ -1523,9 +1516,6 @@
                   });
               },
               read:  function (e) {
-                debugger;
-                // on success
-                
                 for (key in e.data) 
                   if(e.data[key] == undefined)  
                     delete e.data[key];
@@ -1536,7 +1526,6 @@
                 var fetchData = {};
                 fetchData.params = paramsOData;
                 dsEstado.fetch(fetchData, { success:  function(data) {
-                  debugger;
                   e.success(data);
                 }});
                 
@@ -1546,29 +1535,27 @@
                 
               },
               update: function(e) {
-                debugger;
                 dsEstado.startEditing(e.data, function(xxx) {
                   dsEstado.postSilent(function(data) {
-                    e.success(data);
+                    //e.success(data);
+                    e.error("XHR response", "status code", "error message");
                   });  
                 });
                 
               },
               create: function (e) {
-                debugger;
-                dsEstado.startInserting(function(active) {
-                  //TODO: Descobrir como hookar o botão adicionar para setar o objeto corrente da grade
-                  // active = e.data;
-                  dsEstado.active = e.data;
-                  dsEstado.postSilent(function(data) {
-                    e.success(data);
-                  });  
-                });
+                dsEstado.active = e.data;
+                if (datasource.schema.model.id) {
+                  dsEstado.active[datasource.schema.model.id] = e.data["_generated" + datasource.schema.model.id];
+                  delete dsEstado.active["_generated" + datasource.schema.model.id];
+                }
+
+                dsEstado.postSilent(function(data) {
+                  e.success(data);
+                });  
               },
               destroy: function(e) {
-                debugger;
                 dsEstado.removeSilent(e.data, function(data) {
-                  debugger;
                   e.success(data);
                 });  
               },
@@ -1600,7 +1587,23 @@
                 
                 return kendo.stringify(data);
               },
-              options: {}
+              options: {
+                existItemInGrid: function(item) {
+                  debugger;
+                  var exist = true;
+                  for (var i = 0; i < this.grid.dataSource.view().length; i++) {
+                    var itemView = this.grid.dataSource.view()[i];
+                    exist = true;
+                    for (var key in item) {
+                      if (item[key] != itemView[key])
+                        exist = false;
+                    }
+                    if (exist)
+                      break;
+                  }
+                  return exist;
+                }
+              }
             };
             //Fim implementação do datasource do kendo para utilizar o datasource.js
             
@@ -1634,7 +1637,21 @@
               columns: columns,
               selectable: options.allowSelectionRow,
               detailInit: (options.details && options.details.length > 0) ? detailInit : undefined,
-              listCurrentOptions: (options.details && options.details.length > 0) ? options.details : undefined
+              listCurrentOptions: (options.details && options.details.length > 0) ? options.details : undefined,
+              edit: function(e) {
+                if (e.model.isNew() && !e.model.dirty) {
+                  var model = e.model;
+                  dsEstado.startInserting(function(active) {
+                    for (var key in active) {
+                      if (key != datasource.schema.model.id)
+                        model.set(key, active[key]);
+                    }
+                    //Adicionando o _generatedId para não setar o id e o objeto continue com o status de new  
+                    if (active[datasource.schema.model.id])
+                      model["_generated" + datasource.schema.model.id] = active[datasource.schema.model.id];
+                  });
+                }
+              }
             };
             
             return kendoGridInit;
