@@ -1494,6 +1494,94 @@
             }
             
             var datasource = app.kendoHelper.getDataSource(options.dataSource, options.allowPaging, options.pageCount, options.columns);
+            
+            //Inicio implementação do datasource do kendo para utilizar o datasource.js
+            delete datasource.type;
+            // datasource.serverPaging = false;
+            // datasource.serverFiltering = false;
+            // datasource.serverSorting = false;
+            // datasource.data =  dsEstado.data;
+            datasource.schema.total = function(){
+              debugger;
+              return dsEstado.getRowsCount();
+            };
+            datasource.transport = {
+              read:  function (e) {
+                debugger;
+                // on success
+                dsEstado.rowsPerPage = e.data.pageSize;
+                dsEstado.offset = (e.data.page - 1);
+                dsEstado.fetch({}, {success:  function(data) {
+                  debugger;
+                  e.success(data);
+                }});
+                
+                // e.success(e.data);
+                // on failure
+                // e.error("XHR response", "status code", "error message");
+                
+              },
+              update: function(e) {
+                debugger;
+                dsEstado.startEditing(e.data, function(xxx) {
+                  dsEstado.postSilent(function(data) {
+                    e.success(data);
+                  });  
+                });
+                
+              },
+              create: function (e) {
+                debugger;
+                dsEstado.startInserting(function(active) {
+                  //TODO: Descobrir como hookar o botão adicionar para setar o objeto corrente da grade
+                  // active = e.data;
+                  dsEstado.active = e.data;
+                  dsEstado.postSilent(function(data) {
+                    e.success(data);
+                  });  
+                });
+              },
+              destroy: function(e) {
+                debugger;
+                dsEstado.removeSilent(e.data, function(data) {
+                  debugger;
+                  e.success(data);
+                });  
+              },
+              batch: function (e) {
+                debugger;
+              },
+              parameterMap: function (data, type) {
+                debugger;
+                if (type == "read") {
+                  var paramsOData = kendo.data.transports.odata.parameterMap(data, type);
+                  
+                  var orderBy = '';
+                  if (this.options.grid) {
+                    this.options.grid.dataSource.group().forEach(function(group) { 
+                      orderBy += group.field +" " + group.dir + ","; 
+                    });
+                  }
+                  if (orderBy.length > 0) {
+                    orderBy = orderBy.substr(0, orderBy.length-1);
+                    if (paramsOData.$orderby)
+                      paramsOData.$orderby =  orderBy + "," + paramsOData.$orderby;
+                    else
+                      paramsOData.$orderby = orderBy;
+                  }
+                  return paramsOData;
+                }
+                else 
+                  data = parseParameter(data);
+                
+                return kendo.stringify(data);
+              },
+              options: {}
+            };
+            //Fim implementação do datasource do kendo para utilizar o datasource.js
+            
+            
+            
             var columns = this.getColumns(options, scope);
             var pageAble = this.getPageAble(options);
             var toolbar = this.getToolbar(options, scope);
