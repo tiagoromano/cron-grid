@@ -1495,23 +1495,47 @@
             
             var datasource = app.kendoHelper.getDataSource(options.dataSource, options.allowPaging, options.pageCount, options.columns);
             
+            // scope.$watch(dsEstado.data, function(newValue, oldValue) {
+            //       console.log('watch');
+            //       console.log(dsEstado.data);
+            // }.bind(this));
+            
             //Inicio implementação do datasource do kendo para utilizar o datasource.js
             delete datasource.type;
-            // datasource.serverPaging = false;
-            // datasource.serverFiltering = false;
-            // datasource.serverSorting = false;
-            // datasource.data =  dsEstado.data;
             datasource.schema.total = function(){
               debugger;
               return dsEstado.getRowsCount();
             };
             datasource.transport = {
+              
+              push: function(callback) {
+                dsEstado.setDataSourceEvents(
+                  {
+                    create: function(data) {
+                      callback.pushCreate(data);  
+                    },
+                    update: function(data) {
+                      callback.pushUpdate(data);  
+                    },
+                    delete: function(data) {
+                      callback.pushDestroy(data);
+                    }
+                  });
+              },
               read:  function (e) {
                 debugger;
                 // on success
+                
+                for (key in e.data) 
+                  if(e.data[key] == undefined)  
+                    delete e.data[key];
+                var paramsOData = kendo.data.transports.odata.parameterMap(e.data, 'read');
+                
                 dsEstado.rowsPerPage = e.data.pageSize;
                 dsEstado.offset = (e.data.page - 1);
-                dsEstado.fetch({}, {success:  function(data) {
+                var fetchData = {};
+                fetchData.params = paramsOData;
+                dsEstado.fetch(fetchData, { success:  function(data) {
                   debugger;
                   e.success(data);
                 }});

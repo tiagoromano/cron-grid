@@ -519,6 +519,7 @@ app.kendoHelper = {
           },
           parameterMap: function (data, type) {
             if (type == "read") {
+              debugger;
               var paramsOData = kendo.data.transports.odata.parameterMap(data, type);
               
               var orderBy = '';
