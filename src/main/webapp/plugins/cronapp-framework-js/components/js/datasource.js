@@ -1268,11 +1268,31 @@ angular.module('datasourcejs', [])
          *  Moves the cursor to the specified item
          */
         this.goTo = function(rowId) {
-          for (var i = 0; i < this.data.length; i++) {
-            if (this.data[i][this.key] === rowId) {
-              this.cursor = i;
-              this.active = this.copy(this.data[this.cursor], {});
-              return this.active;
+          if (typeof rowId === 'object') {
+            var dataKeys;
+            if (this.data.length > 0) 
+              dataKeys = this.getKeyValues(this.data[0]);
+            for (var i = 0; i < this.data.length; i++) {
+              var found = true;
+              var item = this.data[i];
+              for (var key in dataKeys) {
+                if (!rowId.hasOwnProperty(key) || rowId[key] != item[key])
+                  found = false;
+              }
+              if (found) {
+                this.cursor = i;
+                this.active = this.copy(this.data[this.cursor], {});
+                return this.active;
+              }
+            }
+          }
+          else {
+            for (var i = 0; i < this.data.length; i++) {
+              if (this.data[i][this.key] === rowId) {
+                this.cursor = i;
+                this.active = this.copy(this.data[this.cursor], {});
+                return this.active;
+              }
             }
           }
         };

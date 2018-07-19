@@ -1496,24 +1496,38 @@
             //Inicio implementação do datasource do kendo para utilizar o datasource.js
             delete datasource.type;
             datasource.schema.total = function(){
-              return dsEstado.getRowsCount();
+              return datasource.transport.options.cronappDatasource.getRowsCount();
             };
             datasource.transport = {
-              
+              setActiveAndPost: function(e) {
+                var cronappDatasource = this.options.cronappDatasource;
+                cronappDatasource.active = e.data;
+                
+                //Removendo a chave gerada temporaria (somente em modo de inserção)
+                if (datasource.schema.model.id && cronappDatasource.active["_generated" + datasource.schema.model.id]) {
+                  cronappDatasource.active[datasource.schema.model.id] = e.data["_generated" + datasource.schema.model.id];
+                  delete cronappDatasource.active["_generated" + datasource.schema.model.id];
+                }
+                
+                cronappDatasource.postSilent(function(data) {
+                  this.options.enableAndSelect(e);
+                  e.success(data);
+                  // e.error("XHR response", "status code", "error message");
+                }.bind(this));
+              },
               push: function(callback) {
-                dsEstado.setDataSourceEvents(
-                  {
-                    create: function(data) {
-                      if (!this.options.existItemInGrid(data))
-                        callback.pushCreate(data);  
-                    }.bind(this),
-                    update: function(data) {
-                      callback.pushUpdate(data);  
-                    },
-                    delete: function(data) {
-                      callback.pushDestroy(data);
-                    }
-                  });
+                this.options.cronappDatasource.setDataSourceEvents({
+                  create: function(data) {
+                    if (!this.options.existItemInGrid(data))
+                      callback.pushCreate(data);  
+                  }.bind(this),
+                  update: function(data) {
+                    callback.pushUpdate(data);  
+                  },
+                  delete: function(data) {
+                    callback.pushDestroy(data);
+                  }
+                });
               },
               read:  function (e) {
                 for (key in e.data) 
@@ -1521,49 +1535,31 @@
                     delete e.data[key];
                 var paramsOData = kendo.data.transports.odata.parameterMap(e.data, 'read');
                 
-                dsEstado.rowsPerPage = e.data.pageSize;
-                dsEstado.offset = (e.data.page - 1);
+                var cronappDatasource = this.options.cronappDatasource;
+                cronappDatasource.rowsPerPage = e.data.pageSize;
+                cronappDatasource.offset = (e.data.page - 1);
                 var fetchData = {};
                 fetchData.params = paramsOData;
-                dsEstado.fetch(fetchData, { success:  function(data) {
+                cronappDatasource.fetch(fetchData, { success:  function(data) {
                   e.success(data);
                 }});
                 
-                // e.success(e.data);
-                // on failure
-                // e.error("XHR response", "status code", "error message");
-                
               },
               update: function(e) {
-                dsEstado.startEditing(e.data, function(xxx) {
-                  dsEstado.postSilent(function(data) {
-                    //e.success(data);
-                    e.error("XHR response", "status code", "error message");
-                  });  
-                });
-                
+                this.setActiveAndPost(e);
               },
               create: function (e) {
-                dsEstado.active = e.data;
-                if (datasource.schema.model.id) {
-                  dsEstado.active[datasource.schema.model.id] = e.data["_generated" + datasource.schema.model.id];
-                  delete dsEstado.active["_generated" + datasource.schema.model.id];
-                }
-
-                dsEstado.postSilent(function(data) {
-                  e.success(data);
-                });  
+                this.setActiveAndPost(e);
               },
               destroy: function(e) {
-                dsEstado.removeSilent(e.data, function(data) {
+                cronappDatasource = this.options.cronappDatasource;
+                cronappDatasource.removeSilent(e.data, function(data) {
                   e.success(data);
                 });  
               },
               batch: function (e) {
-                debugger;
               },
               parameterMap: function (data, type) {
-                debugger;
                 if (type == "read") {
                   var paramsOData = kendo.data.transports.odata.parameterMap(data, type);
                   
@@ -1588,6 +1584,19 @@
                 return kendo.stringify(data);
               },
               options: {
+                disableAndSelect: function(e) {
+                  this.grid.select(e.container);
+                  this.grid.options.selectable = false;
+                  if (this.grid.selectable && this.grid.selectable.element) {
+                    this.grid.selectable.destroy();
+                    this.grid.selectable = null;
+                  }
+                },
+                enableAndSelect: function(e) {
+                  this.grid.options.selectable = "row";
+                  this.grid._selectable();
+                  this.grid.select(e.container);
+                },
                 existItemInGrid: function(item) {
                   debugger;
                   var exist = true;
@@ -1602,7 +1611,8 @@
                       break;
                   }
                   return exist;
-                }
+                },
+                cronappDatasource: scope[options.dataSource.name]
               }
             };
             //Fim implementação do datasource do kendo para utilizar o datasource.js
@@ -1639,9 +1649,11 @@
               detailInit: (options.details && options.details.length > 0) ? detailInit : undefined,
               listCurrentOptions: (options.details && options.details.length > 0) ? options.details : undefined,
               edit: function(e) {
+                this.dataSource.transport.options.disableAndSelect(e);
+                var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
                 if (e.model.isNew() && !e.model.dirty) {
                   var model = e.model;
-                  dsEstado.startInserting(function(active) {
+                  cronappDatasource.startInserting(function(active) {
                     for (var key in active) {
                       if (key != datasource.schema.model.id)
                         model.set(key, active[key]);
@@ -1651,6 +1663,23 @@
                       model["_generated" + datasource.schema.model.id] = active[datasource.schema.model.id];
                   });
                 }
+                else if (!e.model.isNew() && !e.model.dirty) {
+                  var currentItem = cronappDatasource.goTo(e.model);
+                  scope.safeApply(cronappDatasource.startEditing(currentItem, function(xxx) {}));
+                }
+              },
+              change: function(e) {
+                var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
+                if (!(cronappDatasource.inserting || cronappDatasource.editing)) {
+                  var item = this.dataItem(this.select());
+                  scope.safeApply(cronappDatasource.goTo(item));
+                }
+              },
+              cancel: function(e) {
+                console.log('cancel');
+                var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
+                scope.safeApply(cronappDatasource.cancel());
+                this.dataSource.transport.options.enableAndSelect(e);
               }
             };
             
@@ -1673,11 +1702,11 @@
                 var options = JSON.parse(attrs.options || "{}");
                 var kendoGridInit = helperDirective.generateKendoGridInit(options, scope);
                 
-                kendoGridInit.change = function(e) {
-                  var item = this.dataItem(this.select());
-                  var fcChangeValue = eval('scope.cronapi.screen.changeValueOfField')
-                  fcChangeValue(attrs['ngModel'], item);
-                }
+                // kendoGridInit.change = function(e) {
+                //   var item = this.dataItem(this.select());
+                //   var fcChangeValue = eval('scope.cronapi.screen.changeValueOfField')
+                //   fcChangeValue(attrs['ngModel'], item);
+                // }
                 
                 
                 var grid = $templateDyn.kendoGrid(kendoGridInit).data('kendoGrid');
