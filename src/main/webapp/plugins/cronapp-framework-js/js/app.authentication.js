@@ -577,6 +577,8 @@ app.kendoHelper = {
             data[attr] = parseFloat(data[attr]);
           else if (schemaField.type == 'date' && data[attr] != undefined)
             data[attr] = '/Date('+data[attr].getTime()+')/';
+          else if (schemaField.type == 'boolean' && data[attr] != undefined)
+            data[attr] = data[attr].toString().toLowerCase() == "true"?true:false;
             
           //Significa que é o ID
           if (schema.model.id == attr) {
@@ -653,7 +655,7 @@ app.kendoHelper = {
       transport: {
         setActiveAndPost: function(e) {
           var cronappDatasource = this.options.cronappDatasource;
-          cronappDatasource.active = e.data;
+          cronappDatasource.active = parseParameter(e.data);
           cronappDatasource.active.__sender = datasourceId;
           //Removendo a chave gerada temporaria (somente em modo de inserção)
           if (datasource.schema.model.id && cronappDatasource.active["_generated" + datasource.schema.model.id]) {
@@ -688,6 +690,20 @@ app.kendoHelper = {
             if(e.data[key] == undefined)  
               delete e.data[key];
           var paramsOData = kendo.data.transports.odata.parameterMap(e.data, 'read');
+          var orderBy = '';
+          
+          if (this.options.grid) {
+            this.options.grid.dataSource.group().forEach(function(group) { 
+              orderBy += group.field +" " + group.dir + ","; 
+            });
+          }
+          if (orderBy.length > 0) {
+            orderBy = orderBy.substr(0, orderBy.length-1);
+            if (paramsOData.$orderby)
+              paramsOData.$orderby =  orderBy + "," + paramsOData.$orderby;
+            else
+              paramsOData.$orderby = orderBy;
+          }
           
           var cronappDatasource = this.options.cronappDatasource;
           cronappDatasource.rowsPerPage = e.data.pageSize;
@@ -712,30 +728,6 @@ app.kendoHelper = {
           });  
         },
         batch: function (e) {
-        },
-        parameterMap: function (data, type) {
-          if (type == "read") {
-            var paramsOData = kendo.data.transports.odata.parameterMap(data, type);
-            
-            var orderBy = '';
-            if (this.options.grid) {
-              this.options.grid.dataSource.group().forEach(function(group) { 
-                orderBy += group.field +" " + group.dir + ","; 
-              });
-            }
-            if (orderBy.length > 0) {
-              orderBy = orderBy.substr(0, orderBy.length-1);
-              if (paramsOData.$orderby)
-                paramsOData.$orderby =  orderBy + "," + paramsOData.$orderby;
-              else
-                paramsOData.$orderby = orderBy;
-            }
-            return paramsOData;
-          }
-          else 
-            data = parseParameter(data);
-          
-          return kendo.stringify(data);
         },
         options: {
           disableAndSelect: function(e) {
