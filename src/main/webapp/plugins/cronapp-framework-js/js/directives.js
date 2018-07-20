@@ -1479,152 +1479,141 @@
               e.sender.options.listCurrentOptions.forEach(function(currentOptions) {
                 var currentKendoGridInit = helperDirective.generateKendoGridInit(currentOptions, scope);
                 
-                currentKendoGridInit.dataSource.filter.forEach(function(f) {
-                  if (f.linkParentType == "hierarchy" ) {
-                    f.value = e.data[f.linkParentField];
-                  }
-                });
+                // currentKendoGridInit.dataSource.filter.forEach(function(f) {
+                //   if (f.linkParentType == "hierarchy" ) {
+                //     f.value = e.data[f.linkParentField];
+                //   }
+                // });
                 
                 var grid = $("<div/>").appendTo(e.detailCell).kendoGrid(currentKendoGridInit).data('kendoGrid');
                 grid.dataSource.transport.options.grid = grid;
-                helperDirective.updateFiltersFromAngular(grid, scope);
+                // helperDirective.updateFiltersFromAngular(grid, scope);
                 
               });
             }
             
-            var datasource = app.kendoHelper.getDataSource(options.dataSource, options.allowPaging, options.pageCount, options.columns);
-            //Inicio implementação do datasource do kendo para utilizar o datasource.js
-            delete datasource.type;
-            datasource.schema.total = function(){
-              return datasource.transport.options.cronappDatasource.getRowsCount();
-            };
-            datasource.transport = {
-              setActiveAndPost: function(e) {
-                var cronappDatasource = this.options.cronappDatasource;
-                cronappDatasource.active = e.data;
+            var datasource = app.kendoHelper.getDataSource(options.dataSource, scope, options.allowPaging, options.pageCount, options.columns);
+            // //Inicio implementação do datasource do kendo para utilizar o datasource.js
+            // delete datasource.type;
+            // datasource.schema.total = function(){
+            //   return datasource.transport.options.cronappDatasource.getRowsCount();
+            // };
+            // var datasourceId = this.generateId();
+            // datasource.transport = {
+              
+            //   setActiveAndPost: function(e) {
                 
-                //Removendo a chave gerada temporaria (somente em modo de inserção)
-                if (datasource.schema.model.id && cronappDatasource.active["_generated" + datasource.schema.model.id]) {
-                  cronappDatasource.active[datasource.schema.model.id] = e.data["_generated" + datasource.schema.model.id];
-                  delete cronappDatasource.active["_generated" + datasource.schema.model.id];
-                }
+            //     var cronappDatasource = this.options.cronappDatasource;
+            //     cronappDatasource.active = e.data;
+            //     cronappDatasource.active.__sender = datasourceId;
+            //     //Removendo a chave gerada temporaria (somente em modo de inserção)
+            //     if (datasource.schema.model.id && cronappDatasource.active["_generated" + datasource.schema.model.id]) {
+            //       cronappDatasource.active[datasource.schema.model.id] = e.data["_generated" + datasource.schema.model.id];
+            //       delete cronappDatasource.active["_generated" + datasource.schema.model.id];
+            //     }
                 
-                cronappDatasource.postSilent(function(data) {
-                  this.options.enableAndSelect(e);
-                  e.success(data);
-                  // e.error("XHR response", "status code", "error message");
-                }.bind(this));
-              },
-              push: function(callback) {
-                this.options.cronappDatasource.setDataSourceEvents({
-                  create: function(data) {
-                    if (!this.options.existItemInGrid(data))
-                      callback.pushCreate(data);  
-                  }.bind(this),
-                  update: function(data) {
-                    callback.pushUpdate(data);  
-                  },
-                  delete: function(data) {
-                    callback.pushDestroy(data);
-                  }
-                });
-              },
-              read:  function (e) {
-                for (key in e.data) 
-                  if(e.data[key] == undefined)  
-                    delete e.data[key];
-                var paramsOData = kendo.data.transports.odata.parameterMap(e.data, 'read');
+            //     cronappDatasource.postSilent(function(data) {
+            //       this.options.enableAndSelect(e);
+            //       e.success(data);
+            //       // e.error("XHR response", "status code", "error message");
+            //     }.bind(this));
                 
-                var cronappDatasource = this.options.cronappDatasource;
-                cronappDatasource.rowsPerPage = e.data.pageSize;
-                cronappDatasource.offset = (e.data.page - 1);
-                var fetchData = {};
-                fetchData.params = paramsOData;
-                cronappDatasource.fetch(fetchData, { success:  function(data) {
-                  e.success(data);
-                }});
+            //   },
+            //   push: function(callback) {
+            //     this.options.cronappDatasource.setDataSourceEvents({
+            //       create: function(data) {
+            //         if (data.__sender != datasourceId)
+            //           callback.pushCreate(data);  
+            //       }.bind(this),
+            //       update: function(data) {
+            //         if (data.__sender != datasourceId)
+            //           callback.pushUpdate(data);  
+            //       },
+            //       delete: function(data) {
+            //         if (data.__sender != datasourceId)
+            //           callback.pushDestroy(data);
+            //       }
+            //     });
+            //   },
+            //   read:  function (e) {
+            //     for (key in e.data) 
+            //       if(e.data[key] == undefined)  
+            //         delete e.data[key];
+            //     var paramsOData = kendo.data.transports.odata.parameterMap(e.data, 'read');
                 
-              },
-              update: function(e) {
-                this.setActiveAndPost(e);
-              },
-              create: function (e) {
-                this.setActiveAndPost(e);
-              },
-              destroy: function(e) {
-                cronappDatasource = this.options.cronappDatasource;
-                cronappDatasource.removeSilent(e.data, function(data) {
-                  e.success(data);
-                });  
-              },
-              batch: function (e) {
-              },
-              parameterMap: function (data, type) {
-                if (type == "read") {
-                  var paramsOData = kendo.data.transports.odata.parameterMap(data, type);
+            //     var cronappDatasource = this.options.cronappDatasource;
+            //     cronappDatasource.rowsPerPage = e.data.pageSize;
+            //     cronappDatasource.offset = (e.data.page - 1);
+            //     var fetchData = {};
+            //     fetchData.params = paramsOData;
+            //     cronappDatasource.fetch(fetchData, { success:  function(data) {
+            //       e.success(data);
+            //     }});
+                
+            //   },
+            //   update: function(e) {
+            //     this.setActiveAndPost(e);
+            //   },
+            //   create: function (e) {
+            //     this.setActiveAndPost(e);
+            //   },
+            //   destroy: function(e) {
+            //     cronappDatasource = this.options.cronappDatasource;
+            //     cronappDatasource.removeSilent(e.data, function(data) {
+            //       e.success(data);
+            //     });  
+            //   },
+            //   batch: function (e) {
+            //   },
+            //   parameterMap: function (data, type) {
+            //     if (type == "read") {
+            //       var paramsOData = kendo.data.transports.odata.parameterMap(data, type);
                   
-                  var orderBy = '';
-                  if (this.options.grid) {
-                    this.options.grid.dataSource.group().forEach(function(group) { 
-                      orderBy += group.field +" " + group.dir + ","; 
-                    });
-                  }
-                  if (orderBy.length > 0) {
-                    orderBy = orderBy.substr(0, orderBy.length-1);
-                    if (paramsOData.$orderby)
-                      paramsOData.$orderby =  orderBy + "," + paramsOData.$orderby;
-                    else
-                      paramsOData.$orderby = orderBy;
-                  }
-                  return paramsOData;
-                }
-                else 
-                  data = parseParameter(data);
+            //       var orderBy = '';
+            //       if (this.options.grid) {
+            //         this.options.grid.dataSource.group().forEach(function(group) { 
+            //           orderBy += group.field +" " + group.dir + ","; 
+            //         });
+            //       }
+            //       if (orderBy.length > 0) {
+            //         orderBy = orderBy.substr(0, orderBy.length-1);
+            //         if (paramsOData.$orderby)
+            //           paramsOData.$orderby =  orderBy + "," + paramsOData.$orderby;
+            //         else
+            //           paramsOData.$orderby = orderBy;
+            //       }
+            //       return paramsOData;
+            //     }
+            //     else 
+            //       data = parseParameter(data);
                 
-                return kendo.stringify(data);
-              },
-              options: {
-                disableAndSelect: function(e) {
-                  this.grid.select(e.container);
-                  this.grid.options.selectable = false;
-                  if (this.grid.selectable && this.grid.selectable.element) {
-                    this.grid.selectable.destroy();
-                    this.grid.selectable = null;
-                  }
-                },
-                enableAndSelect: function(e) {
-                  this.grid.options.selectable = "row";
-                  this.grid._selectable();
-                  this.grid.select(e.container);
-                },
-                existItemInGrid: function(item) {
-                  debugger;
-                  var exist = true;
-                  for (var i = 0; i < this.grid.dataSource.view().length; i++) {
-                    var itemView = this.grid.dataSource.view()[i];
-                    exist = true;
-                    for (var key in item) {
-                      if (item[key] != itemView[key])
-                        exist = false;
-                    }
-                    if (exist)
-                      break;
-                  }
-                  return exist;
-                },
-                cronappDatasource: scope[options.dataSource.name]
-              }
-            };
-            //Fim implementação do datasource do kendo para utilizar o datasource.js
-            
-            
+            //     return kendo.stringify(data);
+            //   },
+            //   options: {
+            //     disableAndSelect: function(e) {
+            //       this.grid.select(e.container);
+            //       this.grid.options.selectable = false;
+            //       if (this.grid.selectable && this.grid.selectable.element) {
+            //         this.grid.selectable.destroy();
+            //         this.grid.selectable = null;
+            //       }
+            //     },
+            //     enableAndSelect: function(e) {
+            //       this.grid.options.selectable = "row";
+            //       this.grid._selectable();
+            //       this.grid.select(e.container);
+            //     },
+            //     cronappDatasource: scope[options.dataSource.name]
+            //   }
+            // };
+            // //Fim implementação do datasource do kendo para utilizar o datasource.js
             
             var columns = this.getColumns(options, scope);
             var pageAble = this.getPageAble(options);
             var toolbar = this.getToolbar(options, scope);
             var editable = this.getEditable(options);
-            //Adiciona os campos de ligação (Filtro do datasource)
-            this.setFiltersFromLinkColumns(datasource, options, scope);
+            // //Adiciona os campos de ligação (Filtro do datasource)
+            // this.setFiltersFromLinkColumns(datasource, options, scope);
             
             var kendoGridInit = {
               toolbar: toolbar,
@@ -1653,14 +1642,15 @@
                 var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
                 if (e.model.isNew() && !e.model.dirty) {
                   var model = e.model;
-                  cronappDatasource.startInserting(function(active) {
+                  cronappDatasource.startInserting(null, function(active) {
                     for (var key in active) {
                       if (key != datasource.schema.model.id)
                         model.set(key, active[key]);
                     }
                     //Adicionando o _generatedId para não setar o id e o objeto continue com o status de new  
-                    if (active[datasource.schema.model.id])
+                    if (active[datasource.schema.model.id]) {
                       model["_generated" + datasource.schema.model.id] = active[datasource.schema.model.id];
+                    }
                   });
                 }
                 else if (!e.model.isNew() && !e.model.dirty) {
@@ -1702,16 +1692,9 @@
                 var options = JSON.parse(attrs.options || "{}");
                 var kendoGridInit = helperDirective.generateKendoGridInit(options, scope);
                 
-                // kendoGridInit.change = function(e) {
-                //   var item = this.dataItem(this.select());
-                //   var fcChangeValue = eval('scope.cronapi.screen.changeValueOfField')
-                //   fcChangeValue(attrs['ngModel'], item);
-                // }
-                
-                
                 var grid = $templateDyn.kendoGrid(kendoGridInit).data('kendoGrid');
                 grid.dataSource.transport.options.grid = grid;
-                helperDirective.updateFiltersFromAngular(grid, scope);
+                // helperDirective.updateFiltersFromAngular(grid, scope);
                 
             });
             

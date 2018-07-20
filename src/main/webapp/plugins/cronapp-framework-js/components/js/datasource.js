@@ -127,6 +127,7 @@ angular.module('datasourcejs', [])
               delete cloneObject.__original;
               delete cloneObject.__status;
               delete cloneObject.__originalIdx;
+              delete cloneObject.__sender;
 
               // Get an ajax promise
               this.$promise = $http({
@@ -641,6 +642,11 @@ angular.module('datasourcejs', [])
             this.insert(this.active, function(obj, hotData) {
               // In case of success add the new inserted value at
               // the end of the array
+
+              if (this.active.__sender) {
+                obj.__sender = this.active.__sender;
+              }
+
               this.data.push(obj);
               // The new object is now the active
               this.active = obj;
@@ -660,6 +666,8 @@ angular.module('datasourcejs', [])
               if (this.events.create && hotData) {
                 this.events.create(this.active);
               }
+
+              delete this.active.__sender;
 
             }.bind(this));
 
@@ -689,6 +697,11 @@ angular.module('datasourcejs', [])
                   var lastActive = {};
                   this.copy(this.lastActive, lastActive);
                   this.copy(obj, currentRow);
+
+                  if (this.lastActive && this.lastActive.__sender) {
+                    currentRow .__sender = this.lastActive.__sender;
+                  }
+
                   this.active = currentRow;
                   if (this.dependentLazyPost && !currentRow.__status) {
                     currentRow.__status = "updated";
@@ -700,6 +713,8 @@ angular.module('datasourcejs', [])
                   if (this.events.update && hotData) {
                     this.events.update(this.active);
                   }
+
+                  delete this.active.__sender;
                 }
               }.bind(this));
 
@@ -876,38 +891,46 @@ angular.module('datasourcejs', [])
         };
 
 
-        this.retrieveDefaultValues = function(callback) {
-          if (this.entity.indexOf('cronapi') >= 0 || this.isOData()) {
-            // Get an ajax promise
-            var url = this.entity;
-            url += (this.entity.endsWith('/')) ? '__new__' : '/__new__';
-            this.$promise = $http({
-              method: "GET",
-              url: this.removeSlash(url),
-              headers: this.headers
-            }).success(function(data, status, headers, config) {
-              if (this.isOData()) {
-                this.active = data.d;
-                this.normalizeData(this.active)
-              } else {
-                this.active = data;
-              }
-              this.updateWithParams();
-              if (callback) {
-                callback();
-              }
-            }.bind(this)).error(function(data, status, headers, config) {
+        this.retrieveDefaultValues = function(obj, callback) {
+          if (obj) {
+            this.active = obj;
+            this.updateWithParams();
+            if (callback) {
+              callback();
+            }
+          } else {
+            if (this.entity.indexOf('cronapi') >= 0 || this.isOData()) {
+              // Get an ajax promise
+              var url = this.entity;
+              url += (this.entity.endsWith('/')) ? '__new__' : '/__new__';
+              this.$promise = $http({
+                method: "GET",
+                url: this.removeSlash(url),
+                headers: this.headers
+              }).success(function (data, status, headers, config) {
+                if (this.isOData()) {
+                  this.active = data.d;
+                  this.normalizeData(this.active)
+                } else {
+                  this.active = data;
+                }
+                this.updateWithParams();
+                if (callback) {
+                  callback();
+                }
+              }.bind(this)).error(function (data, status, headers, config) {
+                this.active = {};
+                this.updateWithParams();
+                if (callback) {
+                  callback();
+                }
+              }.bind(this));
+            } else {
               this.active = {};
               this.updateWithParams();
               if (callback) {
                 callback();
               }
-            }.bind(this));
-          } else {
-            this.active = {};
-            this.updateWithParams();
-            if (callback) {
-              callback();
             }
           }
         };
@@ -943,8 +966,8 @@ angular.module('datasourcejs', [])
         /**
          * Put the datasource into the inserting state
          */
-        this.startInserting = function(callback) {
-          this.retrieveDefaultValues(function() {
+        this.startInserting = function(item, callback) {
+          this.retrieveDefaultValues(item, function() {
             this.inserting = true;
             if (this.onStartInserting) {
               this.onStartInserting();
@@ -1270,7 +1293,7 @@ angular.module('datasourcejs', [])
         this.goTo = function(rowId) {
           if (typeof rowId === 'object') {
             var dataKeys;
-            if (this.data.length > 0) 
+            if (this.data.length > 0)
               dataKeys = this.getKeyValues(this.data[0]);
             for (var i = 0; i < this.data.length; i++) {
               var found = true;
@@ -2159,8 +2182,15 @@ angular.module('datasourcejs', [])
                 }, 100);
               } else {
                 $timeout(function() {
-                  firstLoad.filter = false;
-                });
+                      firstLoad.filter = false;
+                    },
+                    {
+                      success : function (data) {
+                        if (datasource.events.refresh) {
+                          datasource.events.refresh(data, 'filter');
+                        }
+                      }
+                    });
               }
             });
 
@@ -2172,6 +2202,12 @@ angular.module('datasourcejs', [])
                 timeoutPromise =$timeout(function() {
                   datasource.fetch({
                     params: {}
+                  }, {
+                    success : function (data) {
+                      if (datasource.events.refresh) {
+                        datasource.events.refresh(data, 'parameters');
+                      }
+                    }
                   });
                 }, 0);
 
@@ -2188,8 +2224,16 @@ angular.module('datasourcejs', [])
                   $timeout.cancel(timeoutPromise);
                   timeoutPromise =$timeout(function () {
                     datasource.fetch({
-                      params: {}
-                    });
+                          params: {}
+                        },
+                        {
+                          success : function (data) {
+                            if (datasource.events.refresh) {
+                              datasource.events.refresh(data, 'enabled');
+                            }
+                          }
+                        }
+                    );
                   }, 200);
                 }
               }
@@ -2209,8 +2253,16 @@ angular.module('datasourcejs', [])
 
                 timeoutPromise = $timeout(function() {
                   datasource.fetch({
-                    params: {}
-                  });
+                        params: {}
+                      },
+                      {
+                        success : function (data) {
+                          if (datasource.events.refresh) {
+                            datasource.events.refresh(data, 'entity');
+                          }
+                        }
+                      }
+                  );
                 }, 200);
               } else {
                 $timeout(function() {
