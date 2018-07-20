@@ -269,7 +269,7 @@
     {
       "name": "crn-datasource",
       "wrapper": false,
-	  "autoWrapper": true,
+      "autoWrapper": true,
       "text_pt_BR": "Fonte de dados",
       "text_en_US": "Datasource",
       "class": "adjust-icon mdi mdi-table-large",
@@ -277,14 +277,24 @@
       "properties": {
         "entity": {
           "removable": false,
-          "type": "datasourceList"
+          "global": true
+        },
+        "parameters": {
+          "removable": false,
+          "global": true
+        },
+        "checkrequired": {
+          "removable": false,
+          "type": "logic",
+          "global": true
+        },
+        "lazy": {
+          "removable": false,
+          "type": "logic"
         },
         "keys": {
           "removable": false,
-          "type": "datasourceKeys"
-        },
-        "filter": {
-          "removable": true,
+          "type": "datasourceKeys",
           "global": true
         },
         "on-before-create": {
@@ -327,20 +337,10 @@
           "type": "event",
           "global": true
         },
-        "dependent-by": {
-          "removable": false,
-          "global": true,
-          "type": "pageDatasourceObject",
-          "onSave": "{{{value}}}",
-          "onDisplay": "\\{\\{(.*?)\\}\\}"
-        },
         "dependent-lazy-post": {
           "removable": false,
-          "global": true
-        },
-        "dependent-lazy-post-field": {
-          "removable": false,
-          "global": true
+          "global": true,
+          "type": "pageDatasourceObject"
         }
       }
     },
@@ -516,7 +516,7 @@
       "class": "adjust-icon mdi mdi-filter",
       "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/datasourcefiltercomplex.template.html"
     },
-     {
+    {
       "name": "crn-button-filter",
       "text_pt_BR": "Botão do Filtro",
       "text_en_US": "Button of Filter",
@@ -751,7 +751,14 @@
           "removable": false,
           "type": "pageDatasource"
         }
-      }
+      },
+      "groupedChildren": [
+        {
+          "text_pt_BR": "Formulário",
+          "text_en_US": "Form",
+          "selector": "form"
+        }
+      ]
     },
     {
       "name": "crn-tabs",
@@ -999,7 +1006,7 @@
           "onSave": "javascript:function() { var result = arguments[0]; if (result.indexOf('.') == -1 && result.trim().length > 0 ) { result = 'vars.'+result;  }  return result; }",
           "onDisplay": "javascript:function() { return arguments[0].replace('vars.',''); }"
         }
-        
+
       },
       "handleRules": {
         "canToggle": true,
@@ -1024,7 +1031,7 @@
           "text_en_US": "Label",
           "selector": "label"
         },
-                {
+        {
           "text_pt_BR": "Campo",
           "text_en_US": "Field",
           "selector": "ui-select"
@@ -1101,7 +1108,7 @@
       "name": "crn-radiogroup",
       "text_pt_BR": "Lista de opção",
       "text_en_US": "Radio Group",
-	  "forcedGroup":true,
+      "forcedGroup":true,
       "class": "adjust-icon mdi mdi-radiobox-marked",
       "wrapper":false,
       "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/radiogroup.template.html",
@@ -1502,35 +1509,35 @@
       ]
     },
     {
-			"name": "crn-textinputbutton",
-			"text_pt_BR": "Entrada de texto com botão",
-			"text_en_US": "Input with button",
-			"class": "adjust-icon mdi mdi-label-outline",
-			"templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/textinputbutton.template.html",
-			"forcedGroupd": true,
-			"properties":{
-			"ng-model": {
-				"onSave": "javascript:function() { var result = arguments[0]; if (result.indexOf('.') == -1 && result.trim().length > 0 ) { result = 'vars.'+result;  }  return result; }",
-				"onDisplay": "javascript:function() { return arguments[0].replace('vars.',''); }"
-			}
-			},
-			"mask-placeholder": {
-				"selector": "input"
-			},
-			"groupedChildren": [
-				{
-					"text_pt_BR": "Rótulo",
-					"text_en_US": "Label",
-					"selector": "label"
-				},
-				{
-					"text_pt_BR": "Campo",
-					"text_en_US": "Field",
-					"selector": "input"
-				}
-			]
+      "name": "crn-textinputbutton",
+      "text_pt_BR": "Entrada de texto com botão",
+      "text_en_US": "Input with button",
+      "class": "adjust-icon mdi mdi-label-outline",
+      "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/textinputbutton.template.html",
+      "forcedGroupd": true,
+      "properties":{
+        "ng-model": {
+          "onSave": "javascript:function() { var result = arguments[0]; if (result.indexOf('.') == -1 && result.trim().length > 0 ) { result = 'vars.'+result;  }  return result; }",
+          "onDisplay": "javascript:function() { return arguments[0].replace('vars.',''); }"
+        }
+      },
+      "mask-placeholder": {
+        "selector": "input"
+      },
+      "groupedChildren": [
+        {
+          "text_pt_BR": "Rótulo",
+          "text_en_US": "Label",
+          "selector": "label"
+        },
+        {
+          "text_pt_BR": "Campo",
+          "text_en_US": "Field",
+          "selector": "input"
+        }
+      ]
     },
-	{
+    {
       "name": "crn-richtextarea",
       "text_pt_BR": "Área de texto rico",
       "text_en_US": "Rich textarea",
@@ -1554,116 +1561,116 @@
           "selector": "textarea"
         }
       ]
-	},
-	{
-		"name": "crn-QRCode",
-		"text_pt_BR": "Código QR",
-		"text_en_US": "QR Code",
-		"class": "adjust-icon mdi mdi-qrcode",
-		"wrapper": false,
-		"template": "<div qr=\"true\" ng-model=\"vars.QR${RANDOM}\" ><div> </div> </div>",
-		"properties": {
-			"ng-model": {
-				"onSave": "javascript:function() { var result = arguments[0]; if (result.indexOf('.') == -1 && result.trim().length > 0 ) { result = 'vars.'+result;  }  return result; }",
-				"onDisplay": "javascript:function() { return arguments[0].replace('vars.',''); }"
-			},
-			"qr": {
-				"removable": false,
-				"displayName": "QR Code"
-			}
-		},
-		"classForPreview": {
-			"targetSelector": "div:parent",
-			"condition": [
-				{
-					"name": "qr",
-					"value": "true",
-					"class": "qrCodeCronapp"
-				},
-				{
-					"name": "qr",
-					"value": "false",
-					"class": "qrCodeCronapp"
-				}
-			]
-		}
-	},
-	{
-		"name": "crn-chart",
-		"text_pt_BR": "Gráfico",
-		"text_en_US": "Chart",
-		"class": "adjust-icon mdi mdi-chart-bar",
-		"wrapper": false,
-		"template": "<div> <canvas id=\"chart${RANDOM}\" data-component=\"crn-chart\" class=\"col-xs-12\"></canvas></div>",
-		"classForPreview": {
-			"targetSelector": "canvas",
-			"condition": [
-				{
-					"name": "data-component",
-					"value": "crn-chart",
-					"class": "chart chart-line"
-				}
-			]
-		}
-	},
-	{
-		"name": "crn-panel",
-		"text_pt_BR": "Painel",
-		"text_en_US": "Panel",
-		"class": "adjust-icon mdi mdi-file-presentation-box",
-		"templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/panel.template.html",
-		"properties": {
-			"xattr-theme": {
-				"displayName": "Theme"
-			}
-		},
-		"attributesForPreview": [
-			{
-				"name": "xattr-theme",
-				"type": "options",
-				"target": "class",
-				"values": [
-					{
-						"key": "panel-default",
-						"value": "Default"
-					},
-					{
-						"key": "panel-primary",
-						"value": "Primary"
-					},
-					{
-						"key": "panel-success",
-						"value": "Success"
-					},
-					{
-						"key": "panel-info",
-						"value": "Info"
-					},
-					{
-						"key": "panel-warning",
-						"value": "Warning"
-					},
-					{
-						"key": "panel-danger",
-						"value": "Danger"
-					},
-					{
-						"key": "panel-link",
-						"value": "Link"
-					}
-				]
-			}
-		]
-	},
-	{
-	"name": "crn-header",
-	"text_pt_BR": "Cabeçalho",
-	"text_en_US": "Header",
-	"class": "adjust-icon mdi mdi-page-layout-header",
-	"template": "<div class=\"page-header\"><h1 class=\"component-holder text-left\" xattr-position=\"text-left\" data-component=\"crn-title\" id=\"crn-title${RANDOM}\">Header</h1></div>",
-	"wrapper":false
-	},
-	{
+    },
+    {
+      "name": "crn-QRCode",
+      "text_pt_BR": "Código QR",
+      "text_en_US": "QR Code",
+      "class": "adjust-icon mdi mdi-qrcode",
+      "wrapper": false,
+      "template": "<div qr=\"true\" ng-model=\"vars.QR${RANDOM}\" ><div> </div> </div>",
+      "properties": {
+        "ng-model": {
+          "onSave": "javascript:function() { var result = arguments[0]; if (result.indexOf('.') == -1 && result.trim().length > 0 ) { result = 'vars.'+result;  }  return result; }",
+          "onDisplay": "javascript:function() { return arguments[0].replace('vars.',''); }"
+        },
+        "qr": {
+          "removable": false,
+          "displayName": "QR Code"
+        }
+      },
+      "classForPreview": {
+        "targetSelector": "div:parent",
+        "condition": [
+          {
+            "name": "qr",
+            "value": "true",
+            "class": "qrCodeCronapp"
+          },
+          {
+            "name": "qr",
+            "value": "false",
+            "class": "qrCodeCronapp"
+          }
+        ]
+      }
+    },
+    {
+      "name": "crn-chart",
+      "text_pt_BR": "Gráfico",
+      "text_en_US": "Chart",
+      "class": "adjust-icon mdi mdi-chart-bar",
+      "wrapper": false,
+      "template": "<div> <canvas id=\"chart${RANDOM}\" data-component=\"crn-chart\" class=\"col-xs-12\"></canvas></div>",
+      "classForPreview": {
+        "targetSelector": "canvas",
+        "condition": [
+          {
+            "name": "data-component",
+            "value": "crn-chart",
+            "class": "chart chart-line"
+          }
+        ]
+      }
+    },
+    {
+      "name": "crn-panel",
+      "text_pt_BR": "Painel",
+      "text_en_US": "Panel",
+      "class": "adjust-icon mdi mdi-file-presentation-box",
+      "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/panel.template.html",
+      "properties": {
+        "xattr-theme": {
+          "displayName": "Theme"
+        }
+      },
+      "attributesForPreview": [
+        {
+          "name": "xattr-theme",
+          "type": "options",
+          "target": "class",
+          "values": [
+            {
+              "key": "panel-default",
+              "value": "Default"
+            },
+            {
+              "key": "panel-primary",
+              "value": "Primary"
+            },
+            {
+              "key": "panel-success",
+              "value": "Success"
+            },
+            {
+              "key": "panel-info",
+              "value": "Info"
+            },
+            {
+              "key": "panel-warning",
+              "value": "Warning"
+            },
+            {
+              "key": "panel-danger",
+              "value": "Danger"
+            },
+            {
+              "key": "panel-link",
+              "value": "Link"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "crn-header",
+      "text_pt_BR": "Cabeçalho",
+      "text_en_US": "Header",
+      "class": "adjust-icon mdi mdi-page-layout-header",
+      "template": "<div class=\"page-header\"><h1 class=\"component-holder text-left\" xattr-position=\"text-left\" data-component=\"crn-title\" id=\"crn-title${RANDOM}\">Header</h1></div>",
+      "wrapper":false
+    },
+    {
       "name": "crn-cron-rich-editor",
       "text_pt_BR": "Editor de Texto Rico",
       "text_en_US": "Rich Editor",
@@ -1682,32 +1689,32 @@
           "selector": "cron-rich-editor"
         }
       ]
-  },
-  {
-    "name": "crn-cron-grid",
-    "text_pt_BR": "Grade",
-    "text_en_US": "Grid",
-    "class": "adjust-icon mdi mdi-nutrition",
-    "designTimeHTML": "<img width='100%' src='plugins/cronapp-framework-js/dist/img/cronGrid.png'>",
-    "designTimeSelector": "cron-grid",
-    "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/cron-grid.template.html",
-    "properties": {
-      "options": {
-        "removable": false,
-        "global": "true"
-      },
-      "ng-model": {
-        "onSave": "javascript:function() { var result = arguments[0]; if (result.indexOf('.') == -1 && result.trim().length > 0 ) { result = 'vars.'+result;  }  return result; }",
-        "onDisplay": "javascript:function() { return arguments[0].replace('vars.',''); }"
-      }
     },
-    "groupedChildren": [
-      {
-        "text_pt_BR": "Configuração",
-        "text_en_US": "Configuration",
-        "selector": "cron-grid"
-      }
-    ]
-  }
+    {
+      "name": "crn-cron-grid",
+      "text_pt_BR": "Grade",
+      "text_en_US": "Grid",
+      "class": "adjust-icon mdi mdi-nutrition",
+      "designTimeHTML": "<img width='100%' src='plugins/cronapp-framework-js/dist/img/cronGrid.png'>",
+      "designTimeSelector": "cron-grid",
+      "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/cron-grid.template.html",
+      "properties": {
+        "options": {
+          "removable": false,
+          "global": "true"
+        },
+        "ng-model": {
+          "onSave": "javascript:function() { var result = arguments[0]; if (result.indexOf('.') == -1 && result.trim().length > 0 ) { result = 'vars.'+result;  }  return result; }",
+          "onDisplay": "javascript:function() { return arguments[0].replace('vars.',''); }"
+        }
+      },
+      "groupedChildren": [
+        {
+          "text_pt_BR": "Configuração",
+          "text_en_US": "Configuration",
+          "selector": "cron-grid"
+        }
+      ]
+    }
   ]
 }

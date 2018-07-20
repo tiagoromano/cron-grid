@@ -670,6 +670,8 @@ app.kendoHelper = {
           
         },
         push: function(callback) {
+          //TODO: Colocar o datasource para receber uma lista de callback ao inves de setar, 
+          //tem que ser push
           this.options.cronappDatasource.setDataSourceEvents({
             create: function(data) {
               if (data.__sender != datasourceId)
@@ -678,11 +680,15 @@ app.kendoHelper = {
             update: function(data) {
               if (data.__sender != datasourceId)
                 callback.pushUpdate(data);  
-            },
+            }.bind(this),
             delete: function(data) {
               if (data.__sender != datasourceId)
                 callback.pushDestroy(data);
-            }
+            }.bind(this),
+            refresh: function(data) {
+              if (this.options.grid)
+                this.options.grid.dataSource.read();
+            }.bind(this)
           });
         },
         read:  function (e) {
@@ -710,9 +716,14 @@ app.kendoHelper = {
           cronappDatasource.offset = (e.data.page - 1);
           var fetchData = {};
           fetchData.params = paramsOData;
-          cronappDatasource.fetch(fetchData, { success:  function(data) {
-            e.success(data);
-          }});
+          cronappDatasource.fetch(fetchData, { 
+            success:  function(data) {
+             e.success(data);
+            },
+            canceled:  function(data) {
+             e.error("canceled", "canceled", "canceled");
+            }
+          });
           
         },
         update: function(e) {
@@ -758,128 +769,7 @@ app.kendoHelper = {
     datasource.schema.total = function(){
       return datasource.transport.options.cronappDatasource.getRowsCount();
     };
-    
-    
-    /*
-    
-    delete datasource.type;
-            datasource.schema.total = function(){
-              return datasource.transport.options.cronappDatasource.getRowsCount();
-            };
-            var datasourceId = this.generateId();
-            datasource.transport = {
-              
-              setActiveAndPost: function(e) {
-                
-                var cronappDatasource = this.options.cronappDatasource;
-                cronappDatasource.active = e.data;
-                cronappDatasource.active.__sender = datasourceId;
-                //Removendo a chave gerada temporaria (somente em modo de inserção)
-                if (datasource.schema.model.id && cronappDatasource.active["_generated" + datasource.schema.model.id]) {
-                  cronappDatasource.active[datasource.schema.model.id] = e.data["_generated" + datasource.schema.model.id];
-                  delete cronappDatasource.active["_generated" + datasource.schema.model.id];
-                }
-                
-                cronappDatasource.postSilent(function(data) {
-                  this.options.enableAndSelect(e);
-                  e.success(data);
-                  // e.error("XHR response", "status code", "error message");
-                }.bind(this));
-                
-              },
-              push: function(callback) {
-                this.options.cronappDatasource.setDataSourceEvents({
-                  create: function(data) {
-                    if (data.__sender != datasourceId)
-                      callback.pushCreate(data);  
-                  }.bind(this),
-                  update: function(data) {
-                    if (data.__sender != datasourceId)
-                      callback.pushUpdate(data);  
-                  },
-                  delete: function(data) {
-                    if (data.__sender != datasourceId)
-                      callback.pushDestroy(data);
-                  }
-                });
-              },
-              read:  function (e) {
-                for (key in e.data) 
-                  if(e.data[key] == undefined)  
-                    delete e.data[key];
-                var paramsOData = kendo.data.transports.odata.parameterMap(e.data, 'read');
-                
-                var cronappDatasource = this.options.cronappDatasource;
-                cronappDatasource.rowsPerPage = e.data.pageSize;
-                cronappDatasource.offset = (e.data.page - 1);
-                var fetchData = {};
-                fetchData.params = paramsOData;
-                cronappDatasource.fetch(fetchData, { success:  function(data) {
-                  e.success(data);
-                }});
-                
-              },
-              update: function(e) {
-                this.setActiveAndPost(e);
-              },
-              create: function (e) {
-                this.setActiveAndPost(e);
-              },
-              destroy: function(e) {
-                cronappDatasource = this.options.cronappDatasource;
-                cronappDatasource.removeSilent(e.data, function(data) {
-                  e.success(data);
-                });  
-              },
-              batch: function (e) {
-              },
-              parameterMap: function (data, type) {
-                if (type == "read") {
-                  var paramsOData = kendo.data.transports.odata.parameterMap(data, type);
-                  
-                  var orderBy = '';
-                  if (this.options.grid) {
-                    this.options.grid.dataSource.group().forEach(function(group) { 
-                      orderBy += group.field +" " + group.dir + ","; 
-                    });
-                  }
-                  if (orderBy.length > 0) {
-                    orderBy = orderBy.substr(0, orderBy.length-1);
-                    if (paramsOData.$orderby)
-                      paramsOData.$orderby =  orderBy + "," + paramsOData.$orderby;
-                    else
-                      paramsOData.$orderby = orderBy;
-                  }
-                  return paramsOData;
-                }
-                else 
-                  data = parseParameter(data);
-                
-                return kendo.stringify(data);
-              },
-              options: {
-                disableAndSelect: function(e) {
-                  this.grid.select(e.container);
-                  this.grid.options.selectable = false;
-                  if (this.grid.selectable && this.grid.selectable.element) {
-                    this.grid.selectable.destroy();
-                    this.grid.selectable = null;
-                  }
-                },
-                enableAndSelect: function(e) {
-                  this.grid.options.selectable = "row";
-                  this.grid._selectable();
-                  this.grid.select(e.container);
-                },
-                cronappDatasource: scope[options.dataSource.name]
-              }
-            };
-    
-    */
-    
-      
     return datasource;
-    
   },
   getConfigCombobox: function(options) {
     var dataSource = {};

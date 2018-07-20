@@ -1585,19 +1585,33 @@ angular.module('datasourcejs', [])
          */
         this.fetch = function(properties, callbacksObj, isNextOrPrev) {
 
+          var callbacks = callbacksObj || {};
+          
           // Ignore any call if the datasource is busy (fetching another request)
-          if (this.busy) return;
+          if (this.busy) { 
+            if (callbacksObj.canceled) {
+              callbacksObj.canceled();
+            }
+            return;
+          }
 
           //Ignore call witouth ids if not http:// or https://
-          if (this.entity.indexOf('//') > -1 && this.entity.indexOf('://') < 0) return;
+          if (this.entity.indexOf('//') > -1 && this.entity.indexOf('://') < 0) {
+            if (callbacksObj.canceled) {
+              callbacksObj.canceled();
+            }
+            return;
+          }
 
           if (!this.enabled) {
             this.cleanup();
+            if (callbacksObj.canceled) {
+              callbacksObj.canceled();
+            }
             return;
           }
 
           var props = properties || {};
-          var callbacks = callbacksObj || {};
 
           // Adjust property parameters and the endpoint url
           props.params = props.params || {};
@@ -1626,6 +1640,9 @@ angular.module('datasourcejs', [])
           }
 
           if (!canProceed) {
+            if (callbacksObj.canceled) {
+              callbacksObj.canceled();
+            }
             return;
           }
 
@@ -1639,8 +1656,12 @@ angular.module('datasourcejs', [])
                 break;
               }
               if (checkRequestId && checkRequestId.length > 0)
-                if (resourceURL.indexOf(checkRequestId) == -1)
+                if (resourceURL.indexOf(checkRequestId) == -1) {
+                  if (callbacksObj.canceled) {
+                    callbacksObj.canceled();
+                  }
                   return;
+                }
             }
           }
 

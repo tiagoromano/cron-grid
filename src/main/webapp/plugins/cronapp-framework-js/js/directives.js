@@ -1492,7 +1492,6 @@
             
             var helperDirective = this;
             function detailInit(e) {
-              
               //Significa que está fechando o detalhe (não é para fazer nada)
               if (e.masterRow.find('a').hasClass('k-i-expand')) {
                 collapseAllExcecptCurrent(this, null, null);
@@ -1501,7 +1500,10 @@
               
               var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
               if (!(cronappDatasource.inserting || cronappDatasource.editing)) {
-                this.select(e.masterRow);
+                if (this.selectable)
+                  this.select(e.masterRow);
+                else
+                  setToActiveInCronappDataSource.bind(this)(e.data);
                 //Obtendo todos os detalhes da grade atual, fechando e removendo todos (exceto o que esta sendo aberto agora)
                 collapseAllExcecptCurrent(this, e.detailRow, e.masterRow);
                 
@@ -1538,6 +1540,12 @@
                   grid.collapseRow(this);
                 }
               });
+            };
+            
+            var setToActiveInCronappDataSource = function(item) {
+              var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
+              if (!(cronappDatasource.inserting || cronappDatasource.editing))
+                scope.safeApply(cronappDatasource.goTo(item));
             };
             
             var datasource = app.kendoHelper.getDataSource(options.dataSource, scope, options.allowPaging, options.pageCount, options.columns);
@@ -1593,12 +1601,13 @@
                 }
               },
               change: function(e) {
-                var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
-                if (!(cronappDatasource.inserting || cronappDatasource.editing)) {
-                  var item = this.dataItem(this.select());
-                  scope.safeApply(cronappDatasource.goTo(item));
-                }
-                
+                // var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
+                // if (!(cronappDatasource.inserting || cronappDatasource.editing)) {
+                //   var item = this.dataItem(this.select());
+                //   scope.safeApply(cronappDatasource.goTo(item));
+                // }
+                var item = this.dataItem(this.select());
+                setToActiveInCronappDataSource.bind(this)(item);
                 collapseAllExcecptCurrent(this, this.select().next(), this.select() );
               },
               cancel: function(e) {
