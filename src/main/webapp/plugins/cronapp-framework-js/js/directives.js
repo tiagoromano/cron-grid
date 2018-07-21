@@ -1283,18 +1283,18 @@
               var buttonId = this.generateId();
               var $input = $('<input '+required+' name="' + opt.field + '" id="' + buttonId + '"from-grid=true />');
               if (column.inputType == 'dynamicComboBox' || column.inputType == 'comboBox') {
-                var kendoConfig = app.kendoHelper.getConfigCombobox(column.comboboxOptions);
+                var kendoConfig = app.kendoHelper.getConfigCombobox(column.comboboxOptions, scope);
                 kendoConfig.autoBind = true;
                 kendoConfig.optionLabel = undefined;
-                $input.appendTo(container).kendoDropDownList(kendoConfig);  
+                $input.appendTo(container).kendoDropDownList(kendoConfig, scope);  
               }
               else if (column.inputType == 'slider') {
                 var kendoConfig = app.kendoHelper.getConfigSlider(column.sliderOptions);
-                $input.appendTo(container).kendoSlider(kendoConfig);
+                $input.appendTo(container).kendoSlider(kendoConfig, scope);
               }
               else if (column.inputType == 'switch') {
                 var kendoConfig = app.kendoHelper.getConfigSwitch(column.switchOptions);
-                $input.appendTo(container).kendoMobileSwitch(kendoConfig);
+                $input.appendTo(container).kendoMobileSwitch(kendoConfig, scope);
               }
               else if (column.inputType == 'checkbox') {
                 var guid = this.generateId();
