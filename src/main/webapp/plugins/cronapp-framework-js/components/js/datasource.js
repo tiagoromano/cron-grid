@@ -98,6 +98,7 @@ angular.module('datasourcejs', [])
                 var fields = {};
 
                 var _callback;
+                var _callbackError;
                 _self.busy = true;
                 url = url.replace('/specificSearch', '');
                 url = url.replace('/generalSearch', '');
@@ -161,11 +162,26 @@ angular.module('datasourcejs', [])
                 }
               }).error(function(data, status, headers, config) {
                 _self.busy = false;
-                _self.handleError(isCronapiQuery&&data.value?data.value:data);
+                var msg;
+                if (_self.isOData()) {
+                  msg = data.error.message.value;
+                } else {
+                  msg = isCronapiQuery&&data.value?data.value:data
+                }
+                _self.handleError();
+                if (_callbackError) {
+                  _callbackError(msg);
+                }
               });
 
               this.$promise.then = function(callback) {
                 _callback = callback;
+                return this;
+              }
+
+              this.$promise.error = function(callback) {
+                _callbackError = callback;
+                return this;
               }
               return this;
             }
@@ -376,18 +392,18 @@ angular.module('datasourcejs', [])
         /**
          * Append a new value to the end of this dataset.
          */
-        this.insert = function(obj, callback, forceSave) {
+        this.insert = function(obj, onSuccess, onError, forceSave) {
           if (this.handleBeforeCallBack(this.onBeforeCreate)) {
             //Check if contains dependentBy, if contains, only store in data TRM
             if (this.dependentLazyPost && !forceSave) {
               obj.__status = 'inserted';
               obj.__tempId = Math.round(Math.random()*999999);
 
-              if (callback)
-                callback(obj);
+              if (onSuccess)
+                onSuccess(obj);
 
             } else {
-              service.save(obj).$promise.then(callback);
+              service.save(obj).$promise.error(onError).then(onSuccess);
             }
           }
         };
@@ -499,7 +515,7 @@ angular.module('datasourcejs', [])
                     if (_self.events.create) {
                       _self.callDataSourceEvents('create', newObj);
                     }
-                  }, true);
+                  }, function() {}, true);
                 })(this);
               }
 
@@ -511,7 +527,7 @@ angular.module('datasourcejs', [])
                     if (_self.events.update) {
                       _self.callDataSourceEvents('update', newObj);
                     }
-                  }, true);
+                  }, function() {}, true);
                 })(this);
               }
             }
@@ -583,14 +599,14 @@ angular.module('datasourcejs', [])
         /**
          * Uptade a value into this dataset by using the dataset key to compare the objects.
          */
-        this.update = function(obj, callback, forceUpdate) {
+        this.update = function(obj, onSuccess, onError, forceUpdate) {
 
           if (this.handleBeforeCallBack(this.onBeforeUpdate)) {
             if (this.dependentLazyPost && !forceUpdate) {
-              if (callback)
-                callback(obj);
+              if (onSuccess)
+                onSuccess(obj);
             } else {
-              service.update(this.getEditionURL(forceUpdate), obj).$promise.then(callback);
+              service.update(this.getEditionURL(forceUpdate), obj).$promise.error(onError).then(onSuccess);
             }
           }
         };
@@ -618,14 +634,14 @@ angular.module('datasourcejs', [])
           }
         };
 
-        this.postSilent = function(callback) {
-          this.post(callback, true);
+        this.postSilent = function(onSuccess, onError) {
+          this.post(onSuccess, onError, true);
         }
 
         /**
          * Insert or update based on the the datasource state
          */
-        this.post = function(callback, silent) {
+        this.post = function(onSuccess, onError, silent) {
 
           if (!silent && this.missingRequiredField())
             return;
@@ -659,8 +675,8 @@ angular.module('datasourcejs', [])
                 });
               }
 
-              if (callback) {
-                callback(this.active);
+              if (onSuccess) {
+                onSuccess(this.active);
               }
 
               if (this.events.create && hotData) {
@@ -669,7 +685,7 @@ angular.module('datasourcejs', [])
 
               delete this.active.__sender;
 
-            }.bind(this));
+            }.bind(this), onError);
 
           } else if (this.editing) {
             // Make a new request to update the modified item
@@ -726,11 +742,11 @@ angular.module('datasourcejs', [])
                 });
               }
 
-              if (callback) {
-                callback(this.active);
+              if (onSuccess) {
+                onSuccess(this.active);
               }
 
-            }.bind(this));
+            }.bind(this), onError);
           }
         };
 
@@ -1001,15 +1017,15 @@ angular.module('datasourcejs', [])
           }
         };
 
-        this.removeSilent = function(object, callback) {
-          this.remove(object, null, false, callback, true);
+        this.removeSilent = function(object, onSuccess, onError) {
+          this.remove(object, null, false, onSuccess, onError, true);
         }
 
         /**
          * Remove an object from this dataset by using the given id.
          * the objects
          */
-        this.remove = function(object, callback, forceDelete, afterDelete, silent) {
+        this.remove = function(object, callback, forceDelete, onSuccess, onError, silent) {
 
           this.busy = true;
 
@@ -1083,8 +1099,8 @@ angular.module('datasourcejs', [])
               }
               this.handleAfterCallBack(this.onAfterDelete);
 
-              if (afterDelete) {
-                afterDelete(object);
+              if (onSuccess) {
+                onSuccess(object);
               }
 
               if (this.events.delete && hotData) {
@@ -1096,7 +1112,7 @@ angular.module('datasourcejs', [])
               if (this.dependentLazyPost && !forceDelete) {
                 callback();
               } else {
-                service.remove(this.getDeletionURL(object, forceDelete)).$promise.then(callback);
+                service.remove(this.getDeletionURL(object, forceDelete)).$promise.error(onError).then(callback);
               }
             }
           }.bind(this);

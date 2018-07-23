@@ -662,11 +662,17 @@ app.kendoHelper = {
             cronappDatasource.active[datasource.schema.model.id] = e.data["_generated" + datasource.schema.model.id];
             delete cronappDatasource.active["_generated" + datasource.schema.model.id];
           }
-          cronappDatasource.postSilent(function(data) {
-            this.options.enableAndSelect(e);
-            e.success(data);
-            // e.error("XHR response", "status code", "error message");
-          }.bind(this));
+          cronappDatasource.postSilent(
+            function(data) {
+              this.options.enableAndSelect(e);
+              e.success(data);
+              // e.error("XHR response", "status code", "error message");
+            }.bind(this),
+            function(data) {
+              this.options.enableAndSelect(e);
+              e.error("XHR response", "status code", "error message");
+            }.bind(this),
+          );
           
         },
         push: function(callback) {
@@ -734,9 +740,14 @@ app.kendoHelper = {
         },
         destroy: function(e) {
           cronappDatasource = this.options.cronappDatasource;
-          cronappDatasource.removeSilent(e.data, function(data) {
-            e.success(data);
-          });  
+          cronappDatasource.removeSilent(e.data, 
+            function(data) {
+              e.success(data);
+            },
+            function(data) {
+              e.error("canceled", "canceled", "canceled");
+            }
+          );  
         },
         batch: function (e) {
         },
