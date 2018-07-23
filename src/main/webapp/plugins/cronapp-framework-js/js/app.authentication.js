@@ -672,7 +672,7 @@ app.kendoHelper = {
         push: function(callback) {
           //TODO: Colocar o datasource para receber uma lista de callback ao inves de setar, 
           //tem que ser push
-          this.options.cronappDatasource.setDataSourceEvents({
+          this.options.cronappDatasource.addDataSourceEvents({
             create: function(data) {
               if (data.__sender != datasourceId)
                 callback.pushCreate(data);  
@@ -742,17 +742,21 @@ app.kendoHelper = {
         },
         options: {
           disableAndSelect: function(e) {
-            this.grid.select(e.container);
-            this.grid.options.selectable = false;
-            if (this.grid.selectable && this.grid.selectable.element) {
-              this.grid.selectable.destroy();
-              this.grid.selectable = null;
+            if (this.grid) {
+              this.grid.select(e.container);
+              this.grid.options.selectable = false;
+              if (this.grid.selectable && this.grid.selectable.element) {
+                this.grid.selectable.destroy();
+                this.grid.selectable = null;
+              }
             }
           },
           enableAndSelect: function(e) {
-            this.grid.options.selectable = "row";
-            this.grid._selectable();
-            this.grid.select(e.container);
+            if (this.grid) {
+              this.grid.options.selectable = "row";
+              this.grid._selectable();
+              this.grid.select(e.container);  
+            }
           },
           cronappDatasource: scope[dataSource.name]
         }
@@ -773,23 +777,23 @@ app.kendoHelper = {
   },
   getConfigCombobox: function(options, scope) {
     var dataSource = {};
-
+    
     var valuePrimitive = false;
     var dataSource = {};
     if (options && (!options.dynamic || options.dynamic=='false')) {
       valuePrimitive = true;
-      options.dataValueField = 'key';
+      options.dataValueField = 'key'; 
       options.dataTextField = 'value';
       dataSource.data = (options.staticDataSource == null ? undefined : options.staticDataSource);
     } else if (options.dataSource) {
       dataSource = app.kendoHelper.getDataSource(options.dataSource, scope);
-      valuePrimitive = (options.valuePrimitive == null ? undefined : options.valuePrimitive == "true");
+      valuePrimitive = (options.valuePrimitive == null ? false : (typeof options.valuePrimitive == 'string' ? options.valuePrimitive == 'true' : options.valuePrimitive));
     }
-
+    
     if (!options.dataValueField || options.dataValueField.trim() == '') {
       options.dataValueField = (options.dataTextField == null ? undefined : options.dataTextField);
     }
-
+    
     var config = {
       dataTextField: (options.dataTextField == null ? undefined : options.dataTextField),
       dataValueField: (options.dataValueField == null ? undefined : options.dataValueField),
@@ -800,18 +804,10 @@ app.kendoHelper = {
       footerTemplate: (options.footerTemplate == null ? undefined : options.footerTemplate),
       filter: (options.filter == null ? undefined : options.filter),
       valuePrimitive : valuePrimitive,
+      optionLabel : (options.optionLabel == null ? undefined : options.optionLabel),
+      valueTemplate : (options.valueTemplate == null ? undefined : options.valueTemplate),
       suggest: true
     };
-
-    if (options.cascadeFrom && options.cascadeFromField) {
-      config['cascadeFrom'] = options.cascadeFrom;
-      config['cascadeFromField'] = options.cascadeFromField;
-      config['autoBind'] = false;
-    }
-
-    if (!config.valuePrimitive) {
-      config['optionLabel'] = (options.optionLabel == null ? undefined : options.optionLabel);
-    }
 
     return config;
   },
@@ -840,7 +836,7 @@ app.kendoHelper = {
         if (!mask) {
           mask = parseMaskType(type, translate)
         }
-
+        
         return mask;
       }
 
@@ -855,10 +851,10 @@ app.kendoHelper = {
 
       var momentFormat = formatMomentMask(options.type, options.format);
       var format = formatKendoMask(momentFormat);
-
+      
       var timeFormat = formatKendoMask("time", options.timeFormat);
       var culture = formatCulture(translate.use());
-
+      
       config = {
         value: null,
         format: format,
@@ -879,44 +875,47 @@ app.kendoHelper = {
   },
   buildKendoMomentPicker : function($element, options, scope, ngModelCtrl) {
     var useUTC = options.type == 'date' || options.type == 'datetime' || options.type == 'time';
-
-    var onChange = function() {
-      var value = $element.val();
-      if (!value || value.trim() == '') {
+    
+    if (!$element.attr('from-grid')) {
+      var onChange = function() {
+        var value = $element.val();
+        if (!value || value.trim() == '') {
         if (ngModelCtrl)
-          ngModelCtrl.$setViewValue('');
-      } else {
-        var momentDate = null;
-
-        if (useUTC) {
-          momentDate = moment.utc(value, options.momentFormat);
+            ngModelCtrl.$setViewValue('');
         } else {
-          momentDate = moment(value, options.momentFormat);
-        }
-
-        if (ngModelCtrl && momentDate.isValid()) {
-          ngModelCtrl.$setViewValue(momentDate.toDate());
-          $element.data('changed', true);
+          var momentDate = null;
+  
+          if (useUTC) {
+            momentDate = moment.utc(value, options.momentFormat);
+          } else {
+            momentDate = moment(value, options.momentFormat);
+          }
+  
+          if (ngModelCtrl && momentDate.isValid()) {
+            ngModelCtrl.$setViewValue(momentDate.toDate());
+            $element.data('changed', true);
+          }
         }
       }
-    }
 
-    if (scope) {
-      options['change'] = function() {
-        scope.$apply(function () {
-          onChange();
-        });
-      };
-    } else {
-      options['change'] = onChange;
+      if (scope) {
+        options['change'] = function() {
+          scope.$apply(function () {
+            onChange();
+          });
+        };
+      } else {
+        options['change'] = onChange;
+      }  
     }
-
+    
+    
     if (options.type == 'date') {
-      return $element.kendoDatePicker(options).data('kendoDatePicker');
+      return $element.kendoDatePicker(options).data('kendoDatePicker'); 
     } else if (options.type == 'datetime' || options.type == 'datetime-local') {
-      return $element.kendoDateTimePicker(options).data('kendoDateTimePicker');
+      return $element.kendoDateTimePicker(options).data('kendoDateTimePicker'); 
     } else if (options.type == 'time' || options.type == 'time-local') {
-      return $element.kendoTimePicker(options).data('kendoTimePicker');
+      return $element.kendoTimePicker(options).data('kendoTimePicker'); 
     }
   },
   getConfigSlider: function(options) {
@@ -930,7 +929,7 @@ app.kendoHelper = {
       config['min'] = options.min ? parseInt(options.min) : 1;
       config['max'] = options.max ? parseInt(options.max) : 1;
       config['smallStep'] = options.smallStep ? parseInt(options.smallStep) : 1;
-      config['largeStep'] = options.largeStep ? parseInt(options.largeStep) : 1;
+      config['largeStep'] = options.largeStep ? parseInt(options.largeStep) : 1;      
     } catch(err) {
       console.log('Slider invalid configuration! ' + err);
     }
@@ -941,6 +940,35 @@ app.kendoHelper = {
     var config = {
       onLabel: options.onLabel,
       offLabel: options.offLabel
+    }
+
+    return config;
+  },
+  getConfigBarcode: function(options) {
+    var config = {
+      type: (options.type == null ? undefined : options.type),
+      width: (options.width == null ? undefined : parseInt(options.width)),
+      height: (options.height == null ? undefined : parseInt(options.height))
+    }
+    
+    if (!config.type) {
+      config.type = 'EAN8';
+    }
+
+    return config;
+  },
+  getConfigQrcode: function(options) {
+    var config = {
+      errorCorrection: (options.errorCorrection == null ? undefined : options.errorCorrection),
+      size: (options.size == null ? undefined : parseInt(options.size)),
+      color: (options.color == null ? undefined : options.color)
+    }
+    
+    if (options.borderColor || options.borderSize) {
+      config['border'] = {
+        size: (options.size == null ? undefined : parseInt(options.size)),
+        color: (options.color == null ? undefined : options.color)
+      }
     }
 
     return config;

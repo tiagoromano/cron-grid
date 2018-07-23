@@ -1005,7 +1005,7 @@
               if (blocklyInfo.blocklyParams.length > 0) {
                 params = "(";
                 blocklyInfo.blocklyParams.forEach(function(p) {
-                  params += this.encodeHTML(p.value) + ",";
+                  params += this.encodeHTML(p.value ? p.value : "''") + ",";
                 }.bind(this))
                 params = params.substr(0, params.length - 1);
                 params += ")";
@@ -1017,7 +1017,7 @@
               call = "cronapi.util.makeCallServerBlocklyAsync('"+blocklyName+"',null,null,";
               if (blocklyInfo.blocklyParams.length > 0) {
                 blocklyInfo.blocklyParams.forEach(function(p) {
-                  call += this.encodeHTML(p.value) + ",";
+                  call += this.encodeHTML(p.value ? p.value : "''") + ",";
                 }.bind(this))
               }
               call = call.substr(0, call.length - 1);
