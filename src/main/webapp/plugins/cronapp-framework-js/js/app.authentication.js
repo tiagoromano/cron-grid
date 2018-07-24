@@ -407,162 +407,6 @@ app.kendoHelper = {
     }
     return schema;
   },
-  getOldDataSource: function(dataSource, allowPaging, pageCount, columns) {
-    var crudServiceBaseUrl = dataSourceMap[dataSource.id].serviceUrlODATA;
-    var schema = this.getSchema(dataSource);
-    
-    var parseParameter = function(data) {
-      for (var attr in data) {
-        if (schema.model.fields.hasOwnProperty(attr)) {
-          
-          var schemaField = schema.model.fields[attr]; 
-          if (schemaField.type == 'string' && data[attr] != undefined)
-            data[attr] = data[attr] + "";
-          else if (schemaField.type == 'number' && data[attr] != undefined)
-            data[attr] = parseFloat(data[attr]);
-          else if (schemaField.type == 'date' && data[attr] != undefined)
-            data[attr] = '/Date('+data[attr].getTime()+')/';
-            
-          //Significa que é o ID
-          if (schema.model.id == attr) {
-            //Se o mesmo for vazio, remover do data
-            if (data[attr] != undefined && data[attr].toString().length == 0)
-              delete data[attr];
-          }  
-        }
-      }
-      return data;
-    };
-    
-    var pageSize = pageCount;
-    //Se permitir paginar, coloca quantidade default de registros, caso n tenha
-    if (allowPaging)
-      pageSize = pageCount ? pageCount : 10;
-    
-    //Quando não for data UTC
-    var offsetMiliseconds = new Date().getTimezoneOffset() * 60000;
-    function onRequestEnd(e) {
-      if (e.response  && e.response.d ) {
-        var items = null;
-        if (e.response.d.results)
-          items = e.response.d.results;
-        else
-          items = [e.response.d];
-        
-        if (this.group().length) {
-          
-          columns.forEach( function(c) {
-            if (c.dataType == 'Database') {
-              var notUseUTC = c.type == 'datetime-local' || c.type == 'month' || c.type == 'time-local' || c.type == 'week';
-              if (notUseUTC) {
-                for (var i = 0; i < items.length; i++) {
-                  var gr = items[i];
-                  if (c.field == gr.Member) {
-                    gr.Key = gr.Key.replace(/\d+/,
-                      function (n) { return parseInt(n) + offsetMiliseconds }
-                    );
-                  }
-                  addOffset.bind(this)(gr.Items);
-                }
-              }
-            }
-          });
-        } else {
-          addOffset.bind(this)(items);
-        }
-      }
-    }
-    
-    function addOffset(items) {
-      for (var i = 0; i < items.length; i++) {
-        if (columns) {
-          columns.forEach( function(c) {
-              if (c.dataType == 'Database') {
-                var notUseUTC = c.type == 'datetime-local' || c.type == 'month' || c.type == 'time-local' || c.type == 'week';
-                if (notUseUTC) {
-                  if (items[i][c.field]) {
-                    items[i][c.field] = items[i][c.field].replace(/\d+/,
-                      function (n) { return parseInt(n) + offsetMiliseconds }
-                    );
-                  }
-                }
-              }
-          });  
-        }
-        
-      }
-    }
-
-    var datasource = {
-      type: "odata",
-      transport: {
-          read:  {
-             url: crudServiceBaseUrl,
-             dataType: "json"
-          },
-          update: {
-              url: function(data) {
-                // if (options.editable == 'batch') {
-                //   var urls = [];
-                //   data.models.forEach((m) => {
-                //     urls.push(m.__metadata.uri);
-                //   });
-                //   return urls;
-                // }
-                // else {
-                  return data.__metadata.uri;
-                  
-                // }
-              },
-          },
-          create: {
-              url: crudServiceBaseUrl,
-          },
-          destroy: {
-              url: function(data) {
-                  return data.__metadata.uri;
-              }
-          },
-          batch: {
-              url: crudServiceBaseUrl,
-          },
-          parameterMap: function (data, type) {
-            if (type == "read") {
-              debugger;
-              var paramsOData = kendo.data.transports.odata.parameterMap(data, type);
-              
-              var orderBy = '';
-              if (this.options.grid) {
-                this.options.grid.dataSource.group().forEach(function(group) { 
-                  orderBy += group.field +" " + group.dir + ","; 
-                });
-              }
-              if (orderBy.length > 0) {
-                orderBy = orderBy.substr(0, orderBy.length-1);
-                if (paramsOData.$orderby)
-                  paramsOData.$orderby =  orderBy + "," + paramsOData.$orderby;
-                else
-                  paramsOData.$orderby = orderBy;
-              }
-              return paramsOData;
-            }
-            else 
-              data = parseParameter(data);
-            
-            return kendo.stringify(data);
-          }
-      },
-      pageSize: pageSize,
-      serverPaging: true,
-      serverFiltering: true,
-      serverSorting: true,
-      batch: false,
-      schema: schema,
-      requestEnd: onRequestEnd
-    };
-      
-    return datasource;
-  },
   getDataSource: function(dataSource, scope, allowPaging, pageCount, columns) {
     var schema = this.getSchema(dataSource);
     
@@ -591,10 +435,9 @@ app.kendoHelper = {
       return data;
     };
     
-    var pageSize = pageCount;
-    //Se permitir paginar, coloca quantidade default de registros, caso n tenha
-    if (allowPaging)
-      pageSize = pageCount ? pageCount : 10;
+    var pageSize = 10;
+    if (scope[dataSource.name])
+      pageSize = scope[dataSource.name].rowsPerPage;
     
     //Quando não for data UTC
     var offsetMiliseconds = new Date().getTimezoneOffset() * 60000;
@@ -666,12 +509,11 @@ app.kendoHelper = {
             function(data) {
               this.options.enableAndSelect(e);
               e.success(data);
-              // e.error("XHR response", "status code", "error message");
             }.bind(this),
             function(data) {
               this.options.enableAndSelect(e);
-              e.error("XHR response", "status code", "error message");
-            }.bind(this),
+              e.error(data, data, data);
+            }.bind(this)
           );
           
         },
@@ -691,45 +533,70 @@ app.kendoHelper = {
               if (data.__sender != datasourceId)
                 callback.pushDestroy(data);
             }.bind(this),
-            refresh: function(data) {
+            overRideRefresh: function(data) {
               if (this.options.grid)
+                this.options.grid.dataSource.read();
+            }.bind(this),
+            read: function(data) {
+                this.options.fromRead = true;
                 this.options.grid.dataSource.read();
             }.bind(this)
           });
         },
         read:  function (e) {
-          for (key in e.data) 
-            if(e.data[key] == undefined)  
-              delete e.data[key];
-          var paramsOData = kendo.data.transports.odata.parameterMap(e.data, 'read');
-          var orderBy = '';
           
-          if (this.options.grid) {
-            this.options.grid.dataSource.group().forEach(function(group) { 
-              orderBy += group.field +" " + group.dir + ","; 
+          var doFetch = false;
+          try {
+            var cronappDatasource = this.options.cronappDatasource;
+            
+            if (!this.options.kendoCallback) {
+              this.options.kendoCallback = e;
+              e.success(cronappDatasource.data);
+            } else {
+              if (this.options.fromRead) {
+                this.options.kendoCallback.success(cronappDatasource.data);
+              } else {
+                doFetch = true;
+              }
+            }
+          } finally {
+             this.options.fromRead = false;
+          }
+          
+          if (doFetch) {
+            for (key in e.data) 
+              if(e.data[key] == undefined)  
+                delete e.data[key];
+            var paramsOData = kendo.data.transports.odata.parameterMap(e.data, 'read');
+            var orderBy = '';
+            
+            if (this.options.grid) {
+              this.options.grid.dataSource.group().forEach(function(group) { 
+                orderBy += group.field +" " + group.dir + ","; 
+              });
+            }
+            if (orderBy.length > 0) {
+              orderBy = orderBy.substr(0, orderBy.length-1);
+              if (paramsOData.$orderby)
+                paramsOData.$orderby =  orderBy + "," + paramsOData.$orderby;
+              else
+                paramsOData.$orderby = orderBy;
+            }
+            
+            var cronappDatasource = this.options.cronappDatasource;
+            cronappDatasource.rowsPerPage = e.data.pageSize;
+            cronappDatasource.offset = (e.data.page - 1);
+            var fetchData = {};
+            fetchData.params = paramsOData;
+            cronappDatasource.fetch(fetchData, { 
+              success:  function(data) {
+               e.success(data);
+              },
+              canceled:  function(data) {
+               e.error("canceled", "canceled", "canceled");
+              }
             });
           }
-          if (orderBy.length > 0) {
-            orderBy = orderBy.substr(0, orderBy.length-1);
-            if (paramsOData.$orderby)
-              paramsOData.$orderby =  orderBy + "," + paramsOData.$orderby;
-            else
-              paramsOData.$orderby = orderBy;
-          }
-          
-          var cronappDatasource = this.options.cronappDatasource;
-          cronappDatasource.rowsPerPage = e.data.pageSize;
-          cronappDatasource.offset = (e.data.page - 1);
-          var fetchData = {};
-          fetchData.params = paramsOData;
-          cronappDatasource.fetch(fetchData, { 
-            success:  function(data) {
-             e.success(data);
-            },
-            canceled:  function(data) {
-             e.error("canceled", "canceled", "canceled");
-            }
-          });
           
         },
         update: function(e) {
@@ -752,6 +619,7 @@ app.kendoHelper = {
         batch: function (e) {
         },
         options: {
+          fromRead: false,
           disableAndSelect: function(e) {
             if (this.grid) {
               this.grid.select(e.container);
@@ -822,7 +690,7 @@ app.kendoHelper = {
 
     return config;
   },
-  getConfigDate: function(translate, options) {
+    getConfigDate: function(translate, options) {
     var config = {};
 
     if (config) {
@@ -834,17 +702,19 @@ app.kendoHelper = {
       }
 
       var formatKendoMask = function(mask) {
-        mask = mask.replace(/:MM/gm,':mm');
-        mask = mask.replace(/:M/gm,':m');
-        mask = mask.replace(/S/gm,'s');
-        mask = mask.replace(/D/gm,'d');
-        mask = mask.replace(/Y/gm,'y');
+        if (mask) {
+          mask = mask.replace(/:MM/gm,':mm');
+          mask = mask.replace(/:M/gm,':m');
+          mask = mask.replace(/S/gm,'s');
+          mask = mask.replace(/D/gm,'d');
+          mask = mask.replace(/Y/gm,'y');
+        }
 
         return mask;
       }
 
       var formatMomentMask = function(type, mask) {
-        if (!mask) {
+        if (mask == null) {
           mask = parseMaskType(type, translate)
         }
         
@@ -863,7 +733,7 @@ app.kendoHelper = {
       var momentFormat = formatMomentMask(options.type, options.format);
       var format = formatKendoMask(momentFormat);
       
-      var timeFormat = formatKendoMask("time", options.timeFormat);
+      var timeFormat = formatKendoMask(options.timeFormat);
       var culture = formatCulture(translate.use());
       
       config = {
@@ -949,8 +819,8 @@ app.kendoHelper = {
   },
   getConfigSwitch: function(options) {
     var config = {
-      onLabel: options.onLabel,
-      offLabel: options.offLabel
+      onLabel: (options.onLabel == null ? undefined : options.onLabel),
+      offLabel: (options.offLabel == null ? undefined : options.offLabel)
     }
 
     return config;

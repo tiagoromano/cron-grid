@@ -1305,18 +1305,6 @@
                 $input.attr('cron-date', '');
                 $input.attr('options', JSON.stringify(column.dateOptions));
                 $input.data('initial-date', opt.model[opt.field]);
-                
-                // var kendoConfig = app.kendoHelper.getConfigDate($translate, column.dateOptions);
-                // // $input.attr('type', column.type);
-                // // $input.attr('mask', kendoConfig.momentFormat);
-                // if (column.dateOptions.type == 'date') {
-                //   $input.appendTo(container).kendoDatePicker(kendoConfig);
-                // } else if (column.dateOptions.type == 'datetime' || column.dateOptions.type == 'datetime-local') {
-                //   $input.appendTo(container).kendoDateTimePicker(kendoConfig); 
-                // } else if (column.dateOptions.type == 'time' || column.dateOptions.type == 'time-local') {
-                //   $input.appendTo(container).kendoTimePicker(kendoConfig); 
-                // }
-                
                 $input.appendTo(container).off('change');
                 var waitRender = setInterval(function() {
                   if ($('#' + buttonId).length > 0) {
@@ -1510,15 +1498,8 @@
                 e.sender.options.listCurrentOptions.forEach(function(currentOptions) {
                   var currentKendoGridInit = helperDirective.generateKendoGridInit(currentOptions, scope);
                   
-                  // currentKendoGridInit.dataSource.filter.forEach(function(f) {
-                  //   if (f.linkParentType == "hierarchy" ) {
-                  //     f.value = e.data[f.linkParentField];
-                  //   }
-                  // });
-                  
                   var grid = $("<div/>").appendTo(e.detailCell).kendoGrid(currentKendoGridInit).data('kendoGrid');
                   grid.dataSource.transport.options.grid = grid;
-                  // helperDirective.updateFiltersFromAngular(grid, scope);
                 });
               }
               else
@@ -1554,8 +1535,6 @@
             var pageAble = this.getPageAble(options);
             var toolbar = this.getToolbar(options, scope);
             var editable = this.getEditable(options);
-            // //Adiciona os campos de ligação (Filtro do datasource)
-            // this.setFiltersFromLinkColumns(datasource, options, scope);
             
             var kendoGridInit = {
               toolbar: toolbar,
@@ -1581,18 +1560,30 @@
               listCurrentOptions: (options.details && options.details.length > 0) ? options.details : undefined,
               edit: function(e) {
                 this.dataSource.transport.options.disableAndSelect(e);
+                var container = e.container;
                 var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
                 if (e.model.isNew() && !e.model.dirty) {
                   var model = e.model;
                   cronappDatasource.startInserting(null, function(active) {
                     for (var key in active) {
-                      if (key != datasource.schema.model.id)
+                      if (model.fields[key].validation && model.fields[key].validation.required) {
+                        var input = container.find("input[name='" + key + "']");
+                        if (input.length) {
+                          //TODO: Verificar com a telerik https://stackoverflow.com/questions/22179758/kendo-grid-using-model-set-to-update-the-value-of-required-fields-triggers-vali
+                          input.val(active[key]).trigger('change');
+                        }
+                        else {
+                          model.set(key, active[key]);
+                        }
+                      } 
+                      else {
                         model.set(key, active[key]);
+                      }
                     }
-                    //Adicionando o _generatedId para não setar o id e o objeto continue com o status de new  
-                    if (active[datasource.schema.model.id]) {
-                      model["_generated" + datasource.schema.model.id] = active[datasource.schema.model.id];
-                    }
+                    // //Adicionando o _generatedId para não setar o id e o objeto continue com o status de new  
+                    // if (active[datasource.schema.model.id]) {
+                    //   model["_generated" + datasource.schema.model.id] = active[datasource.schema.model.id];
+                    // }
                   });
                 }
                 else if (!e.model.isNew() && !e.model.dirty) {
@@ -1601,17 +1592,11 @@
                 }
               },
               change: function(e) {
-                // var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
-                // if (!(cronappDatasource.inserting || cronappDatasource.editing)) {
-                //   var item = this.dataItem(this.select());
-                //   scope.safeApply(cronappDatasource.goTo(item));
-                // }
                 var item = this.dataItem(this.select());
                 setToActiveInCronappDataSource.bind(this)(item);
                 collapseAllExcecptCurrent(this, this.select().next(), this.select() );
               },
               cancel: function(e) {
-                console.log('cancel');
                 var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
                 scope.safeApply(cronappDatasource.cancel());
                 this.dataSource.transport.options.enableAndSelect(e);
@@ -1639,7 +1624,6 @@
                 
                 var grid = $templateDyn.kendoGrid(kendoGridInit).data('kendoGrid');
                 grid.dataSource.transport.options.grid = grid;
-                // helperDirective.updateFiltersFromAngular(grid, scope);
                 
             });
             
