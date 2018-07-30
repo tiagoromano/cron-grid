@@ -389,8 +389,8 @@ app.kendoHelper = {
 
     var schema = {
       model : {
-        // id : "__$id",
-        id : "nome",
+        id : "__$id",
+        // id : "nome",
         fields: {}
       }
     };
@@ -403,12 +403,12 @@ app.kendoHelper = {
           validation: { required: !field.nullable },
         }
       });
-      // schema.model.fields["__$id"] = {
-      //   type: "string",
-      //   editable: true,
-      //   nullable: true,
-      //   validation: { required: false }
-      // }
+      schema.model.fields["__$id"] = {
+        type: "string",
+        editable: true,
+        nullable: true,
+        validation: { required: false }
+      }
     }
     return schema;
   },
@@ -518,7 +518,7 @@ app.kendoHelper = {
       transport: {
         setActiveAndPost: function(e) {
           var cronappDatasource = this.options.cronappDatasource;
-          cronappDatasource.updateActive(parseParameter(e.data));
+          scope.safeApply(cronappDatasource.updateActive(parseParameter(e.data)));
           cronappDatasource.active.__sender = datasourceId;
           cronappDatasource.postSilent(
               function(data) {
@@ -534,35 +534,43 @@ app.kendoHelper = {
         push: function(callback) {
           //TODO: Colocar o datasource para receber uma lista de callback ao inves de setar,
           //tem que ser push
-          this.options.cronappDatasource.setDataSourceEvents({
-            create: function(data) {
-              var currentDatasource = (this.options.grid?this.options.grid.dataSource:callback);
-              if (data.__sender != datasourceId) 
-                currentDatasource.pushCreate(data);
-              else
-                currentDatasource.pushUpdate(data);
-            }.bind(this),
-            update: function(data) {
-              var pushUpdate = (this.options.grid?this.options.grid.dataSource.pushUpdate:callback.pushUpdate);
-              if (data.__sender != datasourceId) {
-                pushUpdate(data);
-              }
-            }.bind(this),
-            delete: function(data) {
-              var pushDestroy = (this.options.grid?this.options.grid.dataSource.pushDestroy:callback.pushDestroy);
-              if (data.__sender != datasourceId) {
-                pushDestroy(data);
-              }
-            }.bind(this),
-            overRideRefresh: function(data) {
-              if (this.options.grid)
-                this.options.grid.dataSource.read();
-            }.bind(this),
-            read: function(data) {
-              this.options.fromRead = true;
-              this.options.grid.dataSource.read();
-            }.bind(this)
-          });
+          if (!this.options.alreadyAddedPushed) {
+            this.options.alreadyAddedPushed = true;
+            this.options.cronappDatasource.addDataSourceEvents({
+              create: function(data) {
+                var current = (this.options.grid?this.options.grid.dataSource:callback);
+                current.pushUpdate(data);
+                
+              }.bind(this),
+              update: function(data) {
+                var current = (this.options.grid?this.options.grid.dataSource:callback);
+                current.pushUpdate(data);
+              }.bind(this),
+              delete: function(data) {
+                var current = (this.options.grid?this.options.grid.dataSource:callback);
+                current.pushDestroy(data);
+                
+              }.bind(this),
+              overRideRefresh: function(data) {
+                if (this.options.grid) {
+                  //Verifica se a grade ainda existe
+                  if ($(document).has(this.options.grid.table[0]).length) {
+                    // this.options.fromOverRideRefresh = true;
+                    this.options.grid.dataSource.read();
+                  }
+                }
+              }.bind(this),
+              read: function(data) {
+                if (this.options.grid) {
+                  //Verifica se a grade ainda existe
+                  if ($(document).has(this.options.grid.table[0]).length) {
+                    this.options.fromRead = true;
+                    this.options.grid.dataSource.read();  
+                  }  
+                }
+              }.bind(this)
+            });
+          }
         },
         read:  function (e) {
 
@@ -572,11 +580,14 @@ app.kendoHelper = {
 
             if (!this.options.kendoCallback) {
               this.options.kendoCallback = e;
-              e.success(cronappDatasource.data);
-            } else {
+              doFetch = true;
+              // e.success(cronappDatasource.data);
+            } 
+            else {
               if (this.options.fromRead) {
                 this.options.kendoCallback.success(cronappDatasource.data);
-              } else {
+              } 
+              else {
                 doFetch = true;
               }
             }

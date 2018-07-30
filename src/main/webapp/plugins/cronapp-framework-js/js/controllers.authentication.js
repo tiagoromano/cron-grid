@@ -13,11 +13,11 @@
       ReportService.openReport(reportName, params);
     }
     
-    $scope.autoLogin = function(){
-      if(localStorage.getItem('_u') != undefined)
-      $state.go('home');
-    }
-    $scope.autoLogin();
+    // $scope.autoLogin = function(){
+    //   if(localStorage.getItem('_u') != undefined)
+    //   $state.go('home');
+    // }
+    // $scope.autoLogin();
     $scope.message = {};
 	$scope.renderRecaptcha = function(){
       window.grecaptcha.render('loginRecaptcha');
