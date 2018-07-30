@@ -1715,6 +1715,88 @@
           "selector": "cron-grid"
         }
       ]
-    }
+    },
+    {
+      "name": "crn-enterprise-combobox",
+      "text_pt_BR": "_Caixa de seleção",
+      "text_en_US": "Combobox",
+      "class": "adjust-icon mdi mdi-equal-box",
+      "designTimeHTML": "<select></select>",
+      "designTimeSelector": "cron-select",
+      "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/cron-combobox.template.html",
+      "properties": {
+        "onchange": {
+          "removable": true,
+          "type": "event"
+        },
+        "ng-model":{
+          "displayName_pt_BR": "Campo",
+          "displayName_en_US": "Field",
+          "onSave": "javascript:function() { var result = arguments[0]; if (result.indexOf('.') == -1 && result.trim().length > 0 ) { result = 'vars.'+result;  }  return result; }",
+          "onDisplay": "javascript:function() { return arguments[0].replace('vars.',''); }"
+        }
+      },
+      "childrenProperties": [
+        {
+          "name": "options",
+          "selector": "cron-select",
+          "displayName_pt_BR": "Configuração",
+          "displayName_en_US": "Configuration"
+        }
+      ],
+      "groupedChildren": [
+        {
+          "text_pt_BR": "Rótulo",
+          "text_en_US": "Label",
+          "selector": "label"
+        },
+        {
+          "text_pt_BR": "Campo",
+          "text_en_US": "Field",
+          "selector": "cron-select"
+        }
+      ]
+    },
+    {
+      "name": "crn-enterprise-dynamic-combobox",
+      "text_pt_BR": "_Caixa de seleção dinâmica",
+      "text_en_US": "Dynamic Combobox",
+      "class": "adjust-icon mdi mdi-nutrition",
+      "designTimeHTML": "<select></select>",
+      "designTimeSelector": "cron-dynamic-select",
+      "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/cron-dynamic-combobox.template.html",
+      "properties": {
+        "onchange": {
+          "removable": true,
+          "type": "event"
+        },
+        "ng-model":{
+          "displayName_pt_BR": "Campo",
+          "displayName_en_US": "Field",
+          "onSave": "javascript:function() { var result = arguments[0]; if (result.indexOf('.') == -1 && result.trim().length > 0 ) { result = 'vars.'+result;  }  return result; }",
+          "onDisplay": "javascript:function() { return arguments[0].replace('vars.',''); }"
+        }
+      },
+      "childrenProperties": [
+        {
+          "name": "options",
+          "selector": "cron-dynamic-select",
+          "displayName_pt_BR": "Configuração",
+          "displayName_en_US": "Configuration"
+        }
+      ],
+      "groupedChildren": [
+        {
+          "text_pt_BR": "Rótulo",
+          "text_en_US": "Label",
+          "selector": "label"
+        },
+        {
+          "text_pt_BR": "Campo",
+          "text_en_US": "Field",
+          "selector": "cron-dynamic-select"
+        }
+      ]
+    }  
   ]
 }

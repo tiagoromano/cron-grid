@@ -112,5 +112,7 @@
   "Upload.sending": "Uploading...",
   "Upload.oneFile": "Select or drop one file",
   "Upload.multipleFile": "Select or drop files",
-  "Upload.errorValidation": "Invalid selection: Max size %s e Allowed types: %s"
+  "Upload.errorValidation": "Invalid selection: Max size %s e Allowed types: %s",
+  "SaveChanges": "Save changes",
+  "CancelChanges": "Cancel changes"
 }

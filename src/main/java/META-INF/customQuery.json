@@ -802,17 +802,21 @@
 		"entityFullName": "app.entity.Cidade",
 		"query": {
 			"isValid": true,
+			"isEmpty": false,
+			"operationType": "object",
+			"type": "select",
 			"rulesEntity": [
 				{
 					"entity": "Cidade",
-					"alias": "c",
-					"namespace": "app.entity.Cidade"
+					"namespace": "app.entity.Cidade",
+					"alias": "c"
 				}
 			],
 			"rulesSelect": [
 				{
 					"func": "get",
-					"field": "c"
+					"field": "c",
+					"type": "string"
 				}
 			],
 			"rulesGroupBy": [],
@@ -820,10 +824,13 @@
 			"rulesOrderBy": [],
 			"rules": {
 				"condition": "AND",
+				"rules": [],
 				"not": false,
-				"valid": true,
-				"rules": []
-			}
+				"valid": true
+			},
+			"isRawSql": false,
+			"multiTenant": true,
+			"paginatorAutomatic": false
 		},
 		"queryParamsValues": [],
 		"verbs": {
@@ -858,6 +865,16 @@
 			"dataHora": null,
 			"numeroDouble": null
 		},
+		"defaultValuesProperties": {
+			"id": null,
+			"nome": null,
+			"estado": null,
+			"numero": null,
+			"capital": null,
+			"dataFundacao": null,
+			"dataHora": null,
+			"numeroDouble": null
+		},
 		"security": {
 			"id": null,
 			"nome": null,
@@ -870,6 +887,7 @@
 		},
 		"calcFields": {},
 		"calcFieldsSecurity": {},
+		"calcFieldsProperties": {},
 		"errorHandles": {
 			"primaryKey": null,
 			"foreignKey": null

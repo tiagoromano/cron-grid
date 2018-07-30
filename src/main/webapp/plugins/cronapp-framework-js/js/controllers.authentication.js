@@ -12,7 +12,12 @@
     $rootScope.getReport = function(reportName, params) {
       ReportService.openReport(reportName, params);
     }
-
+    
+    $scope.autoLogin = function(){
+      if(localStorage.getItem('_u') != undefined)
+      $state.go('home');
+    }
+    $scope.autoLogin();
     $scope.message = {};
 	$scope.renderRecaptcha = function(){
       window.grecaptcha.render('loginRecaptcha');
@@ -55,11 +60,11 @@
 
     function handleSuccess(data, status, headers, config) {
       // Store data response on session storage
-      // The session storage will be cleaned when the browser window is closed
+      // The local storage will be cleaned when the browser window is closed
       if(typeof (Storage) !== "undefined") {
         // save the user data on localStorage
-        sessionStorage.setItem("_u", JSON.stringify(data));
-        $rootScope.session = JSON.parse(sessionStorage._u);
+        localStorage.setItem("_u", JSON.stringify(data));
+        $rootScope.session = JSON.parse(localStorage._u);
       }
       else {
         // Sorry! No Web Storage support.
@@ -107,9 +112,9 @@
         method : 'GET',
         url : 'auth/refresh'
       }).success(function(data, status, headers, config) {
-        // Store data response on session storage
+        // Store data response on local storage
         console.log('revive :', new Date(data.expires));
-        sessionStorage.setItem("_u", JSON.stringify(data));
+        localStorage.setItem("_u", JSON.stringify(data));
         // Recussive
         setTimeout(function() {
           $scope.refreshToken();
@@ -120,12 +125,12 @@
       });
     };
 
-    $rootScope.session = (sessionStorage._u) ? JSON.parse(sessionStorage._u) : null;
+    $rootScope.session = (localStorage.getItem('_u') != undefined) ? JSON.parse(localStorage.getItem('_u')) : null;
 
     if($rootScope.session) {
       // When access home page we have to check
       // if the user is authenticated and the userData
-      // was saved on the browser's sessionStorage
+      // was saved on the browser's localStorage
       $rootScope.myTheme = '';
       if ($rootScope.session.user)
       $rootScope.myTheme = $rootScope.session.user.theme;
@@ -139,7 +144,7 @@
     }
     else {
       if (!$scope.ignoreAuth) {
-        sessionStorage.removeItem("_u");
+        localStorage.removeItem("_u");
         window.location.href = "";
       }
     }
@@ -156,7 +161,7 @@
       function clean() {
         $rootScope.session = {};
         if(typeof (Storage) !== "undefined") {
-          sessionStorage.removeItem("_u");
+          localStorage.removeItem("_u");
         }
         window.location.href = "";
       }
@@ -272,7 +277,7 @@
         function changeSuccess(data, status, headers, config) {
           $rootScope.session.theme = theme;
           $rootScope.session.user.theme = theme;
-          sessionStorage.setItem("_u", JSON.stringify($rootScope.session));
+          localStorage.setItem("_u", JSON.stringify($rootScope.session));
         }
 
         function changeError(data, status, headers, config) {

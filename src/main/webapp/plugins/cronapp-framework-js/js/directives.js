@@ -387,119 +387,119 @@
           }
         }
       })
-	  
-	.directive('qr', ['$window', function($window){
-    return {
-      restrict: 'A',
-      require: '^ngModel',
-      template: '<canvas ng-hide="image"></canvas><img ng-if="image" ng-src="{{canvasImage}}"/>',
-      link: function postlink(scope, element, attrs, ngModel){
-        if (scope.size === undefined  && attrs.size) {
-          scope.text = attrs.size;
-        }
-      var getTypeNumeber = function(){
-      return scope.typeNumber || 0;
-    };
-    var getCorrection = function(){
-      var levels = {
-        'L': 1,
-        'M': 0,
-        'Q': 3,
-        'H': 2
-      };
-    var correctionLevel = scope.correctionLevel || 0;
-      return levels[correctionLevel] || 0;
-    };
-    var getText = function(){
-      return ngModel.$modelValue || "";
-    };
-    var getSize = function(){
-      return scope.size || $(element).outerWidth();
-    };
-    var isNUMBER = function(text){
-      var ALLOWEDCHARS = /^[0-9]*$/;
-      return ALLOWEDCHARS.test(text);
-    };
-    var isALPHA_NUM = function(text){
-      var ALLOWEDCHARS = /^[0-9A-Z $%*+\-./:]*$/;
-      return ALLOWEDCHARS.test(text);
-    };
-    var is8bit = function(text){
-      for (var i = 0; i < text.length; i++) {
-        var code = text.charCodeAt(i);
-        if (code > 255) {
-          return false;
-        }
-      }
-      return true;
-    };
-    var checkInputMode = function(inputMode, text){
-      if (inputMode === 'NUMBER' && !isNUMBER(text)) {
-        throw new Error('The `NUMBER` input mode is invalid for text.');
-      }
-      else if (inputMode === 'ALPHA_NUM' && !isALPHA_NUM(text)) {
-        throw new Error('The `ALPHA_NUM` input mode is invalid for text.');
-      }
-      else if (inputMode === '8bit' && !is8bit(text)) {
-        throw new Error('The `8bit` input mode is invalid for text.');
-      }
-      else if (!is8bit(text)) {
-        throw new Error('Input mode is invalid for text.');
-      }
-      return true;
-    };
-    var getInputMode = function(text){
-      var inputMode = scope.inputMode;
-      inputMode = inputMode || (isNUMBER(text) ? 'NUMBER' : undefined);
-      inputMode = inputMode || (isALPHA_NUM(text) ? 'ALPHA_NUM' : undefined);
-      inputMode = inputMode || (is8bit(text) ? '8bit' : '');
-      return checkInputMode(inputMode, text) ? inputMode : '';
-    };
-    var canvas = element.find('canvas')[0];
-    var canvas2D = !!$window.CanvasRenderingContext2D;
-    scope.TYPE_NUMBER = getTypeNumeber();
-    scope.TEXT = getText();
-    scope.CORRECTION = getCorrection();
-    scope.SIZE = getSize();
-    scope.INPUT_MODE = getInputMode(scope.TEXT);
-    scope.canvasImage = '';
-    var draw = function(context, qr, modules, tile){
-      for (var row = 0; row < modules; row++) {
-        for (var col = 0; col < modules; col++) {
-          var w = (Math.ceil((col + 1) * tile) - Math.floor(col * tile)),
-              h = (Math.ceil((row + 1) * tile) - Math.floor(row * tile));
-          context.fillStyle = qr.isDark(row, col) ? '#000' : '#fff';
-          context.fillRect(Math.round(col * tile), Math.round(row * tile), w, h);
-        }
-      }
-    };
-    var render = function(canvas, value, typeNumber, correction, size, inputMode){
-      var trim = /^\s+|\s+$/g;
-      var text = value.replace(trim, '');
-      var qr = new QRCode(typeNumber, correction, inputMode);
-      qr.addData(text);
-      qr.make();
-      var context = canvas.getContext('2d');
-      var modules = qr.getModuleCount();
-      var tile = size / modules;
-      canvas.width = canvas.height = size;
-      if (canvas2D) {
-        draw(context, qr, modules, tile);
-        scope.canvasImage = canvas.toDataURL() || '';
-      }
-    };
-    
-    scope.$watch(function(){return ngModel.$modelValue}, function(value, old){
-    if (value !== old) {
-      scope.text = ngModel.$modelValue;
-      scope.TEXT = getText();
-      scope.INPUT_MODE = getInputMode(scope.TEXT);
-      render(canvas, scope.TEXT, scope.TYPE_NUMBER, scope.CORRECTION, scope.SIZE, scope.INPUT_MODE);
-    }
-  });
-    render(canvas, scope.TEXT, scope.TYPE_NUMBER, scope.CORRECTION, scope.SIZE, scope.INPUT_MODE);
-    }};
-  }])
+
+      .directive('qr', ['$window', function($window){
+        return {
+          restrict: 'A',
+          require: '^ngModel',
+          template: '<canvas ng-hide="image"></canvas><img ng-if="image" ng-src="{{canvasImage}}"/>',
+          link: function postlink(scope, element, attrs, ngModel){
+            if (scope.size === undefined  && attrs.size) {
+              scope.text = attrs.size;
+            }
+            var getTypeNumeber = function(){
+              return scope.typeNumber || 0;
+            };
+            var getCorrection = function(){
+              var levels = {
+                'L': 1,
+                'M': 0,
+                'Q': 3,
+                'H': 2
+              };
+              var correctionLevel = scope.correctionLevel || 0;
+              return levels[correctionLevel] || 0;
+            };
+            var getText = function(){
+              return ngModel.$modelValue || "";
+            };
+            var getSize = function(){
+              return scope.size || $(element).outerWidth();
+            };
+            var isNUMBER = function(text){
+              var ALLOWEDCHARS = /^[0-9]*$/;
+              return ALLOWEDCHARS.test(text);
+            };
+            var isALPHA_NUM = function(text){
+              var ALLOWEDCHARS = /^[0-9A-Z $%*+\-./:]*$/;
+              return ALLOWEDCHARS.test(text);
+            };
+            var is8bit = function(text){
+              for (var i = 0; i < text.length; i++) {
+                var code = text.charCodeAt(i);
+                if (code > 255) {
+                  return false;
+                }
+              }
+              return true;
+            };
+            var checkInputMode = function(inputMode, text){
+              if (inputMode === 'NUMBER' && !isNUMBER(text)) {
+                throw new Error('The `NUMBER` input mode is invalid for text.');
+              }
+              else if (inputMode === 'ALPHA_NUM' && !isALPHA_NUM(text)) {
+                throw new Error('The `ALPHA_NUM` input mode is invalid for text.');
+              }
+              else if (inputMode === '8bit' && !is8bit(text)) {
+                throw new Error('The `8bit` input mode is invalid for text.');
+              }
+              else if (!is8bit(text)) {
+                throw new Error('Input mode is invalid for text.');
+              }
+              return true;
+            };
+            var getInputMode = function(text){
+              var inputMode = scope.inputMode;
+              inputMode = inputMode || (isNUMBER(text) ? 'NUMBER' : undefined);
+              inputMode = inputMode || (isALPHA_NUM(text) ? 'ALPHA_NUM' : undefined);
+              inputMode = inputMode || (is8bit(text) ? '8bit' : '');
+              return checkInputMode(inputMode, text) ? inputMode : '';
+            };
+            var canvas = element.find('canvas')[0];
+            var canvas2D = !!$window.CanvasRenderingContext2D;
+            scope.TYPE_NUMBER = getTypeNumeber();
+            scope.TEXT = getText();
+            scope.CORRECTION = getCorrection();
+            scope.SIZE = getSize();
+            scope.INPUT_MODE = getInputMode(scope.TEXT);
+            scope.canvasImage = '';
+            var draw = function(context, qr, modules, tile){
+              for (var row = 0; row < modules; row++) {
+                for (var col = 0; col < modules; col++) {
+                  var w = (Math.ceil((col + 1) * tile) - Math.floor(col * tile)),
+                      h = (Math.ceil((row + 1) * tile) - Math.floor(row * tile));
+                  context.fillStyle = qr.isDark(row, col) ? '#000' : '#fff';
+                  context.fillRect(Math.round(col * tile), Math.round(row * tile), w, h);
+                }
+              }
+            };
+            var render = function(canvas, value, typeNumber, correction, size, inputMode){
+              var trim = /^\s+|\s+$/g;
+              var text = value.replace(trim, '');
+              var qr = new QRCode(typeNumber, correction, inputMode);
+              qr.addData(text);
+              qr.make();
+              var context = canvas.getContext('2d');
+              var modules = qr.getModuleCount();
+              var tile = size / modules;
+              canvas.width = canvas.height = size;
+              if (canvas2D) {
+                draw(context, qr, modules, tile);
+                scope.canvasImage = canvas.toDataURL() || '';
+              }
+            };
+
+            scope.$watch(function(){return ngModel.$modelValue}, function(value, old){
+              if (value !== old) {
+                scope.text = ngModel.$modelValue;
+                scope.TEXT = getText();
+                scope.INPUT_MODE = getInputMode(scope.TEXT);
+                render(canvas, scope.TEXT, scope.TYPE_NUMBER, scope.CORRECTION, scope.SIZE, scope.INPUT_MODE);
+              }
+            });
+            render(canvas, scope.TEXT, scope.TYPE_NUMBER, scope.CORRECTION, scope.SIZE, scope.INPUT_MODE);
+          }};
+      }])
 
       .directive('uiSelect', function ($compile) {
         return {
@@ -513,6 +513,24 @@
             }
           }
         };
+      })
+
+      .filter('raw',function($translate) {
+        return function(o) {
+          if (o) {
+            if (typeof o == 'number') {
+              return o + "";
+            }
+            if (o instanceof Date) {
+              return "datetime'" + o.toISOString() + "'";
+            }
+            else {
+              return "'" + o + "'";
+            }
+          } else {
+            return "";
+          }
+        }
       })
 
       .filter('mask',function($translate) {
@@ -538,23 +556,7 @@
           }
         };
       })
-      .filter('raw',function($translate) {
-        return function(o) {
-          if (o) {
-            if (typeof o == 'number') {
-              return o + "";
-            }
-            if (o instanceof Date) {
-              return "datetime'" + o.toISOString() + "'";
-            }
-            else {
-              return "'" + o + "'";
-            }
-          } else {
-            return "";
-          }
-        }
-      })
+
       .directive('mask', maskDirectiveMask)
 
       .directive('cronappFilter', function($compile) {
@@ -611,20 +613,64 @@
           inputBehavior: function(scope, element, attrs, ngModelCtrl, $element, typeElement, operator, autopost) {
             var filterTemplate = '';
             var filtersSplited = attrs.cronappFilter.split(';');
+            var datasource = eval(attrs.crnDatasource);
+            var isOData = datasource.isOData()
+
             $(filtersSplited).each(function() {
               if (this.length > 0) {
+                if (filterTemplate != "") {
+                  if (isOData) {
+                    filterTemplate += " and ";
+                  } else {
+                    filterTemplate += ";";
+                  }
+                }
+
+                if (isOData) {
+                  if (operator == "=") {
+                    operator = "eq";
+                  }
+                  else if (operator == "!=") {
+                    operator = "ne";
+                  }
+                  else if (operator == ">") {
+                    operator = "gt";
+                  }
+                  else if (operator == ">=") {
+                    operator = "ge";
+                  }
+                  else if (operator == "<") {
+                    operator = "lt";
+                  }
+                  else if (operator == "<=") {
+                    operator = "le";
+                  }
+                }
+
                 //Se for do tipo text passa parametro como like
-                if (typeElement == 'text')
-                  filterTemplate += this + '@' + operator + '%{value}%;';
-                //Senão passa parametro como valor exato
-                else
-                  filterTemplate += this + operator + '{value};';
+                if (typeElement == 'text') {
+                  if (isOData) {
+                    filterTemplate += this + " " + operator + " {value}";
+                  } else {
+                    filterTemplate += this + '@' + operator + '%{value}%';
+                  }
+                  //Senão passa parametro como valor exato
+                } else {
+                  if (isOData) {
+                    filterTemplate += this + " " + operator + ' {value}';
+                  } else {
+                    filterTemplate += this + operator + '{value}';
+                  }
+                }
               }
             });
-            if (filterTemplate.length > 0)
-              filterTemplate = filterTemplate.substr(0, filterTemplate.length-1);
-            else
-              filterTemplate = '%{value}%';
+            if (filterTemplate.length == 0) {
+              if (isOData) {
+                filterTemplate = "{value}";
+              } else {
+                filterTemplate = '%{value}%';
+              }
+            }
 
             var selfDirective = this;
             if (ngModelCtrl) {
@@ -632,29 +678,50 @@
                 if (angular.equals(newVal, oldVal)) { return; }
                 var eType = $element.data('type') || $element.attr('type');
                 var value = ngModelCtrl.$modelValue;
-                var datasource = eval(attrs.crnDatasource);
 
-                if (value instanceof Date) {
-                  value = value.toISOString();
-                  if (eType == "date") {
-                    value = value + "@@date";
+                if (isOData) {
+
+                  if (value instanceof Date) {
+                    if (eType == "datetime-local") {
+                      value = "datetimeoffset'" + value.toISOString() + "'";
+                    } else {
+                      value = "datetime'" + value.toISOString().substring(0, 23) + "'";
+                    }
                   }
-                  else if (eType == "time" || eType == "time-local") {
-                    value = value + "@@time";
+
+                  else if (typeof value == "number") {
+                    value = value;
                   }
-                  else {
-                    value = value + "@@datetime";
+
+                  else if (typeof value == "boolean") {
+                    value = value;
+                  } else {
+                    value = "'" + value + "'";
                   }
-                }
 
-                else if (typeof value == "number") {
-                  value = value + "@@number";
-                }
+                } else {
+                  if (value instanceof Date) {
+                    value = value.toISOString();
+                    if (eType == "date") {
+                      value = value + "@@date";
+                    }
+                    else if (eType == "time" || eType == "time-local") {
+                      value = value + "@@time";
+                    }
+                    else {
+                      value = value + "@@datetime";
+                    }
+                  }
 
-                else if (typeof value == "boolean") {
-                  value = value + "@@boolean";
-                }
+                  else if (typeof value == "number") {
+                    value = value + "@@number";
+                  }
 
+                  else if (typeof value == "boolean") {
+                    value = value + "@@boolean";
+                  }
+
+                }
                 var bindedFilter = filterTemplate.split('{value}').join(value);
                 if (ngModelCtrl.$viewValue.length == 0)
                   bindedFilter = '';
@@ -729,7 +796,7 @@
                       if (time < 10) {
                         scope.$apply(function () {
                           datasourceInstance.enabled = false;
-                          datasourceInstance.data = [];  
+                          datasourceInstance.data = [];
                         });
                         time++;
                       }
@@ -759,7 +826,7 @@
               // var x = angular.element($datasource);
               // $compile(x)(scope);
             }
-            
+
             $element.on('click', function() {
               var $this = $(this);
               var filters = $this.data('filters');
@@ -770,7 +837,7 @@
                 });
 
                 var datasourceToFilter = eval(datasourceName);
-                
+
                 if (requiredFilter) {
                   datasourceToFilter.enabled = bindedFilter.length > 0;
                   if (datasourceToFilter.enabled) {
@@ -808,14 +875,13 @@
           }
         }
       })
-      
       .directive('cronRichEditor', function ($compile) {
         return {
           restrict: 'E',
           replace: true,
           require: 'ngModel',
           parseToTinyMCEOptions: function(optionsSelected) {
-            
+
             var toolbarGroup = {};
             toolbarGroup["allowFullScreen"] = "fullscreen |";
             toolbarGroup["allowPage"] = "fullpage newdocument code pagebreak |";
@@ -828,8 +894,8 @@
             toolbarGroup["allowLinks"] = "link unlink anchor |";
             toolbarGroup["allowParagraph"] = "alignleft aligncenter alignright alignjustify numlist bullist outdent indent blockquote hr |";
             toolbarGroup["allowFormulas"] = "tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry tiny_mce_wiris_CAS |";
-            
-            
+
+
             var tinyMCEOptions = {
               menubar: false,
               statusbar: false,
@@ -837,30 +903,30 @@
               toolbar: "",
               content_style: ""
             };
-            
+
             for (var key in optionsSelected) {
               if (key.startsWith("allow")) {
-                if (optionsSelected[key]) 
+                if (optionsSelected[key])
                   tinyMCEOptions.toolbar += " " + toolbarGroup[key];
               }
             }
             tinyMCEOptions.menubar = optionsSelected.showMenuBar;
             tinyMCEOptions.statusbar = optionsSelected.showStatusBar;
             tinyMCEOptions.content_style = optionsSelected.contentStyle;
-            
+
             return JSON.stringify(tinyMCEOptions);
           },
           link: function (scope, element, attrs, ngModelCtrl) {
-           
+
             var optionsSelected = JSON.parse(attrs.options);
             var tinyMCEOptions = this.parseToTinyMCEOptions(optionsSelected);
-            
+
             var templateDyn    = '\
-              <textarea \
-                ui-tinymce="$options$" \
-                ng-model="$ngModel$"> \
-              </textarea> \
-            ';
+                  <textarea \
+                    ui-tinymce="$options$" \
+                    ng-model="$ngModel$"> \
+                  </textarea> \
+                ';
             templateDyn = $(templateDyn
                 .split('$ngModel$').join(attrs.ngModel)
                 .split('$options$').join(escape(tinyMCEOptions))
@@ -873,11 +939,1083 @@
           }
         };
       })
-      
-      .directive('cronDate', ['$compile', '$translate', '$window', function ($compile, $translate, $window) {
+  .directive('cronGrid', ['$compile', '$translate', function($compile, $translate) {
+    return {
+      restrict: 'E',
+      replace: true,
+      require: 'ngModel',
+      initCulture: function() {
+        var culture = $translate.use();
+        culture = culture.replace(/_/gm,'-');
+        var parts = culture.split('-');
+        parts[parts.length - 1] = parts[parts.length - 1].toUpperCase();
+        culture = parts.join('-');
+        kendo.culture(culture);
+      },
+      generateId: function() {
+        var numbersOnly = '0123456789';
+        var result = Math.floor((1 + Math.random()) * 0x10000)
+        .toString(16)
+        .substring(1);
+        if (numbersOnly.indexOf(result.substr(0,1)) > -1)
+          return this.generateId();
+        return result;
+      },
+      generateBlocklyCall: function(blocklyInfo) {
+        var call;
+        if (blocklyInfo.type == "client")  {
+          var splitedClass = blocklyInfo.blocklyClass.split('/');
+          var blocklyName = splitedClass[splitedClass.length-1];
+          call = "blockly.js.blockly." + blocklyName;
+          call += "." +  blocklyInfo.blocklyMethod;
+          var params = "()";
+          if (blocklyInfo.blocklyParams.length > 0) {
+            params = "(";
+            blocklyInfo.blocklyParams.forEach(function(p) {
+              params += this.encodeHTML(p.value ? p.value : "''") + ",";
+            }.bind(this))
+            params = params.substr(0, params.length - 1);
+            params += ")";
+          }
+          call += params;
+        }
+        else if (blocklyInfo.type == "server") {
+          var blocklyName = blocklyInfo.blocklyClass + ':' + blocklyInfo.blocklyMethod;
+          call = "cronapi.util.makeCallServerBlocklyAsync('"+blocklyName+"',null,null,";
+          if (blocklyInfo.blocklyParams.length > 0) {
+            blocklyInfo.blocklyParams.forEach(function(p) {
+              call += this.encodeHTML(p.value ? p.value : "''") + ",";
+            }.bind(this))
+          }
+          call = call.substr(0, call.length - 1);
+          call += ")";
+        }
+        return call;
+
+      },
+      generateToolbarButtonCall: function(toolbarButton, scope) {
+        var buttonCall;
+
+        var generateObjTemplate = function(functionToCall, title, saveButton, isSaveOrCancelChanges) {
+          var obj = {
+            template: function() {
+              var buttonId = this.generateId();
+              return compileTemplateAngular(buttonId, functionToCall, title, saveButton, isSaveOrCancelChanges);
+            }.bind(this)
+          };
+          return obj;
+        }.bind(this);
+
+        var compileTemplateAngular = function(buttonId, functionToCall, title, saveButton, isSaveOrCancelChanges) {
+          var template = '';
+          if (isSaveOrCancelChanges) {
+            if (saveButton)
+              template = '<a role="button" class="saveorcancelchanges k-button k-button-icontext k-grid-save-changes" id="#BUTTONID#" href="javascript:void(0)" ng-click="#FUNCTIONCALL#"><span class="k-icon k-i-check"></span>#TITLE#</a>';
+            else
+              template = '<a role="button" class="saveorcancelchanges k-button k-button-icontext k-grid-cancel-changes" id="#BUTTONID#" href="javascript:void(0)" ng-click="#FUNCTIONCALL#"><span class="k-icon k-i-cancel" ></span>#TITLE#</a>';
+          }
+          else {
+            template = '<a class="k-button" id="#BUTTONID#" href="javascript:void(0)" ng-click="#FUNCTIONCALL#">#TITLE#</a>';
+          }
+
+          template = template
+          .split('#BUTTONID#').join(buttonId)
+          .split('#FUNCTIONCALL#').join(functionToCall)
+          .split('#TITLE#').join(title);
+
+          var waitRender = setInterval(function() {
+            if ($('#' + buttonId).length > 0) {
+              var x = angular.element($('#' + buttonId ));
+              $compile(x)(scope);
+              clearInterval(waitRender);
+            }
+          },200);
+
+          return template;
+        };
+
+        var call = '';
+        if (toolbarButton.type == "SaveOrCancelChanges")
+          call = toolbarButton.methodCall;
+        else
+          call = this.generateBlocklyCall(toolbarButton.blocklyInfo);
+        buttonCall = generateObjTemplate(call, toolbarButton.title, toolbarButton.saveButton, toolbarButton.type == "SaveOrCancelChanges");
+        return buttonCall;
+      },
+      getObjectId: function(obj) {
+        if (!obj)
+          obj = "";
+        else if (obj instanceof Date) {
+          var momentDate = moment.utc(obj);
+          obj = new Date(momentDate.format('YYYY-MM-DDTHH:mm:ss'));
+        }
+        else if (typeof obj === 'object') {
+          //Verifica se tem id, senão pega o primeiro campo
+          if (obj["id"])
+            obj = obj["id"];
+          else {
+            for (var key in obj) {
+              obj = obj[key];
+              break;
+            }
+          }
+        }
+        return obj;
+      },
+      updateFiltersFromAngular: function(grid, scope) {
+
+        var getIndexFilter = function(obj) {
+          var index = -1;
+
+          var filters = grid.dataSource.filter() ? grid.dataSource.filter().filters : null;
+          if (filters) {
+            for (var i = 0; i< filters.length; i++) {
+              if (obj.linkParentField == filters[i].linkParentField) {
+                index = i;
+                break;
+              }
+            }
+          }
+          return index;
+        }
+
+        var addOrRemoveFilter = function(f) {
+          var index = getIndexFilter(f);
+          var hasChanges = false;
+          var filters = grid.dataSource.filter() ? grid.dataSource.filter().filters : null;
+          if (index > -1) {
+            if ((f.value && f.value != "") || !f.linkParentLoadIfEmpty)
+              filters[index] = f;
+            else
+              filters.splice(index, 1);
+            hasChanges = true;
+          }
+          else {
+            if ((f.value && f.value != "") || !f.linkParentLoadIfEmpty)  {
+              if (filters)
+                filters.push(f)
+              else
+                filters = [f];
+              hasChanges = true;
+            }
+          }
+          if (hasChanges)
+            grid.dataSource.filter(filters);
+        }
+
+        var updateFilterTimeout = null;
+        var updateFilter = function(newValue, f) {
+          f.value = this.getObjectId(newValue);
+          addOrRemoveFilter(f);
+          setTimeout(function() { grid.trigger('change'); }, 100);
+        };
+
+        grid.dataSource.options.filterScreen.forEach(function(f) {
+          scope.$watch(f.linkParentField, function(newValue, oldValue) {
+
+            if (updateFilterTimeout) {
+              clearTimeout(updateFilterTimeout);
+              updateFilterTimeout = null;
+            }
+
+            updateFilterTimeout = setTimeout(function() {
+              updateFilter.bind(this)(newValue, f)
+            }.bind(this), 500);
+
+
+          }.bind(this));
+        }.bind(this));
+      },
+      setFiltersFromLinkColumns: function(datasource, options, scope) {
+        datasource.filter = [];
+        //Os filtros que sejam de tela, deverão ser utilizados apenas se tiver valor, se estiver vazio, não seta
+        //no filtro principal do datasource (filter)
+        datasource.filterScreen = [];
+        options.columns.forEach( function(c) {
+          if (c.linkParentField && c.linkParentField.length > 0 &&
+              c.linkParentType && c.linkParentType.length > 0)
+          {
+            if (c.linkParentType == "screen") {
+              var value = scope[c.linkParentField];
+              value = this.getObjectId(value);
+              var filter = {
+                field: c.field, operator: "eq", value: value, linkParentField: c.linkParentField, linkParentType: c.linkParentType,
+                linkParentLoadIfEmpty: c.linkParentLoadIfEmpty
+              };
+              if ((value && value != "") || !c.linkParentLoadIfEmpty)
+                datasource.filter.push(filter);
+              datasource.filterScreen.push(filter);
+            }
+            else if (c.linkParentType == "hierarchy") {
+              var filter = { field: c.field, operator: "eq", value: "", linkParentField: c.linkParentField, linkParentType: c.linkParentType };
+              datasource.filter.push(filter);
+            }
+          }
+        }.bind(this));
+      },
+      encodeHTML: function(value){
+        return value.replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+      },
+      decodeHTML: function(value){
+        return value.replace(/&apos;/g, "'")
+        .replace(/&quot;/g, '"')
+        .replace(/&gt;/g, '>')
+        .replace(/&lt;/g, '<')
+        .replace(/&amp;/g, '&');
+      },
+      getColumns: function(options, datasource, scope) {
+
+        window.formatDate = function(value, format, type) {
+          var momentDate;
+          var formated = '';
+
+          if (value) {
+            if (type == 'date' || type == 'datetime' || type == 'time')
+              momentDate = moment.utc(value);
+            else
+              momentDate = moment(value);
+
+            if (format && format != "null")
+              formated = momentDate.format(format);
+            else {
+              format= parseMaskType(type, $translate);
+              formated = momentDate.format(format);
+            }
+          }
+          return formated
+        }
+
+        function getTemplate(column) {
+          var template = undefined;
+          if (column.inputType == 'checkbox') {
+            template = "<input type='checkbox' class='k-checkbox' #=" + column.field + " ? \"checked='checked'\": '' # />" +
+                "<label class='k-checkbox-label k-no-text'></label>"
+          }
+          if (column.inputType == 'switch') {
+            template =
+                '<span class="k-switch km-switch k-widget km-widget k-switch-off km-switch-off" style="width: 100%">\
+                  <span class="k-switch-wrapper km-switch-wrapper">\
+                    <span class="k-switch-background km-switch-background" style="margin-left: #=' + column.field + ' ? "80%": "0%" #"></span>\
+                  </span>\
+                  <span class="k-switch-container km-switch-container">\
+                    <span class="k-switch-handle km-switch-handle" style=#=' + column.field + ' ? "float:right;margin-right:-1px": "margin-left:0%" #>\
+                    </span>\
+                  </span>\
+                </span>';
+          }
+
+          else if (column.displayField && column.displayField.length > 0) {
+            if (column.type.startsWith('date') || column.type.startsWith('month')
+                || column.type.startsWith('time') || column.type.startsWith('week')) {
+              template = "#= formatDate("+column.displayField+",'"+column.format+"','"+column.type+"') #";
+            }
+            else {
+              template = "#="+column.displayField+"#";
+            }
+          }
+          else if (column.type.startsWith('date') || column.type.startsWith('month')
+              || column.type.startsWith('time') || column.type.startsWith('week')) {
+            template = "#= formatDate("+column.field+",'"+column.format+"','"+column.type+"') #";
+          }
+          return template;
+        }
+
+        function getFormat(column) {
+          if (column.format && !column.type.startsWith('date') && !column.type.startsWith('time')
+              && !column.type.startsWith('month') && !column.type.startsWith('week'))
+            return column.format;
+          return undefined;
+        }
+
+        function getColumnByField(fieldName) {
+          var selected = null;
+          options.columns.forEach(function(column)  {
+            if (column.field == fieldName)
+              selected = column;
+          });
+          return selected;
+        }
+
+        function isRequired(fieldName) {
+          var required = false;
+          var selected = null;
+          if (datasource.schema.model.fields[fieldName]){
+            selected = datasource.schema.model.fields[fieldName];
+          }
+          if (selected)
+            required = !selected.nullable;
+          return required;
+        }
+
+        function getEditor(column) {
+          return editor.bind(this);
+        }
+
+        function editor(container, opt) {
+          $(container).css("position", "relative");
+
+          var column = getColumnByField(opt.field);
+          var required = isRequired(opt.field) ? "required" : "";
+          var buttonId = this.generateId();
+          var $input = $('<input '+required+' name="' + opt.field + '" id="' + buttonId + '"from-grid=true />');
+          if (column.inputType == 'dynamicComboBox' || column.inputType == 'comboBox') {
+            var kendoConfig = app.kendoHelper.getConfigCombobox(column.comboboxOptions, scope);
+            kendoConfig.autoBind = true;
+            kendoConfig.optionLabel = undefined;
+            if (column.displayField) {
+              kendoConfig.change = function(e) {
+                opt.model.set(column.displayField, this.text());
+                opt.model.dirty = true;
+                opt.model.dirtyFields[column.displayField] = true;
+              }
+            }
+            $input.appendTo(container).kendoDropDownList(kendoConfig, scope);
+          }
+          else if (column.inputType == 'slider') {
+            var kendoConfig = app.kendoHelper.getConfigSlider(column.sliderOptions);
+            $input.appendTo(container).kendoSlider(kendoConfig, scope);
+          }
+          else if (column.inputType == 'switch') {
+            var kendoConfig = app.kendoHelper.getConfigSwitch(column.switchOptions);
+            $input.appendTo(container).kendoMobileSwitch(kendoConfig, scope);
+          }
+          else if (column.inputType == 'checkbox') {
+            var guid = this.generateId();
+            $input = $('<input id="'+guid+'" name="' + opt.field + '" class="k-checkbox" type="checkbox" ><label class="k-checkbox-label" for="'+guid+'"></label>');
+            $input.appendTo(container);
+          }
+          else if (column.inputType == 'date') {
+            $input.attr('cron-date', '');
+            $input.attr('options', JSON.stringify(column.dateOptions));
+            $input.data('initial-date', opt.model[opt.field]);
+            $input.appendTo(container).off('change');
+            var waitRender = setInterval(function() {
+              if ($('#' + buttonId).length > 0) {
+                var x = angular.element($('#' + buttonId ));
+                $compile(x)(scope);
+                clearInterval(waitRender);
+
+                $('#' + buttonId).on('change', function() {
+                  setTimeout(function() {
+                    opt.model[opt.field] = $('#' + buttonId ).data('rawvalue');
+                    opt.model.dirty = true;
+                    opt.model.dirtyFields[opt.field] = true;
+                  }.bind(this));
+
+                });
+              }
+            },10);
+          }
+          else {
+            $input.attr('type', column.type);
+            $input.attr('mask', column.format ? column.format : '');
+            $input.attr('class', 'k-input k-textbox');
+            $input.data('initial-value', opt.model[opt.field]);
+            $input.appendTo(container);
+
+            var waitRender = setInterval(function() {
+              if ($('#' + buttonId).length > 0) {
+                $('#' + buttonId ).off('change');
+                $('#' + buttonId ).on('change', function() {
+                  opt.model[opt.field] = $('#' + buttonId ).data('rawvalue');
+                  opt.model.dirty = true;
+                  opt.model.dirtyFields[opt.field] = true;
+                });
+
+                var x = angular.element($('#' + buttonId ));
+                $compile(x)(scope);
+                clearInterval(waitRender);
+              }
+            },10);
+          }
+
+        }
+
+        var columns = [];
+        if (options.columns) {
+          options.columns.forEach(function(column)  {
+            if (column.visible) {
+              if (column.dataType == "Database") {
+
+                var addColumn = {
+                  field: column.field,
+                  title: column.headerText,
+                  type: column.type,
+                  width: column.width,
+                  sortable: column.sortable,
+                  filterable: column.filterable
+                };
+                addColumn.template = getTemplate(column);
+                addColumn.format = getFormat(column);
+                addColumn.editor = getEditor.bind(this)(column);
+                columns.push(addColumn);
+
+              }
+              else if (column.dataType == "Command") {
+                //Se não for editavel, não adiciona colunas de comando
+                if (options.editable != 'no') {
+                  var command = column.command.split('|');
+
+                  var commands = [];
+                  command.forEach(function(f) {
+                    var cmd = { name: f };
+                    if ( f == "edit")
+                      cmd.text = { edit: " ", update: " ", cancel: " " };
+                    else
+                      cmd.text = " ";
+                    commands.push(cmd);
+                  });
+
+                  var addColumn = {
+                    command: commands,
+                    title: column.headerText,
+                    width: column.width ? column.width : 155
+                  };
+                  columns.push(addColumn);
+                }
+              }
+              else if (column.dataType == "Blockly") {
+                var directiveContext = this;
+                var addColumn = {
+                  command: [{
+                    name: this.generateId(),
+                    text: column.headerText,
+                    click: function(e) {
+                      e.preventDefault();
+                      var tr = $(e.target).closest("tr"); // get the current table row (tr)
+                      var grid = tr.closest('table');
+
+                      var item = this.dataItem(tr);
+                      // var index = $(grid).find('tr.'+$(tr).attr('class')).index(tr);
+                      var index = $(grid.find('tbody')[0]).children().index(tr)
+                      var consolidated = {
+                        item: item,
+                        index: index
+                      }
+                      var call = 'scope.' + directiveContext.generateBlocklyCall(column.blocklyInfo);
+                      eval(call);
+                      return;
+                    }
+                  }],
+                  width: column.width
+                };
+                columns.push(addColumn);
+              }
+
+            }
+          }.bind(this));
+        }
+
+        return columns;
+      },
+      getPageAble: function(options) {
+        var pageable = {
+          refresh:  options.allowRefreshGrid,
+          pageSizes: options.allowSelectionTotalPageToShow,
+          buttonCount: 5
+        };
+
+        if (!options.allowPaging)
+          pageable = options.allowPaging;
+
+        return pageable;
+      },
+      getToolbar: function(options, scope) {
+        var toolbar = [];
+
+        options.toolBarButtons.forEach(function(toolbarButton) {
+          if (toolbarButton.type == "Native") {
+            //Se a grade for editavel, adiciona todos os commands
+            if (options.editable != 'no') {
+              if (toolbarButton.title == "save" || toolbarButton.title == "cancel") {
+                // //O Salvar e cancelar na toolbar só é possível no batch mode
+                // if (options.editable == 'batch')
+                toolbar.push(toolbarButton.title);
+              }
+              else
+                toolbar.push(toolbarButton.title);
+            }
+            //Senão, adiciona somente commands que não sejam de crud
+            else {
+              if (toolbarButton.title == "pdf" || toolbarButton.title == "excel") {
+                toolbar.push(toolbarButton.title);
+              }
+            }
+          }
+          else if (toolbarButton.type == "Blockly" || toolbarButton.type == "SaveOrCancelChanges") {
+            var buttonBlockly = this.generateToolbarButtonCall(toolbarButton, scope);
+            toolbar.push(buttonBlockly);
+          }
+          else if (toolbarButton.type == "Template") {
+            var buttonTemplate =  {
+              template: toolbarButton.template
+            }
+            toolbar.push(buttonTemplate);
+          }
+
+        }.bind(this));
+
+        if (toolbar.length == 0)
+          toolbar = undefined;
+        return toolbar;
+      },
+      getEditable: function(options) {
+
+        var editable = options.editable;
+        if (options.editable == 'batch') {
+          editable = true;
+        }
+        else if (options.editable == 'no') {
+          editable = false;
+        }
+        return editable;
+      },
+      generateKendoGridInit: function(options, scope) {
+
+        var helperDirective = this;
+        function detailInit(e) {
+          //Significa que está fechando o detalhe (não é para fazer nada)
+          if (e.masterRow.find('a').hasClass('k-i-expand')) {
+            // collapseAllExcecptCurrent(this, null, null);
+            collapseCurrent(this, e.detailRow, e.masterRow);
+            return;
+          }
+
+          var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
+          if (!(cronappDatasource.inserting || cronappDatasource.editing)) {
+            if (this.selectable) {
+              this.select(e.masterRow);
+            }
+            else {
+              setToActiveInCronappDataSource.bind(this)(e.data);
+              collapseAllExcecptCurrent(this, e.detailRow, e.masterRow);
+            }
+            //Obtendo todos os detalhes da grade atual, fechando e removendo todos (exceto o que esta sendo aberto agora)
+            e.sender.options.listCurrentOptions.forEach(function(currentOptions) {
+              var currentKendoGridInit = helperDirective.generateKendoGridInit(currentOptions, scope);
+
+              var grid = $("<div/>").appendTo(e.detailCell).kendoGrid(currentKendoGridInit).data('kendoGrid');
+              grid.dataSource.transport.options.grid = grid;
+            });
+          }
+          else
+            collapseAllExcecptCurrent(this, null, null);
+
+
+        }
+
+        var collapseAllExcecptCurrent = function(grid, trDetail, trMaster) {
+
+          var masters = grid.table.find('.k-master-row');
+          masters.each(function() {
+            if (trMaster == null || this != trMaster[0]) {
+              grid.collapseRow(this);
+            }
+          });
+
+          var details = grid.table.find('.k-detail-row');
+          details.each(function() {
+            if (trDetail == null || this != trDetail[0]) {
+              $(this).remove();
+            }
+          });
+
+        };
+
+        var collapseCurrent = function(grid, trDetail, trMaster) {
+
+          var masters = grid.table.find('.k-master-row');
+          masters.each(function() {
+            if (trMaster != null || this == trMaster[0]) {
+              grid.collapseRow(this);
+            }
+          });
+
+          var details = grid.table.find('.k-detail-row');
+          details.each(function() {
+            if (trDetail != null || this == trDetail[0]) {
+              $(this).remove();
+            }
+          });
+
+        };
+
+        var setToActiveInCronappDataSource = function(item) {
+          var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
+          if (!(cronappDatasource.inserting || cronappDatasource.editing))
+            scope.safeApply(cronappDatasource.goTo(item));
+        };
+
+        var datasource = app.kendoHelper.getDataSource(options.dataSource, scope, options.allowPaging, options.pageCount, options.columns);
+
+        var columns = this.getColumns(options, datasource, scope);
+        var pageAble = this.getPageAble(options);
+        var toolbar = this.getToolbar(options, scope);
+        var editable = this.getEditable(options);
+
+        var kendoGridInit = {
+          toolbar: toolbar,
+          pdf: {
+            allPages: true,
+            avoidLinks: true,
+            paperSize: "A4",
+            margin: { top: "2cm", left: "1cm", right: "1cm", bottom: "1cm" },
+            landscape: true,
+            repeatHeaders: true,
+            scale: 0.8
+          },
+          dataSource: datasource,
+          editable: editable,
+          height: options.height,
+          groupable: options.allowGrouping,
+          sortable: options.allowSorting,
+          filterable: { mode: "row" },
+          pageable: pageAble,
+          columns: columns,
+          selectable: options.allowSelectionRow,
+          detailInit: (options.details && options.details.length > 0) ? detailInit : undefined,
+          listCurrentOptions: (options.details && options.details.length > 0) ? options.details : undefined,
+          edit: function(e) {
+            this.dataSource.transport.options.disableAndSelect(e);
+            var container = e.container;
+            var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
+            if (e.model.isNew() && !e.model.dirty) {
+              var model = e.model;
+              cronappDatasource.startInserting(null, function(active) {
+                for (var key in active) {
+                  if (model.fields[key]) {
+                    if (model.fields[key].validation && model.fields[key].validation.required) {
+                      var input = container.find("input[name='" + key + "']");
+                      if (input.length) {
+                        //TODO: Verificar com a telerik https://stackoverflow.com/questions/22179758/kendo-grid-using-model-set-to-update-the-value-of-required-fields-triggers-vali
+                        input.val(active[key]).trigger('change');
+                      }
+                    }
+                    model.set(key, active[key]);
+                  }
+                }
+              });
+            }
+            else if (!e.model.isNew() && !e.model.dirty) {
+              var currentItem = cronappDatasource.goTo(e.model);
+              scope.safeApply(cronappDatasource.startEditing(currentItem, function(xxx) {}));
+            }
+          },
+          change: function(e) {
+            var item = this.dataItem(this.select());
+            setToActiveInCronappDataSource.bind(this)(item);
+            collapseAllExcecptCurrent(this, this.select().next(), this.select() );
+          },
+          cancel: function(e) {
+            var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
+            scope.safeApply(cronappDatasource.cancel());
+            this.dataSource.transport.options.enableAndSelect(e);
+          }
+        };
+
+        return kendoGridInit;
+
+      },
+      link: function (scope, element, attrs, ngModelCtrl) {
+        var $templateDyn = $('<div></div>');
+        var baseUrl = 'plugins/cronapp-framework-js/dist/js/kendo-ui/js/messages/kendo.messages.';
+        if ($translate.use() == 'pt_br')
+          baseUrl += "pt-BR.min.js";
+        else
+          baseUrl += "en-US.min.js";
+
+        this.initCulture();
+        var helperDirective = this;
+        $.getScript(baseUrl, function () {
+
+          var options = JSON.parse(attrs.options || "{}");
+
+          if (!scope[options.dataSource.name].dependentLazyPost) {
+            scope[options.dataSource.name].batchPost = true;
+
+            options.toolBarButtons = options.toolBarButtons || [];
+            options.toolBarButtons.push({
+              type: "SaveOrCancelChanges",
+              title: $translate.instant('SaveChanges'),
+              methodCall: options.dataSource.name + ".postBatchData()",
+              saveButton: true
+            });
+            options.toolBarButtons.push({
+              type: "SaveOrCancelChanges",
+              title: $translate.instant('CancelChanges'),
+              methodCall: options.dataSource.name + ".cancelBatchData()",
+              saveButton: false
+            });
+          }
+
+
+
+          var kendoGridInit = helperDirective.generateKendoGridInit(options, scope);
+
+          var grid = $templateDyn.kendoGrid(kendoGridInit).data('kendoGrid');
+          grid.dataSource.transport.options.grid = grid;
+
+          var checkDsChanges = setInterval(function() {
+            if (scope[options.dataSource.name]) {
+              if (scope[options.dataSource.name].hasPendingChanges()) {
+                $templateDyn.find('.k-filter-row').hide();
+                $templateDyn.find('.k-pager-sizes').hide();
+                $templateDyn.find('.k-pager-nav').hide();
+                $templateDyn.find('.k-pager-numbers').hide();
+                $templateDyn.find('.k-pager-refresh.k-link').hide();
+                $templateDyn.find('.saveorcancelchanges').show();
+              }
+              else {
+                $templateDyn.find('.k-filter-row').show();
+                $templateDyn.find('.k-pager-sizes').show();
+                $templateDyn.find('.k-pager-nav').show();
+                $templateDyn.find('.k-pager-numbers').show();
+                $templateDyn.find('.k-pager-refresh.k-link').show();
+                $templateDyn.find('.saveorcancelchanges').hide();
+              }  
+            }
+            else {
+              clearInterval(checkDsChanges);
+            }
+          },100);
+
+        });
+
+        element.html($templateDyn);
+        $compile($templateDyn)(element.scope());
+
+      }
+    };
+  }])
+  
+  .directive('cronSelect', function ($compile) {
+    return {
+      restrict: 'E',
+      replace: true,
+      require: 'ngModel',
+      link: function (scope, element, attrs, ngModelCtrl) {
+		  var select = {};
+		  try {
+			// var json = window.buildElementOptions(element);
+			select =  JSON.parse(attrs.options);
+		  } catch(err) {
+			console.log('ComboBox invalid configuration! ' + err);
+		  }
+		  
+		  var id = attrs.id ? ' id="' + attrs.id + '"' : '';
+		  var name = attrs.name ? ' name="' + attrs.name + '"' : '';
+		  var parent = element.parent();
+		  $(parent).append('<input style="width: 100%;" ' + id + name + ' class="cronSelect" ng-model="' + attrs.ngModel + '"/>');
+		  var $element = $(parent).find('input.cronSelect');
+		
+		  var options = app.kendoHelper.getConfigCombobox(select, scope);
+		  var combobox = $element.kendoComboBox(options).data('kendoComboBox');
+		  $(element).remove();
+		  
+		  var _scope = scope;
+		  var _ngModelCtrl = ngModelCtrl;
+		  
+		  $element.on('change', function (event) {
+			_scope.$apply(function () {
+			  _ngModelCtrl.$setViewValue(this.value());
+			}.bind(combobox));
+		  });
+
+		  if (ngModelCtrl) {
+			ngModelCtrl.$formatters.push(function (value) {
+			  var result = '';
+			  
+			  if (value) {
+				result = value;
+			  }
+			  
+			  combobox.value(result);
+			  
+			  return result;
+			});
+
+			ngModelCtrl.$parsers.push(function (value) {
+			  if (value) {
+				return value;
+			  }
+			  
+			  return null;
+			});
+		  }
+		}
+    };
+  })
+  
+  .directive('cronDynamicSelect', function ($compile) {
+    return {
+      restrict: 'E',
+      replace: true,
+      require: 'ngModel',
+      link: function (scope, element, attrs, ngModelCtrl) {
+		  var select = {};
+		  try {
+			// var json = window.buildElementOptions(element);
+			select = JSON.parse(attrs.options);
+		  } catch(err) {
+			console.log('DynamicComboBox invalid configuration! ' + err);
+		  }
+		  
+		  var options = app.kendoHelper.getConfigCombobox(select, scope);
+		  try {
+			delete options.dataSource.schema.model.id;
+		  } catch(e){}
+		  
+		  var parent = element.parent();
+		  var id = attrs.id ? ' id="' + attrs.id + '"' : '';
+		  var name = attrs.name ? ' name="' + attrs.name + '"' : '';
+		  $(parent).append('<input style="width: 100%;"' + id + name + ' class="cronDynamicSelect" ng-model="' + attrs.ngModel + '"/>');
+		  var $element = $(parent).find('input.cronDynamicSelect');
+		  $(element).remove();
+		  
+		  options['dataBound'] = function(e) {
+			var currentValue = $(combobox).data('currentValue');
+			if (currentValue != null) {
+			  setTimeout(function(){combobox.value(currentValue)},300);
+			}
+			$(combobox).data('currentValue', null);
+		  };                   
+		  
+		  var combobox = $element.kendoDropDownList(options).data('kendoDropDownList');
+		  if (combobox.dataSource.transport && combobox.dataSource.transport.options) {
+			combobox.dataSource.transport.options.grid = combobox;
+		  }
+		  var _scope = scope;
+		  var _ngModelCtrl = ngModelCtrl;
+		  
+		  $element.on('change', function (event) {
+			_scope.$apply(function () {
+			  _ngModelCtrl.$setViewValue(this.dataItem());
+			}.bind(combobox));
+		  });
+		  
+		  if (ngModelCtrl) {
+			/**
+			* Formatters change how model values will appear in the view.
+			* For display component.
+			*/
+			ngModelCtrl.$formatters.push(function (value) {
+			  var result = '';
+			  
+			  if (value) {
+				if (typeof value == "string") {
+				  result = value;
+				} else {
+				  if (value[select.dataValueField]) {
+					result = value[select.dataValueField];
+				  }
+				}
+			  }
+			  
+			  $(combobox).data('currentValue', result);
+			  view = combobox.dataSource.view();
+			  if (!view || (Array.isArray(view) && view.length == 0)) {
+				combobox.dataSource.read();
+			  } else {
+				combobox.value(result);
+			  }
+			  
+			  return result;
+			});
+
+			/**
+			* Parsers change how view values will be saved in the model.
+			* for storage
+			*/
+			ngModelCtrl.$parsers.push(function (value) {
+			  if (value) {
+				if (combobox.options.valuePrimitive === true) {  
+				  if (typeof value == 'string') {
+					return value;
+				  } else if (value[select.dataValueField]) {
+					return value[select.dataValueField];
+				  }
+				} else {
+				  try {
+					return objectClone(value, this.dataSource.options.schema.model.fields);
+				  } catch(e){}
+				}
+			  }
+
+			  return null;
+			}.bind(combobox));
+		}
+      }
+    };
+  })
+  
+  .directive('cronMultiSelect', function ($compile) {
+    return {
+      restrict: 'E',
+      require: 'ngModel',
+      link: function (scope, element, attrs, ngModelCtrl) {
+          var _self = this;
+          var select = {};
+          try {
+            //var json = window.buildElementOptions(element);
+            select = JSON.parse(attrs.options);
+          } catch(err) {
+            console.log('MultiSelect invalid configuration! ' + err);
+          }
+          
+          var _scope = scope;
+          var _ngModelCtrl = ngModelCtrl;
+          
+          var options = app.kendoHelper.getConfigCombobox(select, scope);
+          
+          try {
+            delete options.dataSource.schema.model.id;
+          } catch(e){}
+          
+          var parent = element.parent();
+          var id = attrs.id ? ' id="' + attrs.id + '"' : '';
+          var name = attrs.name ? ' name="' + attrs.name + '"' : '';
+          $(parent).append('<input style="width: 100%;"' + id + name + ' class="cronMultiSelect" ng-model="' + attrs.ngModel + '"/>');
+          var $element = $(parent).find('input.cronMultiSelect');
+          $(element).remove();
+
+          var combobox = $element.kendoMultiSelect(options).data('kendoMultiSelect');
+          if (combobox.dataSource.transport && combobox.dataSource.transport.options) {
+			combobox.dataSource.transport.options.grid = combobox;
+		  }
+		  
+          $(element).on('change', function (event) {
+            _scope.$apply(function () {
+              _ngModelCtrl.$setViewValue(this.dataItems());
+            }.bind(combobox));
+          });
+          
+          var convertArray = function(value) {
+            var result = [];
+            
+            if (value) {
+              for (var item in value) {
+                result.push(value[item][select.dataValueField]);
+              }
+            }
+            
+            return result;            
+          }
+          
+          scope.$watchCollection(function(){return ngModelCtrl.$modelValue}, function(value, old){
+            if (JSON.stringify(value) !== JSON.stringify(old)) {
+              combobox.value(convertArray(value));
+            }
+          });
+          
+          if (ngModelCtrl) {
+            ngModelCtrl.$formatters.push(function (value) {
+              var result = convertArray(value);
+              
+              combobox.value(result);
+            
+              return result;
+            });
+  
+            ngModelCtrl.$parsers.push(function (value) {
+              if (value && Array.isArray(value)) {
+                if (this.dataSource) {
+                  var result = [];
+                  
+                  try {
+                    for (var item in value) {
+                      result.push(objectClone(value[item], this.dataSource.options.schema.model.fields));
+                    }
+                  } catch (e){}
+                  
+                  return result;
+                }
+              }
+              
+              return null;
+            }.bind(combobox));
+        }
+      }
+    };
+  })  
+  
+  .directive('cronAutoComplete', function ($compile) {
+    return {
+      restrict: 'E',
+      require: 'ngModel',
+      link: function (scope, element, attrs, ngModelCtrl) {
+        var select = {};
+        try {
+          // var json = window.buildElementOptions(element);
+          select = JSON.parse(attrs.options);
+        } catch(err) {
+          console.log('AutoComplete invalid configuration! ' + err);
+        }
+        
+        try {
+          delete options.dataSource.schema.model.id;
+        } catch(e){}
+
+        var options = app.kendoHelper.getConfigCombobox(select, scope);
+        var parent = element.parent();
+        var id = attrs.id ? ' id="' + attrs.id + '"' : '';
+        var name = attrs.name ? ' name="' + attrs.name + '"' : '';
+        $(parent).append('<input style="width: 100%;" ' + id + name + ' class="cronAutoComplete" ng-model="' + attrs.ngModel + '"/>');
+        var $element = $(parent).find('input.cronAutoComplete');
+        
+        options['change'] = function(e) {
+          scope.$apply(function () {
+            ngModelCtrl.$setViewValue($element.val());
+          });
+        }  
+
+        var autoComplete = $element.kendoAutoComplete(options).data('kendoAutoComplete');
+		if (autoComplete.dataSource.transport && autoComplete.dataSource.transport.options) {
+			autoComplete.dataSource.transport.options.grid = autoComplete;
+		}
+		  
+        $(element).remove();
+
+        if (ngModelCtrl) {
+          ngModelCtrl.$formatters.push(function (value) {
+            var result = '';
+            
+            if (value) {
+              if (typeof value == 'string') {
+                result = value;
+              } else if (value[select.dataTextField]) {
+                result = value[select.dataTextField];
+              }
+            }
+            
+            autoComplete.value(result);
+
+            return result;
+          });
+
+          ngModelCtrl.$parsers.push(function (value) {
+            if (value) {
+              if (typeof value == 'string') {
+                return value;
+              } else if (value[select.dataTextField]) {
+                return value[select.dataTextField];
+              }
+            }
+
+            return null;
+          });
+        }
+      }
+    }
+  })
+
+  .directive('cronDate', ['$compile', '$translate', '$window', function ($compile, $translate, $window) {
     return {
       restrict: 'AE',
-      require: '^ngModel',
+      require: '?ngModel',
       link: function (scope, element, attrs, ngModelCtrl) {
         var options = {};
         var cronDate = {};
@@ -931,7 +2069,7 @@
               momentDate = moment(valueDate, options.momentFormat);
             }
             
-            datePicker.value(momentDate.format());
+            datePicker.value(momentDate.format(options.momentFormat));
             $(this).data('rawvalue', momentDate.toDate());
           }
           $(element).on('keydown', unmaskedvalue).on('keyup', unmaskedvalue).on('change', unmaskedvalue);
@@ -963,9 +2101,9 @@
               if (value) {
                 var momentDate = null;
                 if (useUTC) {
-                  momentDate = moment.utc(value, options.momentFormat);
+                  momentDate = moment.utc(datePicker._oldText, options.momentFormat);
                 } else {
-                  momentDate = moment(value, options.momentFormat);
+                  momentDate = moment(datePicker._oldText, options.momentFormat);
                 }
                 return momentDate.toDate();
               }
@@ -980,659 +2118,204 @@
     }
   }])
   
-      .directive('cronGrid', ['$compile', '$translate', function($compile, $translate) {
-        return {
-          restrict: 'E',
-          replace: true,
-          require: 'ngModel',
-          generateId: function() {
-            var numbersOnly = '0123456789';
-            var result = Math.floor((1 + Math.random()) * 0x10000)
-              .toString(16)
-              .substring(1);
-            if (numbersOnly.indexOf(result.substr(0,1)) > -1)
-              return this.generateId();
-            return result;
-          },
-          generateBlocklyCall: function(blocklyInfo) {
-            var call;
-            if (blocklyInfo.type == "client")  {
-              var splitedClass = blocklyInfo.blocklyClass.split('/');
-              var blocklyName = splitedClass[splitedClass.length-1];
-              call = "blockly.js.blockly." + blocklyName;
-              call += "." +  blocklyInfo.blocklyMethod;
-              var params = "()";
-              if (blocklyInfo.blocklyParams.length > 0) {
-                params = "(";
-                blocklyInfo.blocklyParams.forEach(function(p) {
-                  params += this.encodeHTML(p.value ? p.value : "''") + ",";
-                }.bind(this))
-                params = params.substr(0, params.length - 1);
-                params += ")";
-              }
-              call += params;
-            }
-            else if (blocklyInfo.type == "server") {
-              var blocklyName = blocklyInfo.blocklyClass + ':' + blocklyInfo.blocklyMethod;
-              call = "cronapi.util.makeCallServerBlocklyAsync('"+blocklyName+"',null,null,";
-              if (blocklyInfo.blocklyParams.length > 0) {
-                blocklyInfo.blocklyParams.forEach(function(p) {
-                  call += this.encodeHTML(p.value ? p.value : "''") + ",";
-                }.bind(this))
-              }
-              call = call.substr(0, call.length - 1);
-              call += ")";
-            }
-            return call;
-            
-          },
-          generateToolbarButtonBlockly: function(toolbarButton, scope) {
-            var buttonBlockly;
-            
-            var generateObjTemplate = function(functionToCall, title) { 
-                var obj = {
-                  template: function() {
-                    var buttonId = this.generateId();
-                    return compileTemplateAngular(buttonId, functionToCall, title);
-                  }.bind(this)
-                };
-                return obj;
-            }.bind(this);
-            
-            var compileTemplateAngular = function(buttonId, functionToCall, title) {
-              var template = '<a class="k-button" id="#BUTTONID#" href="javascript:void(0)" ng-click="#FUNCTIONCALL#">#TITLE#</a>';
-              template = template
-                        .split('#BUTTONID#').join(buttonId)
-                        .split('#FUNCTIONCALL#').join(functionToCall)
-                        .split('#TITLE#').join(title);
-                        
-              var waitRender = setInterval(function() {
-                if ($('#' + buttonId).length > 0) {
-                  var x = angular.element($('#' + buttonId ));
-                  $compile(x)(scope);
-                  clearInterval(waitRender);
-                }
-              },200);
+  .directive('cronSlider', function ($compile) {
+    return {
+      restrict: 'E',
+      require: 'ngModel',
+      link: function (scope, element, attrs, ngModelCtrl) {
+        var slider = {};
+        
+        try {
+          var json = window.buildElementOptions(element);
+          slider = JSON.parse(json);
+        } catch(err) {
+          console.log('Slider invalid configuration! ' + err);
+        }
+        
+        var onChange = function(event) {
+          scope.$apply(function () {
+            ngModelCtrl.$setViewValue(parseInt($(element).val()));
+          });
+        }
+        
+        var sliderOnChange = function(event) {
+          onChange(event);
+        }
+        
+        var sliderOnSlide = function(event) {
+          onChange(event);
+        }
               
-              return template;
-            };
-            
-            var call = this.generateBlocklyCall(toolbarButton.blocklyInfo);
-            buttonBlockly = generateObjTemplate(call, toolbarButton.title);
-            return buttonBlockly;
-          },
-          getObjectId: function(obj) {
-            if (!obj)
-              obj = "";
-            else if (obj instanceof Date) {
-              var momentDate = moment.utc(obj);
-              obj = new Date(momentDate.format('YYYY-MM-DDTHH:mm:ss'));
+        var config = app.kendoHelper.getConfigSlider(slider);
+        config['change'] = sliderOnChange;
+        config['slide'] = sliderOnSlide;
+        
+        $(element).empty();
+        var slider = $(element).kendoSlider(config).data("kendoSlider");
+        
+        scope.$watch(function(){return ngModelCtrl.$modelValue}, function(value, old){
+          if (value !== old) { 
+            if (!value) {
+              slider.value(slider.min());
+            } else {
+              slider.value(value);
             }
-            else if (typeof obj === 'object') {
-              //Verifica se tem id, senão pega o primeiro campo
-              if (obj["id"])
-                obj = obj["id"];
-              else {
-                for (var key in obj) {
-                  obj = obj[key];
-                  break;
-                }  
-              }
-            }
-            return obj;
-          },
-          updateFiltersFromAngular: function(grid, scope) {
-            
-            var getIndexFilter = function(obj) {
-              var index = -1;
-              
-              var filters = grid.dataSource.filter() ? grid.dataSource.filter().filters : null;
-              if (filters) {
-                for (var i = 0; i< filters.length; i++) {
-                  if (obj.linkParentField == filters[i].linkParentField) {
-                    index = i;
-                    break;
-                  }
-                }
-              }
-              return index;
-            }
-            
-            var addOrRemoveFilter = function(f) {
-              var index = getIndexFilter(f);
-              var hasChanges = false;
-              var filters = grid.dataSource.filter() ? grid.dataSource.filter().filters : null;
-              if (index > -1) {
-                if ((f.value && f.value != "") || !f.linkParentLoadIfEmpty) 
-                  filters[index] = f;
-                else
-                  filters.splice(index, 1);
-                hasChanges = true;
-              }
-              else {
-                if ((f.value && f.value != "") || !f.linkParentLoadIfEmpty)  {
-                  if (filters)
-                    filters.push(f)
-                  else
-                    filters = [f];
-                  hasChanges = true;                
-                }
-              }
-              if (hasChanges)
-                grid.dataSource.filter(filters);
-            }
-            
-            var updateFilterTimeout = null;
-            var updateFilter = function(newValue, f) {
-              f.value = this.getObjectId(newValue);
-              addOrRemoveFilter(f);
-              setTimeout(function() { grid.trigger('change'); }, 100);
-            };
-            
-            grid.dataSource.options.filterScreen.forEach(function(f) {
-                scope.$watch(f.linkParentField, function(newValue, oldValue) {
-                  
-                  if (updateFilterTimeout) {
-                    clearTimeout(updateFilterTimeout);
-                    updateFilterTimeout = null;
-                  }
-                  
-                  updateFilterTimeout = setTimeout(function() {
-                    updateFilter.bind(this)(newValue, f)
-                  }.bind(this), 500);
-                  
-                  
-                }.bind(this));
-            }.bind(this));
-          },
-          setFiltersFromLinkColumns: function(datasource, options, scope) {
-            datasource.filter = [];
-            //Os filtros que sejam de tela, deverão ser utilizados apenas se tiver valor, se estiver vazio, não seta
-            //no filtro principal do datasource (filter)
-            datasource.filterScreen = [];
-            options.columns.forEach( function(c) {
-              if (c.linkParentField && c.linkParentField.length > 0 && 
-                  c.linkParentType && c.linkParentType.length > 0) 
-              {
-                if (c.linkParentType == "screen") {
-                  var value = scope[c.linkParentField];
-                  value = this.getObjectId(value);
-                  var filter = { 
-                    field: c.field, operator: "eq", value: value, linkParentField: c.linkParentField, linkParentType: c.linkParentType,
-                    linkParentLoadIfEmpty: c.linkParentLoadIfEmpty
-                  };
-                  if ((value && value != "") || !c.linkParentLoadIfEmpty)
-                    datasource.filter.push(filter);
-                  datasource.filterScreen.push(filter);
-                }
-                else if (c.linkParentType == "hierarchy") {
-                  var filter = { field: c.field, operator: "eq", value: "", linkParentField: c.linkParentField, linkParentType: c.linkParentType };
-                  datasource.filter.push(filter);
-                }
-              }
-            }.bind(this));
-          },
-          encodeHTML: function(value){
-            return value.replace(/&/g, '&amp;')
-               .replace(/</g, '&lt;')
-               .replace(/>/g, '&gt;')
-               .replace(/"/g, '&quot;')
-               .replace(/'/g, '&apos;');
-          },
-          decodeHTML: function(value){
-            return value.replace(/&apos;/g, "'")
-               .replace(/&quot;/g, '"')
-               .replace(/&gt;/g, '>')
-               .replace(/&lt;/g, '<')
-               .replace(/&amp;/g, '&');
-          },
-          getColumns: function(options, scope) {
-            
-            window.formatDate = function(value, format, type) {
-              var momentDate;
-              var formated = '';
-              
-              if (value) {
-                if (type == 'date' || type == 'datetime' || type == 'time')
-                  momentDate = moment.utc(value);
-                else
-                  momentDate = moment(value);
-                
-                if (format && format != "null") 
-                 formated = momentDate.format(format);
-                else {
-                  format= parseMaskType(type, $translate);
-                  formated = momentDate.format(format);
-                }
-              }
-              return formated
-            }
-            
-            function getTemplate(column) {
-              var template = undefined;
-              if (column.inputType == 'checkbox') {
-                template = "<input type='checkbox' class='k-checkbox' #=" + column.field + " ? \"checked='checked'\": '' # />" +
-                           "<label class='k-checkbox-label k-no-text'></label>"
-              }
-              if (column.inputType == 'switch') {
-                template =
-                '<span class="k-switch km-switch k-widget km-widget k-switch-off km-switch-off" style="width: 100%">\
-                  <span class="k-switch-wrapper km-switch-wrapper">\
-                    <span class="k-switch-background km-switch-background" style="margin-left: #=' + column.field + ' ? "80%": "0%" #"></span>\
-                  </span>\
-                  <span class="k-switch-container km-switch-container">\
-                    <span class="k-switch-handle km-switch-handle" style=#=' + column.field + ' ? "float:right;margin-right:-1px": "margin-left:0%" #>\
-                    </span>\
-                  </span>\
-                </span>';
-              }
-              
-              else if (column.displayField && column.displayField.length > 0) {
-                if (column.type.startsWith('date') || column.type.startsWith('month') 
-                    || column.type.startsWith('time') || column.type.startsWith('week')) {
-                  template = "#= formatDate("+column.displayField+",'"+column.format+"','"+column.type+"') #";
-                }
-                else {
-                  template = "#="+column.displayField+"#";
-                }
-              }
-              else if (column.type.startsWith('date') || column.type.startsWith('month') 
-                    || column.type.startsWith('time') || column.type.startsWith('week')) {
-                template = "#= formatDate("+column.field+",'"+column.format+"','"+column.type+"') #";
-              }
-              return template;
-            }
-            
-            function getFormat(column) {
-              if (column.format && !column.type.startsWith('date') && !column.type.startsWith('time') 
-                        && !column.type.startsWith('month') && !column.type.startsWith('week'))
-                return column.format;
-              return undefined;
-            }
-            
-            function getColumnByField(fieldName) {
-              var selected = null;
-              options.columns.forEach(function(column)  {
-                if (column.field == fieldName)
-                  selected = column;
-              });
-              return selected;
-            }
-            
-            function isRequired(fieldName) {
-              var required = false;
-              var selected = null;
-              options.dataSource.schemaFields.forEach(function(field)  {
-                if (field.name == fieldName)
-                  selected = field;
-              });
-              if (selected)
-                required = !selected.nullable;
-              return required;
-            }
-            
-            function getEditor(column) {
-              return editor.bind(this);
-            }
-            
-            function editor(container, opt) {
-              $(container).css("position", "relative");
-              
-              var column = getColumnByField(opt.field);
-              var required = isRequired(opt.field) ? "required" : "";
-              var buttonId = this.generateId();
-              var $input = $('<input '+required+' name="' + opt.field + '" id="' + buttonId + '"from-grid=true />');
-              if (column.inputType == 'dynamicComboBox' || column.inputType == 'comboBox') {
-                var kendoConfig = app.kendoHelper.getConfigCombobox(column.comboboxOptions, scope);
-                kendoConfig.autoBind = true;
-                kendoConfig.optionLabel = undefined;
-                $input.appendTo(container).kendoDropDownList(kendoConfig, scope);  
-              }
-              else if (column.inputType == 'slider') {
-                var kendoConfig = app.kendoHelper.getConfigSlider(column.sliderOptions);
-                $input.appendTo(container).kendoSlider(kendoConfig, scope);
-              }
-              else if (column.inputType == 'switch') {
-                var kendoConfig = app.kendoHelper.getConfigSwitch(column.switchOptions);
-                $input.appendTo(container).kendoMobileSwitch(kendoConfig, scope);
-              }
-              else if (column.inputType == 'checkbox') {
-                var guid = this.generateId();
-                $input = $('<input id="'+guid+'" name="' + opt.field + '" class="k-checkbox" type="checkbox" ><label class="k-checkbox-label" for="'+guid+'"></label>');
-                $input.appendTo(container);
-              }
-              else if (column.inputType == 'date') {
-                $input.attr('cron-date', '');
-                $input.attr('options', JSON.stringify(column.dateOptions));
-                $input.data('initial-date', opt.model[opt.field]);
-                $input.appendTo(container).off('change');
-                var waitRender = setInterval(function() {
-                  if ($('#' + buttonId).length > 0) {
-                    var x = angular.element($('#' + buttonId ));
-                    $compile(x)(scope);
-                    clearInterval(waitRender);
-                    
-                    $('#' + buttonId).on('change', function() {
-                      setTimeout(function() {
-                        opt.model[opt.field] = $('#' + buttonId ).data('rawvalue');
-                        opt.model.dirty = true;
-                        opt.model.dirtyFields[opt.field] = true;  
-                      }.bind(this));
-                      
-                    });
-                  }
-                },10);
-              }
-              else {
-                $input.attr('type', column.type);
-                $input.attr('mask', column.format ? column.format : '');
-                $input.attr('class', 'k-input k-textbox');
-                $input.data('initial-value', opt.model[opt.field]);
-                $input.appendTo(container);
-                
-                var waitRender = setInterval(function() {
-                  if ($('#' + buttonId).length > 0) {
-                    $('#' + buttonId ).off('change');
-                    $('#' + buttonId ).on('change', function() {
-                      opt.model[opt.field] = $('#' + buttonId ).data('rawvalue');
-                      opt.model.dirty = true;
-                      opt.model.dirtyFields[opt.field] = true;
-                    });
-                    
-                    var x = angular.element($('#' + buttonId ));
-                    $compile(x)(scope);
-                    clearInterval(waitRender);
-                  }
-                },10);
-              }
-              
-            }
-            
-            var columns = [];
-            if (options.columns) {
-              options.columns.forEach(function(column)  {
-                if (column.visible) {
-                  if (column.dataType == "Database") {
-                    
-                    var addColumn = {
-                      field: column.field,
-                      title: column.headerText,
-                      type: column.type,
-                      width: column.width,
-                      sortable: column.sortable,
-                      filterable: column.filterable
-                    };
-                    addColumn.template = getTemplate(column);
-                    addColumn.format = getFormat(column);
-                    addColumn.editor = getEditor.bind(this)(column);
-                    columns.push(addColumn);
-                    
-                  }
-                  else if (column.dataType == "Command") {
-                    //Se não for editavel, não adiciona colunas de comando
-                    if (options.editable != 'no') {
-                      var command = column.command.split('|');
-                      var addColumn = {
-                        command: command,
-                        title: column.headerText,
-                        width: column.width
-                      };
-                      columns.push(addColumn);
-                    }
-                  }
-                  else if (column.dataType == "Blockly") {
-                    var directiveContext = this;
-                    var addColumn = { 
-                      command: [{
-                        name: this.generateId(),
-                        text: column.headerText,
-                        click: function(e) {
-                          e.preventDefault();
-                          var tr = $(e.target).closest("tr"); // get the current table row (tr)
-                          var grid = tr.closest('table');
-                          
-                          var item = this.dataItem(tr);
-                          // var index = $(grid).find('tr.'+$(tr).attr('class')).index(tr);
-                          var index = $(grid.find('tbody')[0]).children().index(tr)
-                          var consolidated = {
-                            item: item,
-                            index: index
-                          }
-                          var call = 'scope.' + directiveContext.generateBlocklyCall(column.blocklyInfo);
-                          eval(call);
-                          return;
-                        }
-                      }],
-                      width: column.width
-                    };
-                    columns.push(addColumn);
-                  }
-                  
-                }
-              }.bind(this));
-            }
-            
-            return columns;
-          },
-          getPageAble: function(options) {
-            var pageable = {
-                refresh:  options.allowRefreshGrid,
-                pageSizes: options.allowSelectionTotalPageToShow,
-                buttonCount: 5
-            };
-            
-            if (!options.allowPaging) 
-              pageable = options.allowPaging;
-                    
-            return pageable;
-          },
-          getToolbar: function(options, scope) {
-            var toolbar = [];
-            
-            options.toolBarButtons.forEach(function(toolbarButton) {
-              if (toolbarButton.type == "Native") {
-                //Se a grade for editavel, adiciona todos os commands
-                if (options.editable != 'no') {
-                  if (toolbarButton.title == "save" || toolbarButton.title == "cancel") {
-                    //O Salvar e cancelar na toolbar só é possível no batch mode
-                    if (options.editable == 'batch')
-                      toolbar.push(toolbarButton.title);
-                  }
-                  else
-                    toolbar.push(toolbarButton.title);
-                }
-                //Senão, adiciona somente commands que não sejam de crud
-                else {
-                  if (toolbarButton.title == "pdf" || toolbarButton.title == "excel") {
-                    toolbar.push(toolbarButton.title);
-                  }
-                }
-              }
-              else if (toolbarButton.type == "Blockly") {
-                var buttonBlockly = this.generateToolbarButtonBlockly(toolbarButton, scope);
-                toolbar.push(buttonBlockly);
-              }
-              else if (toolbarButton.type == "Template") {
-                var buttonTemplate =  {
-                  template: toolbarButton.template
-                }
-                toolbar.push(buttonTemplate);
-              }
-              
-            }.bind(this));
-            
-            if (toolbar.length == 0)
-              toolbar = undefined;
-            return toolbar;
-          },
-          getEditable: function(options) {
-            
-            var editable = options.editable;
-            if (options.editable == 'batch') {
-              editable = true;
-            }
-            else if (options.editable == 'no') {
-              editable = false;
-            }
-            return editable;
-          },
-          generateKendoGridInit: function(options, scope) {
-            
-            var helperDirective = this;
-            function detailInit(e) {
-              //Significa que está fechando o detalhe (não é para fazer nada)
-              if (e.masterRow.find('a').hasClass('k-i-expand')) {
-                collapseAllExcecptCurrent(this, null, null);
-                return;
-              }
-              
-              var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
-              if (!(cronappDatasource.inserting || cronappDatasource.editing)) {
-                if (this.selectable)
-                  this.select(e.masterRow);
-                else
-                  setToActiveInCronappDataSource.bind(this)(e.data);
-                //Obtendo todos os detalhes da grade atual, fechando e removendo todos (exceto o que esta sendo aberto agora)
-                collapseAllExcecptCurrent(this, e.detailRow, e.masterRow);
-                
-                e.sender.options.listCurrentOptions.forEach(function(currentOptions) {
-                  var currentKendoGridInit = helperDirective.generateKendoGridInit(currentOptions, scope);
-                  
-                  var grid = $("<div/>").appendTo(e.detailCell).kendoGrid(currentKendoGridInit).data('kendoGrid');
-                  grid.dataSource.transport.options.grid = grid;
-                });
-              }
-              else
-                collapseAllExcecptCurrent(this, null, null);
-              
-              
-            }
-            
-            var collapseAllExcecptCurrent = function(grid, trDetail, trMaster) {
-              var details = grid.table.find('.k-detail-row');
-              details.each(function() { 
-                if (trDetail == null || this != trDetail[0]) {
-                  $(this).remove();
-                }
-              });
-              var masters = grid.table.find('.k-master-row');
-              masters.each(function() { 
-                if (trMaster == null || this != trMaster[0]) {
-                  grid.collapseRow(this);
-                }
-              });
-            };
-            
-            var setToActiveInCronappDataSource = function(item) {
-              var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
-              if (!(cronappDatasource.inserting || cronappDatasource.editing))
-                scope.safeApply(cronappDatasource.goTo(item));
-            };
-            
-            var datasource = app.kendoHelper.getDataSource(options.dataSource, scope, options.allowPaging, options.pageCount, options.columns);
-            
-            var columns = this.getColumns(options, scope);
-            var pageAble = this.getPageAble(options);
-            var toolbar = this.getToolbar(options, scope);
-            var editable = this.getEditable(options);
-            
-            var kendoGridInit = {
-              toolbar: toolbar,
-              pdf: {
-                  allPages: true,
-                  avoidLinks: true,
-                  paperSize: "A4",
-                  margin: { top: "2cm", left: "1cm", right: "1cm", bottom: "1cm" },
-                  landscape: true,
-                  repeatHeaders: true,
-                  scale: 0.8
-              },
-              dataSource: datasource,
-              editable: editable,
-              height: options.height,
-              groupable: options.allowGrouping,
-              sortable: options.allowSorting,
-              filterable: true,
-              pageable: pageAble,
-              columns: columns,
-              selectable: options.allowSelectionRow,
-              detailInit: (options.details && options.details.length > 0) ? detailInit : undefined,
-              listCurrentOptions: (options.details && options.details.length > 0) ? options.details : undefined,
-              edit: function(e) {
-                this.dataSource.transport.options.disableAndSelect(e);
-                var container = e.container;
-                var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
-                if (e.model.isNew() && !e.model.dirty) {
-                  var model = e.model;
-                  cronappDatasource.startInserting(null, function(active) {
-                    for (var key in active) {
-                      if (model.fields[key].validation && model.fields[key].validation.required) {
-                        var input = container.find("input[name='" + key + "']");
-                        if (input.length) {
-                          //TODO: Verificar com a telerik https://stackoverflow.com/questions/22179758/kendo-grid-using-model-set-to-update-the-value-of-required-fields-triggers-vali
-                          input.val(active[key]).trigger('change');
-                        }
-                        else {
-                          model.set(key, active[key]);
-                        }
-                      } 
-                      else {
-                        model.set(key, active[key]);
-                      }
-                    }
-                    // //Adicionando o _generatedId para não setar o id e o objeto continue com o status de new  
-                    // if (active[datasource.schema.model.id]) {
-                    //   model["_generated" + datasource.schema.model.id] = active[datasource.schema.model.id];
-                    // }
-                  });
-                }
-                else if (!e.model.isNew() && !e.model.dirty) {
-                  var currentItem = cronappDatasource.goTo(e.model);
-                  scope.safeApply(cronappDatasource.startEditing(currentItem, function(xxx) {}));
-                }
-              },
-              change: function(e) {
-                var item = this.dataItem(this.select());
-                setToActiveInCronappDataSource.bind(this)(item);
-                collapseAllExcecptCurrent(this, this.select().next(), this.select() );
-              },
-              cancel: function(e) {
-                var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
-                scope.safeApply(cronappDatasource.cancel());
-                this.dataSource.transport.options.enableAndSelect(e);
-              }
-            };
-            
-            return kendoGridInit;
-            
-          },
-          link: function (scope, element, attrs, ngModelCtrl) {
-            var $templateDyn = $('<div></div>');
-            var baseUrl = 'plugins/cronapp-framework-js/dist/js/kendo-ui/js/messages/kendo.messages.';
-            if ($translate.use() == 'pt_br')
-              baseUrl += "pt-BR.min.js";
-            else
-              baseUrl += "en-US.min.js";
-              
-            var helperDirective = this;
-              
-            $.getScript(baseUrl, function () {
-                console.log('loaded language');
-                
-                var options = JSON.parse(attrs.options || "{}");
-                var kendoGridInit = helperDirective.generateKendoGridInit(options, scope);
-                
-                var grid = $templateDyn.kendoGrid(kendoGridInit).data('kendoGrid');
-                grid.dataSource.transport.options.grid = grid;
-                
-            });
-            
-            element.html($templateDyn);
-            $compile($templateDyn)(element.scope());
-            
           }
-        };
-      }])
+        });
+        
+        if (ngModelCtrl) {
+          ngModelCtrl.$formatters.push(function (value) {
+            var result = null;
+            
+            if (!value && slider.min) {
+              result = slider.min;
+            } else if (value) {
+              result = value;
+            }
+            
+            slider.value(result);
+            
+            return result;
+          });
+
+          ngModelCtrl.$parsers.push(function (value) {
+            if (value) {
+              return value;
+            }
+
+            return null;
+          });
+        }
+      }
+    }
+  })
+  
+  .directive('cronSwitch', function ($compile) {
+    return {
+      restrict: 'E',
+      require: 'ngModel',
+      link: function (scope, element, attrs, ngModelCtrl) {
+        var cronSwitch = {};
+        
+        try {  
+          var json = window.buildElementOptions(element);
+          cronSwitch = JSON.parse(json);
+        } catch(err) {
+          console.log('Switch invalid configuration! ' + err);
+        }
+        
+        var options = app.kendoHelper.getConfigSwitch(cronSwitch);
+        var parent = element.parent();
+        $(parent).append('<input style="width: 100%;" class="cronSwitch" ng-model="' + attrs.ngModel + '"/>');
+        var $element = $(parent).find('input.cronSwitch');
+        
+        var change = function(e) {
+          scope.$apply(function () {
+            ngModelCtrl.$setViewValue(this.value());
+          }.bind(this));
+        } 
+        options['change'] = change;
+        
+        var mobSwitch = $element.kendoMobileSwitch(options).data('kendoMobileSwitch');
+        $(element).remove();
+        
+        if (ngModelCtrl) {
+          ngModelCtrl.$formatters.push(function (value) {
+            var result = false;
+            
+            if (value != undefined) {
+              result = value;
+            }
+            
+            mobSwitch.value(result);
+            
+            return result;
+          });
+
+          ngModelCtrl.$parsers.push(function (value) {
+            if (value != undefined) {
+              return value;
+            }
+            
+            return false;
+          });
+        }
+      }
+    }
+  })
+  
+  .directive('cronBarcode', function ($compile) {
+    return {
+      restrict: 'E',
+      require: 'ngModel',
+      link: function (scope, element, attrs, ngModel) {
+        var cronBarcode = {};
+        
+        try {  
+          var json = window.buildElementOptions(element);
+          cronBarcode = JSON.parse(json);
+        } catch(err) {
+          console.log('Barcode invalid configuration! ' + err);
+        }
+        
+        var options = app.kendoHelper.getConfigBarcode(cronBarcode);
+        var parent = element.parent();
+        $(parent).append('<span class="cronBarcode" ng-model="' + attrs.ngModel + '"></span>');
+        var $element = $(parent).find('span.cronBarcode');
+        
+        var kendoBarcode = $element.kendoBarcode(options).data('kendoBarcode');
+        $(element).remove();
+        
+        scope.$watch(function(){return ngModel.$modelValue}, function(value, old){
+          var result = '';
+          
+          if (value !== old) {
+            result = value;
+          }
+          
+          options['value'] = result;
+          kendoBarcode.setOptions(options);
+        });
+      }
+    }
+  })  
+  
+  .directive('cronQrcode', function ($compile) {
+    return {
+      restrict: 'E',
+      require: 'ngModel',
+      link: function (scope, element, attrs, ngModel) {
+        var cronQrcode = {};
+        
+        try {  
+          var json = window.buildElementOptions(element);
+          cronQrcode = JSON.parse(json);
+        } catch(err) {
+          console.log('Qrcode invalid configuration! ' + err);
+        }
+        
+        var options = app.kendoHelper.getConfigQrcode(cronQrcode);
+        var parent = element.parent();
+        $(parent).append('<span class="cronQrcode" ng-model="' + attrs.ngModel + '"></span>');
+        var $element = $(parent).find('span.cronQrcode');
+        
+        var kendoQRCode = $element.kendoQRCode().data('kendoQRCode');
+        $(element).remove();
+        
+        scope.$watch(function(){return ngModel.$modelValue}, function(value, old){
+          var result = '';
+          
+          if (value !== old) {
+            result = value;
+          }
+          
+          options['value'] = result;
+          kendoQRCode.setOptions(options);
+        });
+      }
+    }
+  })
+  
 }(app));
 
 function maskDirectiveAsDate($compile, $translate) {
@@ -1693,12 +2376,12 @@ function maskDirective($compile, $translate, attrName) {
       }
 
       if (type == 'date' || type == 'datetime' || type == 'datetime-local' || type == 'month' || type == 'time' || type == 'time-local' || type == 'week') {
+
         var options = {
           format: mask,
           locale: $translate.use(),
           showTodayButton: true,
           useStrict: true,
-          // debug: true,
           tooltips: {
             today: $translate.instant('DatePicker.today'),
             clear: $translate.instant('DatePicker.clear'),
@@ -1713,20 +2396,20 @@ function maskDirective($compile, $translate, attrName) {
             prevDecade: $translate.instant('DatePicker.prevDecade'),
             nextDecade: $translate.instant('DatePicker.nextDecade'),
             prevCentury: $translate.instant('DatePicker.prevCentury'),
-            nextCentury: $translate.instant('DatePicker.nextCentury'),
+            nextCentury: $translate.instant('DatePicker.nextCentury')
           }
         };
 
         if (mask != 'DD/MM/YYYY' && mask != 'MM/DD/YYYY') {
           options.sideBySide = true;
         }
-        
+
         var useUTC = type == 'date' || type == 'datetime' || type == 'time';
 
         if ($element.attr('from-grid')) {
           $element.on('click', function() {
             var popup = $(this).offset();
-            
+
             var isBellowInput = true;
             var datetimepickerShowing = $(this).parent().find('.bootstrap-datetimepicker-widget.dropdown-menu.usetwentyfour.bottom');
             if (!datetimepickerShowing.length) {
@@ -1734,16 +2417,16 @@ function maskDirective($compile, $translate, attrName) {
               datetimepickerShowing = $(this).parent().find('.bootstrap-datetimepicker-widget.dropdown-menu.usetwentyfour.top');
             }
             var popupLeft = $(datetimepickerShowing).offset().left;
-            
+
             var grid = datetimepickerShowing.closest('cron-grid');
             datetimepickerShowing.appendTo(grid);
-            
+
             var popupTop = 0
             if (!isBellowInput)
               popupTop = popup.top - ($(datetimepickerShowing).height() + 15);
             else
               popupTop = popup.top + 35;
-            
+
             datetimepickerShowing.css("top", popupTop);
             datetimepickerShowing.css("bottom", "auto");
             datetimepickerShowing.css("left", popupLeft);
@@ -1765,15 +2448,16 @@ function maskDirective($compile, $translate, attrName) {
             } else {
               momentDate = moment(initialValue);
             }
-            $element.val(momentDate.format(mask));  
+            $element.val(momentDate.format(mask));
             $element.data('initial-value', null);
           }
-          
+
         }
         else
           $element.wrap("<div style=\"position:relative\"></div>");
         $element.datetimepicker(options);
-        
+
+
 
         $element.on('dp.change', function () {
           if ($(this).is(":visible")) {
@@ -1896,8 +2580,7 @@ function maskDirective($compile, $translate, attrName) {
           $(this).data('rawvalue',$(this).inputmask('unmaskedvalue'));
         }
         $(element).on('keydown', unmaskedvalue).on('keyup', unmaskedvalue);
-        
-        
+
         if (ngModelCtrl) {
           ngModelCtrl.$formatters.push(function (value) {
             if (value != undefined && value != null && value != '') {
@@ -1928,7 +2611,7 @@ function maskDirective($compile, $translate, attrName) {
         }
 
         $element.mask(mask, options);
-        
+
         var unmaskedvalue = function() {
           if (removeMask)
             $(this).data('rawvalue',$(this).cleanVal());
@@ -1953,7 +2636,6 @@ function maskDirective($compile, $translate, attrName) {
           });
         }
       }
-      
       else {
         if ($element.attr('from-grid')) {
           var unmaskedvalue = function() {

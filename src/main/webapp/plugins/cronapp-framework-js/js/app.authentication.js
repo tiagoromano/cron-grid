@@ -44,7 +44,7 @@ var app = (function() {
             function($q, $rootScope) {
               var service = {
                 'request': function(config) {
-                  var _u = JSON.parse(sessionStorage.getItem('_u'));
+                  var _u = JSON.parse(localStorage.getItem('_u'));
                   if (_u && _u.token) {
                     config.headers['X-AUTH-TOKEN'] = _u.token;
                     window.uToken = _u.token;
@@ -365,8 +365,8 @@ app.kendoHelper = {
   generateId: function() {
     var numbersOnly = '0123456789';
     var result = Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
+    .toString(16)
+    .substring(1);
     if (numbersOnly.indexOf(result.substr(0,1)) > -1)
       return this.generateId();
     return result;
@@ -378,7 +378,7 @@ app.kendoHelper = {
       { kendoType: "date", entityType: ["date", "time", "datetime"] },
       { kendoType: "boolean", entityType: ["boolean"] }
     ];
-    
+
     var parseType = function(type) {
       for (var i = 0; i < parseAttribute.length; i++) {
         if (parseAttribute[i].entityType.includes(type.toLocaleLowerCase()))
@@ -386,17 +386,16 @@ app.kendoHelper = {
       }
       return "string";
     };
-   
-    var schema = { 
+
+    var schema = {
       model : {
-        id : undefined,
+        // id : "__$id",
+        id : "nome",
         fields: {}
       }
     };
     if (dataSource && dataSource.schemaFields) {
       dataSource.schemaFields.forEach(function(field) {
-        if (field.key)
-          schema.model.id = field.name;
         schema.model.fields[field.name] = {
           type: parseType(field.type),
           editable: true,
@@ -404,41 +403,62 @@ app.kendoHelper = {
           validation: { required: !field.nullable },
         }
       });
+      // schema.model.fields["__$id"] = {
+      //   type: "string",
+      //   editable: true,
+      //   nullable: true,
+      //   validation: { required: false }
+      // }
     }
     return schema;
   },
   getDataSource: function(dataSource, scope, allowPaging, pageCount, columns) {
     var schema = this.getSchema(dataSource);
-    
+    if (columns) {
+      columns.forEach(function(c) {
+        for (var key in schema.model.fields) {
+          if (c.dataType == "Database" && c.field == key ) {
+            schema.model.fields[key].nullable = !c.required;
+            schema.model.fields[key].validation.required = c.required;
+            break;
+          }
+        }
+      });
+    }
+
     var parseParameter = function(data) {
       for (var attr in data) {
         if (schema.model.fields.hasOwnProperty(attr)) {
-          
-          var schemaField = schema.model.fields[attr]; 
+
+          var schemaField = schema.model.fields[attr];
           if (schemaField.type == 'string' && data[attr] != undefined)
             data[attr] = data[attr] + "";
           else if (schemaField.type == 'number' && data[attr] != undefined)
             data[attr] = parseFloat(data[attr]);
           else if (schemaField.type == 'date' && data[attr] != undefined)
             data[attr] = '/Date('+data[attr].getTime()+')/';
-          else if (schemaField.type == 'boolean' && data[attr] != undefined)
-            data[attr] = data[attr].toString().toLowerCase() == "true"?true:false;
-            
+          else if (schemaField.type == 'boolean') {
+            if (data[attr] == undefined)
+              data[attr] = false;
+            else
+              data[attr] = data[attr].toString().toLowerCase() == "true"?true:false;
+          }
+
           //Significa que é o ID
           if (schema.model.id == attr) {
             //Se o mesmo for vazio, remover do data
             if (data[attr] != undefined && data[attr].toString().length == 0)
               delete data[attr];
-          }  
+          }
         }
       }
       return data;
     };
-    
+
     var pageSize = 10;
     if (scope[dataSource.name])
       pageSize = scope[dataSource.name].rowsPerPage;
-    
+
     //Quando não for data UTC
     var offsetMiliseconds = new Date().getTimezoneOffset() * 60000;
     function onRequestEnd(e) {
@@ -448,9 +468,9 @@ app.kendoHelper = {
           items = e.response.d.results;
         else
           items = [e.response.d];
-        
+
         if (this.group().length) {
-          
+
           columns.forEach( function(c) {
             if (c.dataType == 'Database') {
               var notUseUTC = c.type == 'datetime-local' || c.type == 'month' || c.type == 'time-local' || c.type == 'week';
@@ -459,7 +479,7 @@ app.kendoHelper = {
                   var gr = items[i];
                   if (c.field == gr.Member) {
                     gr.Key = gr.Key.replace(/\d+/,
-                      function (n) { return parseInt(n) + offsetMiliseconds }
+                        function (n) { return parseInt(n) + offsetMiliseconds }
                     );
                   }
                   addOffset.bind(this)(gr.Items);
@@ -472,24 +492,24 @@ app.kendoHelper = {
         }
       }
     }
-    
+
     function addOffset(items) {
       for (var i = 0; i < items.length; i++) {
         if (columns) {
           columns.forEach( function(c) {
-              if (c.dataType == 'Database') {
-                var notUseUTC = c.type == 'datetime-local' || c.type == 'month' || c.type == 'time-local' || c.type == 'week';
-                if (notUseUTC) {
-                  if (items[i][c.field]) {
-                    items[i][c.field] = items[i][c.field].replace(/\d+/,
+            if (c.dataType == 'Database') {
+              var notUseUTC = c.type == 'datetime-local' || c.type == 'month' || c.type == 'time-local' || c.type == 'week';
+              if (notUseUTC) {
+                if (items[i][c.field]) {
+                  items[i][c.field] = items[i][c.field].replace(/\d+/,
                       function (n) { return parseInt(n) + offsetMiliseconds }
-                    );
-                  }
+                  );
                 }
               }
-          });  
+            }
+          });
         }
-        
+
       }
     }
 
@@ -498,57 +518,58 @@ app.kendoHelper = {
       transport: {
         setActiveAndPost: function(e) {
           var cronappDatasource = this.options.cronappDatasource;
-          cronappDatasource.active = parseParameter(e.data);
+          cronappDatasource.updateActive(parseParameter(e.data));
           cronappDatasource.active.__sender = datasourceId;
-          //Removendo a chave gerada temporaria (somente em modo de inserção)
-          if (datasource.schema.model.id && cronappDatasource.active["_generated" + datasource.schema.model.id]) {
-            cronappDatasource.active[datasource.schema.model.id] = e.data["_generated" + datasource.schema.model.id];
-            delete cronappDatasource.active["_generated" + datasource.schema.model.id];
-          }
           cronappDatasource.postSilent(
-            function(data) {
-              this.options.enableAndSelect(e);
-              e.success(data);
-            }.bind(this),
-            function(data) {
-              this.options.enableAndSelect(e);
-              e.error(data, data, data);
-            }.bind(this)
+              function(data) {
+                this.options.enableAndSelect(e);
+                e.success(data);
+              }.bind(this),
+              function(data) {
+                this.options.enableAndSelect(e);
+                e.error(data, data, data);
+              }.bind(this)
           );
-          
         },
         push: function(callback) {
-          //TODO: Colocar o datasource para receber uma lista de callback ao inves de setar, 
+          //TODO: Colocar o datasource para receber uma lista de callback ao inves de setar,
           //tem que ser push
-          this.options.cronappDatasource.addDataSourceEvents({
+          this.options.cronappDatasource.setDataSourceEvents({
             create: function(data) {
-              if (data.__sender != datasourceId)
-                callback.pushCreate(data);  
+              var currentDatasource = (this.options.grid?this.options.grid.dataSource:callback);
+              if (data.__sender != datasourceId) 
+                currentDatasource.pushCreate(data);
+              else
+                currentDatasource.pushUpdate(data);
             }.bind(this),
             update: function(data) {
-              if (data.__sender != datasourceId)
-                callback.pushUpdate(data);  
+              var pushUpdate = (this.options.grid?this.options.grid.dataSource.pushUpdate:callback.pushUpdate);
+              if (data.__sender != datasourceId) {
+                pushUpdate(data);
+              }
             }.bind(this),
             delete: function(data) {
-              if (data.__sender != datasourceId)
-                callback.pushDestroy(data);
+              var pushDestroy = (this.options.grid?this.options.grid.dataSource.pushDestroy:callback.pushDestroy);
+              if (data.__sender != datasourceId) {
+                pushDestroy(data);
+              }
             }.bind(this),
             overRideRefresh: function(data) {
               if (this.options.grid)
                 this.options.grid.dataSource.read();
             }.bind(this),
             read: function(data) {
-                this.options.fromRead = true;
-                this.options.grid.dataSource.read();
+              this.options.fromRead = true;
+              this.options.grid.dataSource.read();
             }.bind(this)
           });
         },
         read:  function (e) {
-          
+
           var doFetch = false;
           try {
             var cronappDatasource = this.options.cronappDatasource;
-            
+
             if (!this.options.kendoCallback) {
               this.options.kendoCallback = e;
               e.success(cronappDatasource.data);
@@ -560,19 +581,19 @@ app.kendoHelper = {
               }
             }
           } finally {
-             this.options.fromRead = false;
+            this.options.fromRead = false;
           }
-          
+
           if (doFetch) {
-            for (key in e.data) 
-              if(e.data[key] == undefined)  
+            for (key in e.data)
+              if(e.data[key] == undefined)
                 delete e.data[key];
             var paramsOData = kendo.data.transports.odata.parameterMap(e.data, 'read');
             var orderBy = '';
-            
+
             if (this.options.grid) {
-              this.options.grid.dataSource.group().forEach(function(group) { 
-                orderBy += group.field +" " + group.dir + ","; 
+              this.options.grid.dataSource.group().forEach(function(group) {
+                orderBy += group.field +" " + group.dir + ",";
               });
             }
             if (orderBy.length > 0) {
@@ -582,22 +603,22 @@ app.kendoHelper = {
               else
                 paramsOData.$orderby = orderBy;
             }
-            
+
             var cronappDatasource = this.options.cronappDatasource;
             cronappDatasource.rowsPerPage = e.data.pageSize;
             cronappDatasource.offset = (e.data.page - 1);
             var fetchData = {};
             fetchData.params = paramsOData;
-            cronappDatasource.fetch(fetchData, { 
+            cronappDatasource.fetch(fetchData, {
               success:  function(data) {
-               e.success(data);
+                e.success(data);
               },
               canceled:  function(data) {
-               e.error("canceled", "canceled", "canceled");
+                e.error("canceled", "canceled", "canceled");
               }
             });
           }
-          
+
         },
         update: function(e) {
           this.setActiveAndPost(e);
@@ -607,14 +628,14 @@ app.kendoHelper = {
         },
         destroy: function(e) {
           cronappDatasource = this.options.cronappDatasource;
-          cronappDatasource.removeSilent(e.data, 
-            function(data) {
-              e.success(data);
-            },
-            function(data) {
-              e.error("canceled", "canceled", "canceled");
-            }
-          );  
+          cronappDatasource.removeSilent(e.data,
+              function(data) {
+                e.success(data);
+              },
+              function(data) {
+                e.error("canceled", "canceled", "canceled");
+              }
+          );
         },
         batch: function (e) {
         },
@@ -634,7 +655,7 @@ app.kendoHelper = {
             if (this.grid) {
               this.grid.options.selectable = "row";
               this.grid._selectable();
-              this.grid.select(e.container);  
+              this.grid.select(e.container);
             }
           },
           cronappDatasource: scope[dataSource.name]
@@ -648,7 +669,7 @@ app.kendoHelper = {
       schema: schema,
       requestEnd: onRequestEnd
     };
-    
+
     datasource.schema.total = function(){
       return datasource.transport.options.cronappDatasource.getRowsCount();
     };
@@ -690,7 +711,7 @@ app.kendoHelper = {
 
     return config;
   },
-    getConfigDate: function(translate, options) {
+  getConfigDate: function(translate, options) {
     var config = {};
 
     if (config) {

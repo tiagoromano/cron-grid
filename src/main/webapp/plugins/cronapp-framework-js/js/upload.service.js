@@ -73,7 +73,7 @@
               formData.append("file", files[i]);
               console.log(files[i].$valid);
             }
-            var _u = JSON.parse(sessionStorage.getItem('_u'));
+            var _u = JSON.parse(localStorage.getItem('_u'));
             this.$promise = $http({
               method: 'POST',
               url: (window.hostApp || "") + uploadUrl,
