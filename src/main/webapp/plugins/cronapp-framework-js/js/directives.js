@@ -1634,7 +1634,7 @@
 
           var options = JSON.parse(attrs.options || "{}");
 
-          if (!scope[options.dataSource.name].dependentLazyPost) {
+          if (scope[options.dataSource.name] && !scope[options.dataSource.name].dependentLazyPost) {
             scope[options.dataSource.name].batchPost = true;
 
             options.toolBarButtons = options.toolBarButtons || [];

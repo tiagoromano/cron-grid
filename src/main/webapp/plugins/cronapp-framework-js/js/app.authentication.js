@@ -390,7 +390,6 @@ app.kendoHelper = {
     var schema = {
       model : {
         id : "__$id",
-        // id : "nome",
         fields: {}
       }
     };
@@ -532,9 +531,7 @@ app.kendoHelper = {
           );
         },
         push: function(callback) {
-          //TODO: Colocar o datasource para receber uma lista de callback ao inves de setar,
-          //tem que ser push
-          if (!this.options.alreadyAddedPushed) {
+          if (!this.options.alreadyAddedPushed && this.options.cronappDatasource) {
             this.options.alreadyAddedPushed = true;
             this.options.cronappDatasource.addDataSourceEvents({
               create: function(data) {
