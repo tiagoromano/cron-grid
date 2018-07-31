@@ -1497,7 +1497,7 @@
             //Obtendo todos os detalhes da grade atual, fechando e removendo todos (exceto o que esta sendo aberto agora)
             e.sender.options.listCurrentOptions.forEach(function(currentOptions) {
               var currentKendoGridInit = helperDirective.generateKendoGridInit(currentOptions, scope);
-
+              
               var grid = $("<div/>").appendTo(e.detailCell).kendoGrid(currentKendoGridInit).data('kendoGrid');
               grid.dataSource.transport.options.grid = grid;
             });
@@ -1659,29 +1659,33 @@
           var grid = $templateDyn.kendoGrid(kendoGridInit).data('kendoGrid');
           grid.dataSource.transport.options.grid = grid;
 
-          var checkDsChanges = setInterval(function() {
-            if (scope[options.dataSource.name]) {
-              if (scope[options.dataSource.name].hasPendingChanges()) {
-                $templateDyn.find('.k-filter-row').hide();
-                $templateDyn.find('.k-pager-sizes').hide();
-                $templateDyn.find('.k-pager-nav').hide();
-                $templateDyn.find('.k-pager-numbers').hide();
-                $templateDyn.find('.k-pager-refresh.k-link').hide();
-                $templateDyn.find('.saveorcancelchanges').show();
+          scope.safeApply(function() {
+            var checkDsChanges = setInterval(function() {
+              if (scope[options.dataSource.name]) {
+                
+                if (scope[options.dataSource.name].hasPendingChanges()) {
+                  $templateDyn.find('.k-filter-row').hide();
+                  $templateDyn.find('.k-pager-sizes').hide();
+                  $templateDyn.find('.k-pager-nav').hide();
+                  $templateDyn.find('.k-pager-numbers').hide();
+                  $templateDyn.find('.k-pager-refresh.k-link').hide();
+                  $templateDyn.find('.saveorcancelchanges').show();
+                }
+                else {
+                  $templateDyn.find('.k-filter-row').show();
+                  $templateDyn.find('.k-pager-sizes').show();
+                  $templateDyn.find('.k-pager-nav').show();
+                  $templateDyn.find('.k-pager-numbers').show();
+                  $templateDyn.find('.k-pager-refresh.k-link').show();
+                  $templateDyn.find('.saveorcancelchanges').hide();
+                }  
               }
               else {
-                $templateDyn.find('.k-filter-row').show();
-                $templateDyn.find('.k-pager-sizes').show();
-                $templateDyn.find('.k-pager-nav').show();
-                $templateDyn.find('.k-pager-numbers').show();
-                $templateDyn.find('.k-pager-refresh.k-link').show();
-                $templateDyn.find('.saveorcancelchanges').hide();
-              }  
-            }
-            else {
-              clearInterval(checkDsChanges);
-            }
-          },100);
+                clearInterval(checkDsChanges);
+              }
+            },100);
+          });
+          
 
         });
 

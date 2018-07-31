@@ -135,6 +135,7 @@ angular.module('datasourcejs', [])
               delete cloneObject.__sender;
               delete cloneObject.__$id;
               delete cloneObject.__parentId;
+              delete cloneObject.__fromMemory
               delete cloneObject.$$hashKey;
 
               // Get an ajax promise
