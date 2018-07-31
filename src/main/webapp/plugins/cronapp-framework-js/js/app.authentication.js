@@ -574,6 +574,7 @@ app.kendoHelper = {
           var doFetch = false;
           try {
             var cronappDatasource = this.options.cronappDatasource;
+            var grid = this.options.grid;
 
             if (!this.options.kendoCallback) {
               this.options.kendoCallback = e;
@@ -620,6 +621,9 @@ app.kendoHelper = {
             cronappDatasource.fetch(fetchData, {
               success:  function(data) {
                 e.success(data);
+                if (data.length > 0) {
+                  grid.select(data[0]);
+                }
               },
               canceled:  function(data) {
                 e.error("canceled", "canceled", "canceled");
@@ -660,6 +664,13 @@ app.kendoHelper = {
             }
           },
           enableAndSelect: function(e) {
+            if (this.grid) {
+              this.grid.options.selectable = "row";
+              this.grid._selectable();
+              this.grid.select(e.container);
+            }
+          },
+          selectActiveInGrid: function(data) {
             if (this.grid) {
               this.grid.options.selectable = "row";
               this.grid._selectable();

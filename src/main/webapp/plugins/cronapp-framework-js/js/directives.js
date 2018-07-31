@@ -1601,8 +1601,10 @@
               });
             }
             else if (!e.model.isNew() && !e.model.dirty) {
-              var currentItem = cronappDatasource.goTo(e.model);
-              scope.safeApply(cronappDatasource.startEditing(currentItem, function(xxx) {}));
+              scope.safeApply(function() {
+                var currentItem = cronappDatasource.goTo(e.model);
+                cronappDatasource.startEditing(currentItem, function(xxx) {});  
+              });
             }
           },
           change: function(e) {

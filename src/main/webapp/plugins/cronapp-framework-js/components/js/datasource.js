@@ -72,6 +72,14 @@ angular.module('datasourcejs', [])
         var _self = this;
         var service = null;
 
+        function reverseArr(input) {
+          var ret = new Array;
+          for(var i = input.length-1; i >= 0; i--) {
+            ret.push(input[i]);
+          }
+          return ret;
+        }
+
         // Public methods
 
         /**
@@ -128,15 +136,14 @@ angular.module('datasourcejs', [])
 
               var cloneObject = {};
               _self.copy(object, cloneObject);
-              delete cloneObject.__tempId;
               delete cloneObject.__original;
               delete cloneObject.__status;
               delete cloneObject.__originalIdx;
               delete cloneObject.__sender;
               delete cloneObject.__$id;
               delete cloneObject.__parentId;
-              delete cloneObject.__fromMemory
               delete cloneObject.$$hashKey;
+              delete cloneObject.__fromMemory;
 
               // Get an ajax promise
               this.$promise = $http({
@@ -418,7 +425,6 @@ angular.module('datasourcejs', [])
             //Check if contains dependentBy, if contains, only store in data TRM
             if ((this.dependentLazyPost || this.batchPost) && !forceSave) {
               obj.__status = 'inserted';
-              obj.__tempId = Math.round(Math.random()*999999);
               if (this.dependentLazyPost) {
                 obj.__parentId = eval(this.dependentLazyPost).active.__$id;
               }
@@ -458,7 +464,6 @@ angular.module('datasourcejs', [])
 
           this.copy(obj, data[idx]);
           delete data[idx].__status;
-          delete data[idx].__tempId;
           delete data[idx].__original;
           delete data[idx].__originalIdx;
         }
@@ -479,7 +484,6 @@ angular.module('datasourcejs', [])
 
           for (var i=0;i<newData.length;i++) {
             delete newData[i].__status;
-            delete newData[i].__tempId;
             delete newData[i].__original;
             delete newData[i].__originalIdx;
             this.data.push(newData[i]);
@@ -488,7 +492,6 @@ angular.module('datasourcejs', [])
           if (this.postDeleteData) {
             for (var i=0;i<this.postDeleteData.length;i++) {
               delete this.postDeleteData[i].__status;
-              delete this.postDeleteData[i].__tempId;
               delete this.postDeleteData[i].__original;
               delete this.postDeleteData[i].__originalIdx;
               this.data.push(this.postDeleteData[i]);
@@ -516,7 +519,7 @@ angular.module('datasourcejs', [])
 
         this.cancelBatchData = function(callback) {
           if (this.dependentData) {
-            $(this.dependentData.reverse()).each(function() {
+            $(reverseArr(this.dependentData)).each(function() {
               this.cleanDependentBuffer();
             });
           }
@@ -529,15 +532,30 @@ angular.module('datasourcejs', [])
 
         this.flushDependencies = function(callback) {
           if (this.dependentData) {
-            reduce(this.dependentData, function(item, resolve) {
-              item.storeDependentBuffer(function() {
+
+            var ins = function() {
+
+              reduce(this.dependentData, function (item, resolve) {
+                item.storeDependentBuffer(function () {
+                  resolve();
+                });
+              }.bind(this), function () {
+                if (callback) {
+                  callback();
+                }
+              }.bind(this))
+
+            }.bind(this);
+
+            reduce(reverseArr(this.dependentData), function (item, resolve) {
+              item.storeDependentBuffer(function () {
                 resolve();
-              });
-            }.bind(this), function() {
-              if (callback) {
-                callback();
-              }
+              }, true);
+            }.bind(this), function () {
+              ins();
             }.bind(this))
+
+
           } else {
             if (callback) {
               callback();
@@ -585,7 +603,7 @@ angular.module('datasourcejs', [])
           }
         }
 
-        this.storeDependentBuffer = function(callback) {
+        this.storeDependentBuffer = function(callback, onlyRemove) {
           var _self = this;
           var dependentDS = eval(_self.dependentLazyPost);
 
@@ -595,19 +613,18 @@ angular.module('datasourcejs', [])
 
           var array = [];
 
-          array = array.concat(_self.data);
+          if (!onlyRemove) {
+            array = array.concat(_self.data);
 
-          if (_self.memoryData) {
-            for (key in _self.memoryData) {
-              if (_self.memoryData.hasOwnProperty(key)) {
-                var mem = _self.memoryData[key];
-                for (var x=0;x<mem.data.length;x++) {
-                  if (mem.data[x].parentData) {
-                    mem.data[x].__parentData = mem.parentData;
+            if (_self.memoryData) {
+              for (key in _self.memoryData) {
+                if (_self.memoryData.hasOwnProperty(key)) {
+                  var mem = _self.memoryData[key];
+                  for (var x = 0; x < mem.data.length; x++) {
+                    mem.data[x].__fromMemory = true;
                   }
-                  mem.data[x].__fromMemory = true;
+                  array = array.concat(mem.data);
                 }
-                array = array.concat(mem.data);
               }
             }
           }
@@ -615,6 +632,7 @@ angular.module('datasourcejs', [])
           if (_self.postDeleteData) {
             array = array.concat(_self.postDeleteData);
           }
+
 
           var func = function (item, resolve) {
 
@@ -652,10 +670,12 @@ angular.module('datasourcejs', [])
                   _self.insert(oldObj, function (newObj) {
                     var sender = oldObj.__sender;
                     var idx = _self.getIndexOfListTempBuffer(oldObj, array);
+                    var isFromMemory = false;
                     if (idx >= 0) {
+                      isFromMemory = array[idx].__fromMemory;
                       _self.updateObjectAtIndex(newObj, array, idx);
                     }
-                    if (_self.events.create) {
+                    if (_self.events.create && !isFromMemory) {
                       if (sender) {
                         newObj = array[idx];
                         newObj.__sender = sender;
@@ -675,11 +695,13 @@ angular.module('datasourcejs', [])
                   _self.update(oldObj, function (newObj) {
                     var sender = oldObj.__sender;
                     var idx = _self.getIndexOfListTempBuffer(oldObj, array);
+                    var isFromMemory = false;
                     if (idx >= 0) {
+                      isFromMemory = array[idx].__fromMemory;
                       _self.updateObjectAtIndex(newObj, array, idx);
                       newObj = array[idx];
                     }
-                    if (_self.events.update) {
+                    if (_self.events.update && !isFromMemory) {
                       if (sender) {
                         newObj.__sender = sender;
                       }
@@ -700,7 +722,6 @@ angular.module('datasourcejs', [])
                       var param = {};
                       _self.copy(oldObj, param);
                       delete param.__status;
-                      delete param.__tempId;
                       delete param.__original;
                       delete param.__originalIdx;
                       _self.callDataSourceEvents('delete', param);
@@ -721,11 +742,14 @@ angular.module('datasourcejs', [])
           };
 
           reduce(array, func, function () {
-            this.busy = false;
-            this.editing = false;
-            this.inserting = false;
+            if (!onlyRemove) {
+              this.busy = false;
+              this.editing = false;
+              this.inserting = false;
+              this.hasMemoryData = false;
+              this.memoryData = null;
+            }
             this.postDeleteData = null;
-            this.hasMemoryData = false;
             if (callback) {
               callback();
             }
@@ -738,7 +762,7 @@ angular.module('datasourcejs', [])
         this.getIndexOfListTempBuffer = function(obj, data) {
           data = data || this.data;
           for (var i = 0; i < data.length; i++) {
-            if (data[i].__tempId && obj.__tempId && data[i].__tempId == obj.__tempId) {
+            if (data[i].__$id && obj.__$id && data[i].__$id == obj.__$id) {
               return i;
             }
           }
@@ -851,12 +875,14 @@ angular.module('datasourcejs', [])
               }
 
               this.data.push(obj);
-              // The new object is now the active
-              this.active = obj;
-              this.handleAfterCallBack(this.onAfterCreate);
-              this.onBackNomalState();
 
               var func = function() {
+                // The new object is now the active
+                this.active = obj;
+
+                this.handleAfterCallBack(this.onAfterCreate);
+                this.onBackNomalState();
+
                 if (onSuccess) {
                   onSuccess(this.active);
                 }
@@ -888,13 +914,18 @@ angular.module('datasourcejs', [])
                 // current object match with the
                 // extracted key values
                 var found;
-                var dataKeys = this.getKeyValues(currentRow);
-                for (var key in keyObj) {
-                  if (dataKeys[key] && dataKeys[key] === keyObj[key]) {
-                    found = true;
-                  } else {
-                    found = false;
-                    break;
+
+                if (this.lastActive.__$id && currentRow.__$id && this.lastActive.__$id == currentRow.__$id) {
+                  found = true;
+                } else {
+                  var dataKeys = this.getKeyValues(currentRow);
+                  for (var key in keyObj) {
+                    if (dataKeys[key] && dataKeys[key] === keyObj[key]) {
+                      found = true;
+                    } else {
+                      found = false;
+                      break;
+                    }
                   }
                 }
 
@@ -911,8 +942,10 @@ angular.module('datasourcejs', [])
                   if ((this.dependentLazyPost || this.batchPost) && !currentRow.__status) {
                     currentRow.__status = "updated";
                     currentRow.__original = lastActive;
-                    currentRow.__tempId = Math.round(Math.random()*999999);
                     this.hasMemoryData = true;
+                    if (this.dependentLazyPost) {
+                      currentRow.__parentId = eval(this.dependentLazyPost).active.__$id;
+                    }
                   }
                   this.handleAfterCallBack(this.onAfterUpdate);
 
@@ -923,9 +956,9 @@ angular.module('datasourcejs', [])
                 }
               }.bind(this));
 
-              this.onBackNomalState();
-
               var func = function() {
+                this.onBackNomalState();
+
                 if (onSuccess) {
                   onSuccess(this.active);
                 }
@@ -1081,9 +1114,11 @@ angular.module('datasourcejs', [])
 
         // Set this datasource back to the normal state
         this.onBackNomalState = function() {
-          this.busy = false;
-          this.editing = false;
-          this.inserting = false;
+          this.$scope.safeApply(function() {
+            this.busy = false;
+            this.editing = false;
+            this.inserting = false;
+          }.bind(this))
         };
 
         /**
@@ -1249,21 +1284,25 @@ angular.module('datasourcejs', [])
               // For each row data
               for (var i = 0; i < this.data.length; i++) {
                 // current object match with the same
-                // vey values
-                // Iterate all keys checking if the
-                var dataKeys = this.getKeyValues(this.data[i]);
-                // Check all keys
                 var found;
-                for (var key in keyObj) {
-                  if (keyObj.hasOwnProperty(key)) {
-                    if (dataKeys[key] && dataKeys[key] === keyObj[key]) {
-                      found = true;
-                    } else {
-                      // There's a difference between the current object
-                      // and the key values extracted from the object
-                      // that we want to remove
-                      found = false;
-                      break;
+                if (object.__$id && this.data[i].__$id && this.data[i].__$id == object.__$id) {
+                  found = true;
+                } else {
+                  // vey values
+                  // Check all keys
+                  // Iterate all keys checking if the
+                  var dataKeys = this.getKeyValues(this.data[i]);
+                  for (var key in keyObj) {
+                    if (keyObj.hasOwnProperty(key)) {
+                      if (dataKeys[key] && dataKeys[key] === keyObj[key]) {
+                        found = true;
+                      } else {
+                        // There's a difference between the current object
+                        // and the key values extracted from the object
+                        // that we want to remove
+                        found = false;
+                        break;
+                      }
                     }
                   }
                 }
@@ -1303,9 +1342,10 @@ angular.module('datasourcejs', [])
                     this.active = null;
                     this.cursor = -1;
                   }
-                }
 
-                this.onBackNomalState();
+                  this.onBackNomalState();
+                  break;
+                }
               }
               this.handleAfterCallBack(this.onAfterDelete);
 
@@ -1343,10 +1383,6 @@ angular.module('datasourcejs', [])
          * PRIVATE FUNCTION
          */
         this.getKeyValues = function(rowData, forceOriginalKeys) {
-          if (rowData.__status && !forceOriginalKeys) {
-            return {"__tempId" : rowData["__tempId"]};
-          }
-
           var keys = this.keys;
 
           var keyValues = {};
@@ -1522,15 +1558,35 @@ angular.module('datasourcejs', [])
             if (this.data.length > 0)
               dataKeys = this.getKeyValues(this.data[0]);
             for (var i = 0; i < this.data.length; i++) {
-              var found = true;
-              var item = this.data[i];
-              for (var key in dataKeys) {
-                if (!rowId.hasOwnProperty(key) || rowId[key] != item[key])
-                  found = false;
+              var found = false;
+              if (rowId.__$id && this.data[i].__$id) {
+                found = rowId.__$id == this.data[i].__$id;
+              } else {
+                var item = this.data[i];
+                for (var key in dataKeys) {
+                  if (rowId.hasOwnProperty(key) && rowId[key] === item[key])
+                    found = true;
+                  else
+                    found = false;
+                }
               }
               if (found) {
                 this.cursor = i;
                 this.active = this.copy(this.data[this.cursor], {});
+
+                var keys = this.getKeyValues(this.data[this.cursor]);
+                var defined = true;
+                for (var key in keys) {
+                  if (keys[key] === undefined) {
+                    defined= false;
+                    break;
+                  }
+                }
+
+                if (!defined) {
+                  this.fetchChildren();
+                }
+
                 return this.active;
               }
             }
@@ -1956,6 +2012,24 @@ angular.module('datasourcejs', [])
           return changed;
         }
 
+        this.fetchChildren = function(callback) {
+          if (this.children) {
+            reduce(this.children, function(item, resolve) {
+              item.fetch({}, function() {
+                resolve();
+              });
+            }.bind(this), function() {
+              if (callback) {
+                callback();
+              }
+            }.bind(this));
+          } else {
+            if (callback) {
+              callback();
+            }
+          }
+        }
+
         /**
          *  Fetch all data from the server
          */
@@ -1996,7 +2070,9 @@ angular.module('datasourcejs', [])
             }
 
             for (var n=0;n<data.length;n++) {
-              data[n].__$id = uuid();
+              if (!data[n].__$id) {
+                data[n].__$id = uuid();
+              }
             }
 
             // Call the before fill callback
@@ -2126,10 +2202,14 @@ angular.module('datasourcejs', [])
           var cleanData = false;
           var canProceed = true;
           if (this.parameters && this.parameters.length > 0) {
-            var parts = this.parameters.split(";")
+            var parts = this.parameters.split(";");
+            var partsExpression = this.parametersExpression.split(";");
             for (var i=0;i<parts.length;i++) {
               var part = parts[i];
+              var partExpression = partsExpression[i];
+
               var binary = part.split("=");
+              var binaryExpression = partExpression.split("=");
               if (binary.length == 2) {
                 if (filter != "") {
                   filter += this.isOData()?" and ":";";
@@ -2137,7 +2217,8 @@ angular.module('datasourcejs', [])
 
                 filter += binary[0];
                 filter += this.isOData()?" eq ":"=";
-                if (!binary[1] && this.dependentLazyPost) {
+                var g = DEP_PATTERN.exec(binaryExpression[1]);
+                if (!binary[1] && this.dependentLazyPost && g[1] && g[1].startsWith(this.dependentLazyPost+".")) {
                   cleanData = true;
                   var dds = eval(this.dependentLazyPost);
                   if (dds.active && dds.active.__$id) {
@@ -2231,6 +2312,13 @@ angular.module('datasourcejs', [])
               this.memoryData = {};
             }
 
+            if (this.lastFilter == filter) {
+              if (callbacksObj.canceled) {
+                callbacksObj.canceled();
+              }
+              return;
+            }
+
             var id = filter;
             var mem = this.memoryData[id];
 
@@ -2254,6 +2342,10 @@ angular.module('datasourcejs', [])
           this._savedProps = props;
 
           if (cleanData) {
+            if (localSuccess) {
+              localSuccess();
+            }
+            this.lastFilter = filter;
             sucessHandler([], null, true);
             return;
           }
