@@ -693,8 +693,9 @@ app.kendoHelper = {
           },
           isGridInDocument: function(grid) {
             if (!grid) return false;
+            //Se não tiver element, significa que é 
             //Verifica se a grade ainda existe
-            return ($(document).has(grid.table[0]).length);
+            return ($(document).has(grid.element[0]).length);
           },
           getCurrentCallbackForPush: function(callback, grid) {
             if (callback)
