@@ -531,46 +531,49 @@ app.kendoHelper = {
           );
         },
         push: function(callback) {
-          if (!this.options.alreadyAddedPushed && this.options.cronappDatasource) {
-            this.options.alreadyAddedPushed = true;
-            this.options.cronappDatasource.addDataSourceEvents({
+          if (!this.options.dataSourceEventsPush && this.options.cronappDatasource) {
+            this.options.dataSourceEventsPush = {
               create: function(data) {
-                var current = (this.options.grid?this.options.grid.dataSource:callback);
-                current.pushUpdate(data);
-                
+                if (this.options.isGridInDocument(this.options.grid)) {
+                  var current = this.options.getCurrentCallbackForPush(callback, this.options.grid);
+                  current.pushUpdate(data);
+                }
+                else
+                  this.options.cronappDatasource.removeDataSourceEvents(this.options.dataSourceEventsPush);
               }.bind(this),
               update: function(data) {
-                var current = (this.options.grid?this.options.grid.dataSource:callback);
-                current.pushUpdate(data);
+                if (this.options.isGridInDocument(this.options.grid)) {
+                  var current = this.options.getCurrentCallbackForPush(callback, this.options.grid);
+                  current.pushUpdate(data);
+                }
+                else
+                  this.options.cronappDatasource.removeDataSourceEvents(this.options.dataSourceEventsPush);
               }.bind(this),
               delete: function(data) {
-                var current = (this.options.grid?this.options.grid.dataSource:callback);
-                current.pushDestroy(data);
-                
+                if (this.options.isGridInDocument(this.options.grid)) {
+                  var current = this.options.getCurrentCallbackForPush(callback, this.options.grid);
+                  current.pushDestroy(data);
+                }
+                else
+                  this.options.cronappDatasource.removeDataSourceEvents(this.options.dataSourceEventsPush);
               }.bind(this),
               overRideRefresh: function(data) {
-                if (this.options.grid) {
-                  //Verifica se a grade ainda existe
-                  if ($(document).has(this.options.grid.table[0]).length) {
-                    // this.options.fromOverRideRefresh = true;
-                    this.options.grid.dataSource.read();
-                  }
+                if (this.options.isGridInDocument(this.options.grid)) {
+                  this.options.grid.dataSource.read();
                 }
               }.bind(this),
               read: function(data) {
-                if (this.options.grid) {
-                  //Verifica se a grade ainda existe
-                  if ($(document).has(this.options.grid.table[0]).length) {
-                    this.options.fromRead = true;
-                    this.options.grid.dataSource.read();  
-                  }  
+                if (this.options.isGridInDocument(this.options.grid)) {
+                  this.options.fromRead = true;
+                  this.options.grid.dataSource.read();  
                 }
               }.bind(this)
-            });
+            };
+            this.options.cronappDatasource.addDataSourceEvents(this.options.dataSourceEventsPush);
           }
         },
         read:  function (e) {
-
+          
           var doFetch = false;
           try {
             var cronappDatasource = this.options.cronappDatasource;
@@ -621,9 +624,6 @@ app.kendoHelper = {
             cronappDatasource.fetch(fetchData, {
               success:  function(data) {
                 e.success(data);
-                if (data.length > 0) {
-                  grid.select(data[0]);
-                }
               },
               canceled:  function(data) {
                 e.error("canceled", "canceled", "canceled");
@@ -654,7 +654,7 @@ app.kendoHelper = {
         options: {
           fromRead: false,
           disableAndSelect: function(e) {
-            if (this.grid) {
+            if (this.isGridInDocument(this.grid)) {
               this.grid.select(e.container);
               this.grid.options.selectable = false;
               if (this.grid.selectable && this.grid.selectable.element) {
@@ -664,18 +664,42 @@ app.kendoHelper = {
             }
           },
           enableAndSelect: function(e) {
-            if (this.grid) {
+           if (this.isGridInDocument(this.grid)) {
               this.grid.options.selectable = "row";
               this.grid._selectable();
               this.grid.select(e.container);
             }
           },
           selectActiveInGrid: function(data) {
-            if (this.grid) {
-              this.grid.options.selectable = "row";
-              this.grid._selectable();
-              this.grid.select(e.container);
+            //Verifica se já existe a grid
+            if (this.isGridInDocument(this.grid)) {
+              //Verifica se tem a opção selecionavel setada e se tem registros
+              if (this.grid.selectable && this.grid.dataItems().length > 0) {
+                //Se já existir o active setado, verifica se tem na grade
+                if (this.cronappDatasource.active && this.cronappDatasource.active.__$id) {
+                  var items = this.grid.dataItems();
+                  var idxSelected = -1;
+                  for (var idx = 0; idx < items.length; idx++) {
+                    if (this.cronappDatasource.active.__$id == items[idx].__$id) {
+                      idxSelected = idx;
+                      break;
+                    }
+                  }
+                  if (idxSelected >-1)
+                    this.grid.select(this.grid.table.find('tr')[idxSelected]); 
+                }
+              }
             }
+          },
+          isGridInDocument: function(grid) {
+            if (!grid) return false;
+            //Verifica se a grade ainda existe
+            return ($(document).has(grid.table[0]).length);
+          },
+          getCurrentCallbackForPush: function(callback, grid) {
+            if (callback)
+              return callback;
+            return grid;
           },
           cronappDatasource: scope[dataSource.name]
         }

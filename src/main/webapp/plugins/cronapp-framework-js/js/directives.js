@@ -1616,6 +1616,9 @@
             var cronappDatasource = this.dataSource.transport.options.cronappDatasource;
             scope.safeApply(cronappDatasource.cancel());
             this.dataSource.transport.options.enableAndSelect(e);
+          },
+          dataBound: function(e) {
+            this.dataSource.transport.options.selectActiveInGrid();
           }
         };
 
