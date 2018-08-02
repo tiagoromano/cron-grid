@@ -1550,7 +1550,7 @@
             scope.safeApply(cronappDatasource.goTo(item));
         };
 
-        var datasource = app.kendoHelper.getDataSource(options.dataSource, scope, options.allowPaging, options.pageCount, options.columns);
+        var datasource = app.kendoHelper.getDataSource(options.dataSourceScreen.entityDataSource, scope, options.allowPaging, options.pageCount, options.columns);
 
         var columns = this.getColumns(options, datasource, scope);
         var pageAble = this.getPageAble(options);
@@ -1639,20 +1639,20 @@
 
           var options = JSON.parse(attrs.options || "{}");
 
-          if (scope[options.dataSource.name] && !scope[options.dataSource.name].dependentLazyPost) {
-            scope[options.dataSource.name].batchPost = true;
+          if (scope[options.dataSourceScreen.entityDataSource.name] && !scope[options.dataSourceScreen.entityDataSource.name].dependentLazyPost) {
+            scope[options.dataSourceScreen.entityDataSource.name].batchPost = true;
 
             options.toolBarButtons = options.toolBarButtons || [];
             options.toolBarButtons.push({
               type: "SaveOrCancelChanges",
               title: $translate.instant('SaveChanges'),
-              methodCall: options.dataSource.name + ".postBatchData()",
+              methodCall: options.dataSourceScreen.entityDataSource.name + ".postBatchData()",
               saveButton: true
             });
             options.toolBarButtons.push({
               type: "SaveOrCancelChanges",
               title: $translate.instant('CancelChanges'),
-              methodCall: options.dataSource.name + ".cancelBatchData()",
+              methodCall: options.dataSourceScreen.entityDataSource.name + ".cancelBatchData()",
               saveButton: false
             });
           }
@@ -1666,9 +1666,9 @@
 
           scope.safeApply(function() {
             var checkDsChanges = setInterval(function() {
-              if (scope[options.dataSource.name]) {
+              if (scope[options.dataSourceScreen.entityDataSource.name]) {
                 
-                if (scope[options.dataSource.name].hasPendingChanges()) {
+                if (scope[options.dataSourceScreen.entityDataSource.name].hasPendingChanges()) {
                   $templateDyn.find('.k-filter-row').hide();
                   $templateDyn.find('.k-pager-sizes').hide();
                   $templateDyn.find('.k-pager-nav').hide();
